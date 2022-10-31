@@ -22,6 +22,8 @@ COMMIT_SEP = "--{}".format(
     "".join(secrets.choice(string.ascii_letters + string.digits) for i in range(20))
 )
 
+CMAKE_PROJECT = GITHUB_PROJ
+
 LEVEL_BENIGN = 0
 LEVEL_PATCH = 1
 LEVEL_FEATURE = 2
@@ -100,7 +102,7 @@ ISSUE_LINKS = {"refs": "references", "closes": "closes", "fixes": "fixes"}
 
 def get_version():
     with open(os.path.join(ROOT, "CMakeLists.txt"), "r") as f:
-        attr, rest = f.read().split("project (movies-ws", 1)[1].split(")", 1)
+        attr, rest = f.read().split(f"project ({CMAKE_PROJECT}", 1)[1].split(")", 1)
 
     for attr, value in [
         line.strip().split(" ", 1) for line in attr.strip().split("\n")
@@ -115,7 +117,7 @@ def get_version():
 def set_version(version: str):
     with open(os.path.join(ROOT, "CMakeLists.txt"), "r") as f:
         text = f.read()
-    preamble, text = text.split("project (cov", 1)
+    preamble, text = text.split(f"project ({CMAKE_PROJECT}", 1)
     attrs, text = text.split(")", 1)
     before, rest = attrs.split("VERSION ")
     _, after = rest.split("\n", 1)
