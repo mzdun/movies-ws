@@ -1,0 +1,6 @@
+[submodule "libs/json"]
+	path = libs/json
+	url = https://github.com/mbits-libs/json.git
+[submodule "libs/movies"]
+	path = libs/movies
+	url = https://github.com/mbits-libs/movies.git
