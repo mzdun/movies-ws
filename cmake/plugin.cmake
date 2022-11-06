@@ -1,0 +1,5 @@
+macro(add_plugin NAME)
+    add_library(plugin-${NAME} STATIC "${ARGN}")
+    target_link_libraries(plugin-${NAME} PRIVATE server)
+    set_target_properties(plugin-${NAME} PROPERTIES FOLDER libs/plugins)
+endmacro()

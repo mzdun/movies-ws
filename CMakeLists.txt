@@ -23,13 +23,18 @@ include(conanbuildinfo)
 conan_basic_setup(TARGETS)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(Libwebsockets CONFIG REQUIRED)
+find_package(ICU CONFIG REQUIRED)
+find_package(SQLiteCpp CONFIG REQUIRED)
 
 set(STAGING "${CMAKE_BINARY_DIR}/staging/${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
 
 include(CTest)
 enable_testing()
 
+set(PLUGINS)
+
 add_subdirectory(libs)
+add_subdirectory(extras)
 add_subdirectory(apps)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

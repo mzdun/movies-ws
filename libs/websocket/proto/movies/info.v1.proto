@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package movies.info.v1;
+
+message MovieReference {
+	string id = 1;
+	optional uint32 pos = 2;
+	optional string title = 3;
+	optional string cover = 4;
+	optional bool has_video = 5;
+	repeated string tags = 6;
+	repeated string age_rating = 7;
+	string sort_hint = 8;
+};
+
+message MovieGroup {
+	string id = 1;
+	optional string title = 2;
+	repeated MovieReference items = 3;
+	optional uint32 pos = 4;
+}
+
+message MovieInfo {
+	string id = 1;
+	bool has_video = 2;
+	TitleInfo title = 3;
+	CrewInfo crew = 4;
+	repeated PeopleMap people = 5;
+	repeated Link links = 6;
+	repeated string genres = 7;
+	repeated string countries = 8;
+	repeated string age_rating = 9;
+	repeated string tags = 10;
+	repeated MovieReference episodes = 11;
+	optional string summary = 12;
+	ImageInfo image = 13;
+	optional uint32 year = 14;
+	optional uint32 runtime = 15;
+	optional uint32 rating = 16;
+};
+
+message TitleInfo {
+	optional string local = 1;
+	optional string orig = 2;
+};
+
+message CrewInfo {
+	repeated PersonInfo directors = 1;
+	repeated PersonInfo writers = 2;
+	repeated PersonInfo cast = 3;
+};
+
+message PersonInfo {
+	string key = 1;
+	optional string contribution = 2;
+};
+
+message PeopleMap {
+	string key = 1;
+	string name = 2;
+};
+
+message Link {
+	string href = 1;
+	optional string icon = 2;
+	optional string label = 3;
+	optional string alt = 4;
+	optional string rel = 5;
+};
+
+message ImageInfo {
+	optional string highlight = 1;
+	PosterInfo poster = 2;
+	repeated string gallery = 3;
+};
+
+message PosterInfo {
+	optional string small = 1;
+	optional string large = 2;
+	optional string normal = 3;
+};

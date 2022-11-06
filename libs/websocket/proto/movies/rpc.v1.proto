@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package movies.rpc.v1;
+
+import "proto/movies/db.v1.proto";
+import "proto/movies/ui.v1.proto";
+
+message Event {
+	int32 id = 1;
+
+	oneof message {
+		movies.db.v1.ListingResponseChangedEvent listing_reponse_changed = 2;
+		movies.db.v1.MovieInfoChangedEvent movie_info_changed = 3;
+	}
+}
+
+message Request {
+	int32 id = 1;
+
+	oneof message {
+		movies.ui.v1.LangChangeRequest lang_change = 2;
+		movies.ui.v1.GetConfigRequest get_config = 3;
+		movies.db.v1.GetListingRequest get_listing = 4;
+		movies.db.v1.GetMovieInfoRequest get_movie_info = 5;
+		movies.db.v1.GetVideoFileRequest get_video_file = 6;
+	}
+};
+
+message Response {
+	int32 id = 1;
+
+	oneof message {
+		movies.ui.v1.LangChangeResponse lang_change = 2;
+		movies.ui.v1.GetConfigResponse get_config = 3;
+		movies.db.v1.GetListingResponse get_listing = 4;
+		movies.db.v1.GetMovieInfoResponse get_movie_info = 5;
+		movies.db.v1.GetVideoFileResponse get_video_file = 6;
+	}
+};

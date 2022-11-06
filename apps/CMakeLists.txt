@@ -1,1 +1,1 @@
-add_subdirectory(web-socket)
+add_subdirectory(movies-ws)

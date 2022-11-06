@@ -1,0 +1,34 @@
+#include <Windows.h>
+#include <server/version.hh>
+
+#define RC_APPLICATION_NAME "Movie WebSocket Server"
+#define RC_ORGANISATION "midnightBITS"
+#define RC_MODULE PROJECT_NAME
+#define RC_VERSION_STRING PROJECT_VERSION_STR PROJECT_VERSION_STABILITY
+#define RC_VERSION \
+	PROJECT_VERSION_MAJOR, PROJECT_VERSION_MINOR, PROJECT_VERSION_PATCH, 0
+
+100 ICON "movies-ws.ico"
+
+VS_VERSION_INFO VERSIONINFO
+	FILEVERSION RC_VERSION
+	PRODUCTVERSION RC_VERSION
+	FILETYPE VFT_APP
+{
+	BLOCK "StringFileInfo" {
+		// U.S. English - Windows, Multilingual
+		BLOCK "040904E4" {
+			VALUE "CompanyName", RC_ORGANISATION
+			VALUE "FileDescription", RC_APPLICATION_NAME
+			VALUE "FileVersion", RC_VERSION_STRING
+			VALUE "InternalName", RC_MODULE
+			VALUE "OriginalFilename", RC_MODULE ".exe"
+			VALUE "ProductName", RC_APPLICATION_NAME
+			VALUE "ProductVersion", RC_VERSION_STRING
+			VALUE "LegalCopyright", "2021 " RC_ORGANISATION
+		}
+	}
+	BLOCK "VarFileInfo" {
+		VALUE "Translation", 0x409, 1252  // 1252 = 0x04E4
+	}
+}

@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package movies.filters.v1;
+
+message RangeFilter {
+	string field = 1;
+	int32 low = 2;
+	int32 high = 3;
+	bool include_missing = 4;
+};
+
+message TokensFilter {
+	string field = 1;
+	repeated string token = 2;
+	bool include_missing = 4;
+};
+
+message OnOffFilter {
+	string field = 1;
+	bool on = 2;
+};
+
+message Filter {
+	oneof kind {
+		RangeFilter range = 1;
+		TokensFilter tokens = 2;
+		OnOffFilter on_off = 3;
+	}
+};
+
+message DescriptionId {
+	string field = 1;
+	string label = 2;
+	optional string icon = 3;
+};
+
+message RangeFilterDescription {
+	message List {
+		repeated int32 items = 1;
+	};
+	int32 low = 1;
+	int32 high = 2;
+	bool is_optional = 3;
+	oneof type {
+		int32 step = 4;
+		List steps = 5;
+	};
+}
+
+message TokensFilterDescription {
+	repeated string values = 1;
+}
+
+message OnOffFilterDescription {
+	bool defaultValue = 1;
+}
+
+message FilterDescription {
+	DescriptionId id = 1;
+	oneof kind {
+		RangeFilterDescription range = 2;
+		TokensFilterDescription tokens = 3;
+		OnOffFilterDescription on_off = 4;
+	}
+};
+
+message SortDescription {
+	DescriptionId id = 1;
+	optional bool asc_by_default = 2;
+}

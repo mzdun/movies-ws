@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package movies.ui.v1;
+
+import "proto/movies/filters.v1.proto";
+
+message LangChangeRequest {
+	repeated string lang_id = 1;
+};
+
+message LangChangeResponse {};
+
+message GetConfigRequest {};
+
+message GetConfigResponse {
+	repeated movies.filters.v1.FilterDescription filters = 1;
+	repeated movies.filters.v1.SortDescription sort = 2;
+};

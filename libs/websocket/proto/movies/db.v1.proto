@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package movies.db.v1;
+
+import "proto/movies/info.v1.proto";
+import "proto/movies/filters.v1.proto";
+import "proto/movies/listing.v1.proto";
+
+message GetListingRequest {
+	repeated movies.filters.v1.Filter filters = 1;
+	repeated string sort = 2;
+	optional string search = 3;
+};
+
+message GetListingResponse {
+	repeated movies.listing.v1.MovieGroup groups = 1;
+};
+
+message GetMovieInfoRequest {
+	string key = 1;
+};
+
+message GetMovieInfoResponse {
+	movies.info.v1.MovieInfo info = 1;
+};
+
+message GetVideoFileRequest {
+	string key = 1;
+};
+
+message GetVideoFileResponse {
+	optional string uri = 1;
+};
+
+message ListingResponseChangedEvent {
+	repeated movies.info.v1.MovieGroup removed = 1;
+	repeated movies.info.v1.MovieGroup added = 2;
+	repeated movies.info.v1.MovieGroup changed = 3;
+};
+
+message MovieInfoChangedEvent {
+	movies.info.v1.MovieInfo info = 1;
+};

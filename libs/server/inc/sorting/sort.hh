@@ -1,0 +1,40 @@
+// Copyright (c) 2022 Marcin Zdun
+// This code is licensed under MIT license (see LICENSE for details)
+
+#pragma once
+#include <base/extended_info.hh>
+#include <memory>
+
+namespace movies {
+	struct group_header {
+		std::string id;
+		std::string label;
+	};
+
+	struct sort_types {
+		std::string field;
+		std::string label;
+		std::optional<std::string> icon;
+		bool ascByDefault;
+	};
+
+	class sort {
+	public:
+		using ptr = std::unique_ptr<sort>;
+		using list = std::vector<ptr>;
+
+		virtual ~sort();
+		virtual int compare(extended_info const&,
+		                    extended_info const&) const noexcept = 0;
+		virtual group_header header_for(extended_info const&) const = 0;
+		virtual std::string sort_hint_for(extended_info const&) const = 0;
+
+		static ptr make(std::string const& term);
+		static std::vector<sort_types> get_config();
+
+		static int compare(list const&,
+		                   std::string const&,
+		                   std::string const&,
+		                   movie_db const&) noexcept;
+	};
+}  // namespace movies
