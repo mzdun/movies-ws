@@ -227,8 +227,14 @@ namespace movies::db::v1 {
 			    rng.field(), rng.low(), rng.high(), rng.include_missing());
 		}
 
-		filter::ptr filter_from(filters::v1::TokensFilter const&) {
-			return {};
+		filter::ptr filter_from(filters::v1::TokensFilter const& tokens) {
+			std::vector<std::string> dst{};
+			auto const& src = tokens.token();
+			dst.reserve(src.size());
+			for (auto const& item : src)
+				dst.push_back(item);
+
+			return movies::filter::make_tokens(tokens.field(), std::move(dst));
 		}
 
 		filter::ptr filter_from(filters::v1::OnOffFilter const& on_off) {

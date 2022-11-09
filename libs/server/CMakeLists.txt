@@ -19,6 +19,7 @@ set(SRCS
     src/filters/on_off.cc
     src/filters/on_off.hh
     src/filters/range.cc
+    src/filters/tokens.cc
     src/full_text/engine.cc
     src/server/plugin.cc
     src/server/server.cc

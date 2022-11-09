@@ -49,6 +49,8 @@ namespace movies {
 		                      unsigned low,
 		                      unsigned high,
 		                      bool include_missing);
+		static ptr make_tokens(std::string_view field,
+		                       std::vector<std::string>&& tokens);
 		static ptr make_on_off(std::string_view field, bool on);
 
 		static bool matches_all(list const&, extended_info const&) noexcept;
