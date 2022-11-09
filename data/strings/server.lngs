@@ -1,0 +1,114 @@
+[
+    project("movies-ws"),
+	namespace("movies::app"),
+    version("latest"),
+    serial(1)
+] strings {
+	[help("Synopsis header; please note there is one space at the end of this entry"), id(-1)]
+	ARGS_USAGE = "usage: ";
+	[help("Default name of an argument"), id(-1)]
+	ARGS_DEF_META = "<arg>";
+	[help("Name of a file argument"), id(-1)]
+	ARGS_FILE_META = "<file>";
+	[help("Name of a directory argument"), id(-1)]
+	ARGS_DIR_META = "<dir>";
+	[help("Name of a file or directory argument"), id(-1)]
+	ARGS_PATH_META = "<path>";
+	[help("Name of a, well, name argument, e.g. in cov config"), id(-1)]
+	ARGS_NAME_META = "<name>";
+	[help("Name of a value argument, e.g. in cov config"), id(-1)]
+	ARGS_VALUE_META = "<value>";
+	[help("Header for list of positional arguments"), id(-1)]
+	ARGS_POSITIONALS = "positional arguments";
+	[help("Header for list of optional arguments"), id(-1)]
+	ARGS_OPTIONALS = "optional arguments";
+	[help("Description for the -h/--help argument"), id(-1)]
+	ARGS_HELP_DESCRIPTION = "shows this help message and exits";
+	[help("Error message for an unrecognized argument; the placeholder will contain the name of the argument"), id(-1)]
+	ARGS_UNRECOGNIZED = "unrecognized argument: {0}";
+    [help("Universal error message"), id(-1)]
+    ARGS_ARGUMENT_MSG = "argument {0}: {1}";
+    [help("Error message for conflicting arguments; used with ARGUMENT_MSG"), id(-1)]
+	ARGS_EXCLUSIVE = "not allowed with argument {0}";
+	[help("Error message for a missing argument"), id(-1)]
+	ARGS_NEEDS_PARAM = "argument {0}: expected one argument";
+	[help("Error message for unneeded value"), id(-1)]
+	ARGS_NEEDS_NO_PARAM = "argument {0}: value was not expected";
+	[help("Error message for a numeric argument, when parsing failed"), id(-1)]
+	ARGS_NEEDS_NUMBER = "argument {0}: expected a number";
+	[help("Error message for a numeric argument, when parsing would get outside of representable bounds"), id(-1)]
+	ARGS_NEEDED_NUMBER_EXCEEDED = "argument {0}: number outside of expected bounds";
+	[help("Error message for a list of arguments, when parsing failed"), id(-1)]
+	ARGS_NEEDS_ENUM_UNKNOWN = "argument {0}: value {1} is not recognized";
+	[help("Help message presenting a list of possible values for a list-type argument"), id(-1)]
+	ARGS_NEEDS_ENUM_KNOWN_VALUES = "known values for {0}: {1}";
+	[help("Error message for a missing required argument"), id(-1)]
+	ARGS_REQUIRED = "argument {0} is required";
+	[help("Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message"), id(-1)]
+	ARGS_ERROR_MSG = "{0}: error: {1}";
+	[help("Warning message template; placeholder 0 will get the name of program, placeholder 1 an actual message"), id(-1)]
+	ARGS_WARNING_MSG = "{0}: warning: {1}";
+	[help("Needed file was not found"), id(-1)]
+	ARGS_FILE_NOT_FOUND = "cannot open {0}";
+
+	[help("Group label for items ordered by arrival time, for items in the future"), id(-1)]
+	GROUP_LABEL_FUTURE = "Soon";
+	[help("Group label for items ordered by arrival time, for items since the begining of this month"), id(-1)]
+	GROUP_LABEL_THIS_MONTH = "This month";
+	[help("Group label for items ordered by arrival time, for items in the previous month"), id(-1)]
+	GROUP_LABEL_LAST_MONTH = "Previous month";
+	[help("Group label for items ordered by arrival time, for items since the begining of this year"), id(-1)]
+	GROUP_LABEL_THIS_YEAR = "This year";
+	[help("Group label for items ordered by arrival time, for items in the previous year"), id(-1)]
+	GROUP_LABEL_LAST_YEAR = "Previous year";
+	[help("Group label for items ordered by arrival time, for items older, than previous year"), id(-1)]
+	GROUP_LABEL_LONG_AGO = "Older";
+
+	[help("Sort label for alfabetical order"), id(-1)]
+	SORT_LABEL_TITLE = "Title";
+	[help("Sort label for order by arrival to database"), id(-1)]
+	SORT_LABEL_ARRIVAL = "Modification date";
+	[help("Sort label for order by movie release year"), id(-1)]
+	SORT_LABEL_YEAR = "Release year";
+	[help("Sort label for order by length in minutes"), id(-1)]
+	SORT_LABEL_RUNTIME = "Run time";
+	[help("Sort label for order by number of stars"), id(-1)]
+	SORT_LABEL_RATING = "Rating";
+
+	[help("Filter label for release year"), id(-1)]
+	FILTER_LABEL_YEAR = "Release year";
+	[help("Filter label for length in minutes"), id(-1)]
+	FILTER_LABEL_RUNTIME = "Run time";
+	[help("Filter label for number of stars"), id(-1)]
+	FILTER_LABEL_RATING = "Rating";
+	[help("Filter label for arrival to database"), id(-1)]
+	FILTER_LABEL_ARRIVAL = "Modification date";
+	[help("Filter label for genres"), id(-1)]
+	FILTER_LABEL_GENRES = "Genres";
+	[help("Filter label for countries of origin"), id(-1)]
+	FILTER_LABEL_COUNTRIES = "Countries";
+	[help("Filter label for age restriction"), id(-1)]
+	FILTER_LABEL_AGE = "Age rating";
+	[help("Filter label for tags associated with te movie"), id(-1)]
+	FILTER_LABEL_TAGS = "Tags";
+	[help("Filter label for movies with local or downloadable content"), id(-1)]
+	FILTER_LABEL_AVAILABLE = "Available";
+	[help("Filter label for titles with episodes"), id(-1)]
+	FILTER_LABEL_IS_SERIES = "Is series";
+	[help("Filter label for movies with local content"), id(-1)]
+	FILTER_LABEL_HAS_VIDEO = "Has video";
+	[help("Filter label for movies with detailed descriptionm"), id(-1)]
+	FILTER_LABEL_HAS_INFO = "Has info";
+	[help("Filter label for movies with link to IMDb"), id(-1)]
+	FILTER_LABEL_HAS_IMDB = "Has IMDb link";
+	[help("Filter label for movies not matching 'available'"), id(-1)]
+	FILTER_LABEL_AVAILABLE_OPOSITE = "Not available";
+	[help("Filter label for titles without episodes"), id(-1)]
+	FILTER_LABEL_IS_SERIES_OPOSITE = "Is not series";
+	[help("Filter label for movies not matching 'has_video'"), id(-1)]
+	FILTER_LABEL_HAS_VIDEO_OPOSITE = "Has no video";
+	[help("Filter label for movies not matching 'has_info'"), id(-1)]
+	FILTER_LABEL_HAS_INFO_OPOSITE = "Has no info";
+	[help("Filter label for movies not matching 'has_imdb'"), id(-1)]
+	FILTER_LABEL_HAS_IMDB_OPOSITE = "Has no IMDb link";
+}

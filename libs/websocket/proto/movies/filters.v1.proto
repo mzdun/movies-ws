@@ -52,7 +52,7 @@ message TokensFilterDescription {
 }
 
 message OnOffFilterDescription {
-	bool defaultValue = 1;
+	string opposite_label = 1;
 }
 
 message FilterDescription {

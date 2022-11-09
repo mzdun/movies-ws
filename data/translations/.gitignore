@@ -1,0 +1,4 @@
+*.mo
+!tags
+regions.pot
+regions/

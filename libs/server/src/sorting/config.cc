@@ -8,6 +8,7 @@
 #include <unicode/coll.h>
 #include <concepts>
 #include <sorting/sort.hh>
+#include <base/str.hh>
 
 using namespace std::literals;
 
@@ -74,14 +75,16 @@ namespace movies {
 				return result;
 			}
 
-			group_header header_for(extended_info const& data) const final {
+			group_header header_for(extended_info const& data,
+			                        app::Strings const& tr) const final {
 				auto const self = static_cast<Final const*>(this);
-				return self->field_header(self->get(data));
+				return self->field_header(self->get(data), tr);
 			}
 
-			std::string sort_hint_for(extended_info const& data) const final {
+			std::string sort_hint_for(extended_info const& data,
+			                          app::Strings const& tr) const final {
 				auto const self = static_cast<Final const*>(this);
-				return self->field_sort_hint(self->get(data));
+				return self->field_sort_hint(self->get(data), tr);
 			}
 
 			static ptr factory(bool ascending) {
@@ -139,29 +142,33 @@ namespace movies {
 			    : ranges_{ranges} {}
 			ranged_header(std::vector<value_range<Value>>&& ranges)
 			    : ranges_{std::move(ranges)} {}
-			group_header field_header(std::optional<Value> const& value) const {
-				return value ? this->find_range(*value) : group_header{};
+			group_header field_header(std::optional<Value> const& value,
+			                          app::Strings const& tr) const {
+				return value ? this->find_range(*value, tr) : group_header{};
 			}
-			group_header field_header(Value const& value) const {
-				return this->find_range(value);
+			group_header field_header(Value const& value,
+			                          app::Strings const& tr) const {
+				return this->find_range(value, tr);
 			}
-			std::string field_sort_hint(
-			    std::optional<Value> const& value) const {
+			std::string field_sort_hint(std::optional<Value> const& value,
+			                            app::Strings const& tr) const {
 				auto const self = static_cast<Range const*>(this);
-				return value ? self->format(*value) : std::string{};
+				return value ? self->format(*value, tr) : std::string{};
 			}
-			std::string field_sort_hint(Value const& value) const {
+			std::string field_sort_hint(Value const& value,
+			                            app::Strings const& tr) const {
 				auto const self = static_cast<Range const*>(this);
-				return self->format(value);
+				return self->format(value, tr);
 			}
 
-			group_header find_range(Value const& value) const {
+			group_header find_range(Value const& value,
+			                        app::Strings const& tr) const {
 				auto const self = static_cast<Range const*>(this);
 				for (auto const& [bottom, top] : ranges_) {
 					if (value < bottom || value > top) continue;
 					auto id = fmt::format("{} :: {}", bottom, top);
-					auto const topTitle = self->format_next(top);
-					auto const bottomTitle = self->format(bottom);
+					auto const topTitle = self->format_next(top, tr);
+					auto const bottomTitle = self->format(bottom, tr);
 					if (bottom == Value{}) {
 						return {
 						    .id = std::move(id),
@@ -182,7 +189,7 @@ namespace movies {
 
 				if (!ranges_.empty()) {
 					auto const top = ranges_.back().top;
-					auto const topTitle = self->format_next(top);
+					auto const topTitle = self->format_next(top, tr);
 					return {
 					    .id = fmt::format("{} :: ??", top),
 					    .label = fmt::format("{} - ...", topTitle),
@@ -192,8 +199,8 @@ namespace movies {
 				return {};
 			}
 
-			std::string format_next(Value const& val) {
-				return static_cast<Range const*>(this)->format(val);
+			std::string format_next(Value const& val, app::Strings const& tr) {
+				return static_cast<Range const*>(this)->format(val, tr);
 			}
 
 		private:
@@ -204,11 +211,11 @@ namespace movies {
 		struct uint_ranged_header : ranged_header<Range, unsigned> {
 			using ranged_header<Range, unsigned>::ranged_header;
 
-			std::string format_next(unsigned val) const {
-				return static_cast<Range const*>(this)->format(val + 1);
+			std::string format_next(unsigned val, app::Strings const& tr) const {
+				return static_cast<Range const*>(this)->format(val + 1, tr);
 			}
 
-			std::string format(unsigned val) const {
+			std::string format(unsigned val, app::Strings const&) const {
 				return fmt::format("{}", val);
 			}
 		};
@@ -222,24 +229,26 @@ namespace movies {
 			}
 
 			template <typename Arg>
-			group_header field_header(Arg&& value) const {
-				return instance().field_header(std::forward<Arg>(value));
+			group_header field_header(Arg&& value,
+			                          app::Strings const& tr) const {
+				return instance().field_header(std::forward<Arg>(value), tr);
 			}
 
 			template <typename Arg>
-			std::string field_sort_hint(Arg&& value) const {
-				return instance().field_sort_hint(std::forward<Arg>(value));
+			std::string field_sort_hint(Arg&& value,
+			                            app::Strings const& tr) const {
+				return instance().field_sort_hint(std::forward<Arg>(value), tr);
 			}
 		};
 
-#define COMPARATORS(X)             \
-	X(title, title, true)          \
-	X(arrival, arrival, false)     \
-	X(info.year, year, false)      \
-	X(info.runtime, runtime, true) \
-	X(info.rating, rating, false)
+#define COMPARATORS(X)                                      \
+	X(title, title, lng::SORT_LABEL_TITLE, true)            \
+	X(arrival, arrival, lng::SORT_LABEL_ARRIVAL, false)     \
+	X(info.year, year, lng::SORT_LABEL_YEAR, false)         \
+	X(info.runtime, runtime, lng::SORT_LABEL_RUNTIME, true) \
+	X(info.rating, rating, lng::SORT_LABEL_RATING, false)
 
-#define X_DEFINE_COMPARATOR(FIELD, NAME, ASC)                \
+#define X_DEFINE_COMPARATOR(FIELD, NAME, LABEL, ASC)         \
 	class NAME##_comp : public crtp_comp<NAME##_comp>,       \
 	                    public proxy_header<NAME##_header> { \
 	public:                                                  \
@@ -252,7 +261,8 @@ namespace movies {
 		struct title_header {
 			title_header() {}
 
-			group_header field_header(title_category const& value) const {
+			group_header field_header(title_category const& value,
+			                          app::Strings const&) const {
 				switch (value.grouping) {
 					case char_class::other:
 						break;
@@ -267,7 +277,8 @@ namespace movies {
 				return {.id = "symbols", .label = "?"};
 			}
 
-			std::string field_sort_hint(title_category const& value) const {
+			std::string field_sort_hint(title_category const& value,
+			                            app::Strings const&) const {
 				std::string utf8;
 				value.sortable.toUTF8String(utf8);
 				return utf8;
@@ -284,7 +295,7 @@ namespace movies {
 			          spread<unsigned>({10, 20, 30, 40, 60, 90, 120, 150, 180,
 			                            210, 240, 270, 300, 330, 360})} {}
 
-			std::string format(unsigned val) const {
+			std::string format(unsigned val, app::Strings const&) const {
 				auto const minutes = val % 60;
 				auto const hours = (val - minutes) / 60;
 
@@ -295,11 +306,12 @@ namespace movies {
 		};
 
 		struct rating_header {
-			group_header field_header(
-			    std::optional<unsigned> const& value) const {
-				return field_header(value.value_or(0));
+			group_header field_header(std::optional<unsigned> const& value,
+			                          app::Strings const& tr) const {
+				return field_header(value.value_or(0), tr);
 			}
-			group_header field_header(unsigned value) const {
+			group_header field_header(unsigned value,
+			                          app::Strings const&) const {
 				auto const stars = (value + 5) / 10;
 				return {
 				    .id = fmt::format("{}-stars", stars),
@@ -307,11 +319,12 @@ namespace movies {
 				};
 			}
 
-			std::string field_sort_hint(
-			    std::optional<unsigned> const& value) const {
-				return field_sort_hint(value.value_or(0));
+			std::string field_sort_hint(std::optional<unsigned> const& value,
+			                            app::Strings const& tr) const {
+				return field_sort_hint(value.value_or(0), tr);
 			}
-			std::string field_sort_hint(unsigned value) const {
+			std::string field_sort_hint(unsigned value,
+			                            app::Strings const&) const {
 				return fmt::format("{}.{} / 10", value / 10, value % 10);
 			}
 		};
@@ -360,23 +373,24 @@ namespace movies {
 
 			arrival_header() : dates_{spread_dates()} {}
 
-			group_header field_header(
-			    std::optional<sys_seconds> const& value) const {
-				return value ? field_header(*value) : group_header{};
+			group_header field_header(std::optional<sys_seconds> const& value,
+			                          app::Strings const& tr) const {
+				return value ? field_header(*value, tr) : group_header{};
 			}
 
-			group_header field_header(sys_seconds const& value) const {
+			group_header field_header(sys_seconds const& value,
+			                          app::Strings const& tr) const {
 				if (value >= dates_.tomorrow) {
 					return {
 					    .id = "future",
-					    .label = "translate:group.future",
+					    .label = as_str(tr(app::lng::GROUP_LABEL_FUTURE)),
 					};
 				}
 
 				if (value >= dates_.this_month) {
 					return {
 					    .id = "now",
-					    .label = "translate:group.this_month",
+					    .label = as_str(tr(app::lng::GROUP_LABEL_THIS_MONTH)),
 					};
 				}
 
@@ -384,36 +398,37 @@ namespace movies {
 				    value >= dates_.previous_month) {
 					return {
 					    .id = "last-month",
-					    .label = "translate:group.last_month",
+					    .label = as_str(tr(app::lng::GROUP_LABEL_LAST_MONTH)),
 					};
 				}
 
 				if (value >= dates_.this_year) {
 					return {
 					    .id = "this-year",
-					    .label = "translate:group.this_year",
+					    .label = as_str(tr(app::lng::GROUP_LABEL_THIS_YEAR)),
 					};
 				}
 
 				if (value >= dates_.previous_year) {
 					return {
 					    .id = "last-year",
-					    .label = "translate:group.last_year",
+					    .label = as_str(tr(app::lng::GROUP_LABEL_LAST_YEAR)),
 					};
 				}
 
 				return {
 				    .id = "past",
-				    .label = "translate:group.long_ago",
+				    .label = as_str(tr(app::lng::GROUP_LABEL_LONG_AGO)),
 				};
 			}
 
-			std::string field_sort_hint(
-			    std::optional<sys_seconds> const& value) const {
-				return value ? field_sort_hint(*value) : std::string{};
+			std::string field_sort_hint(std::optional<sys_seconds> const& value,
+			                            app::Strings const& tr) const {
+				return value ? field_sort_hint(*value, tr) : std::string{};
 			}
 
-			std::string field_sort_hint(sys_seconds const& value) const {
+			std::string field_sort_hint(sys_seconds const& value,
+			                            app::Strings const&) const {
 				return fmt::format(
 				    "{}",
 				    std::chrono::time_point_cast<std::chrono::minutes>(value));
@@ -428,13 +443,15 @@ namespace movies {
 		struct sort_info {
 			std::string_view name;
 			bool asc;
+			app::lng label;
 			sort::ptr (*make)(bool ascending);
 		};
 
-#define X_INFO(FIELD, NAME, ASC)         \
+#define X_INFO(FIELD, NAME, LABEL, ASC)  \
 	{                                    \
 	    #NAME##sv,                       \
 	    ASC,                             \
+	    app::LABEL,                           \
 	    crtp_comp<NAME##_comp>::factory, \
 	},
 		static constexpr sort_info axis[] = {COMPARATORS(X_INFO)};
@@ -451,19 +468,22 @@ namespace movies {
 			asc = false;
 		}
 		if (view.empty()) return {};
-		for (auto const& [name, _, factory] : axis) {
-			if (view == name) return factory(asc);
+		for (auto const& [name, _, __, factory] : axis) {
+			if (view == name) {
+				return factory(asc);
+			}
 		}
 		return {};
 	}
 
-	std::vector<sort_types> sort::get_config() {
+	std::vector<sort_types> sort::get_config(app::Strings const& tr) {
 		std::vector<sort_types> result{};
 		result.reserve(std::size(axis));
-		for (auto const& [name, asc, _] : axis) {
+		for (auto const& [name, asc, label, _] : axis) {
+			auto const label_view = tr(label);
 			result.push_back({
 			    .field{name.data(), name.size()},
-			    .label{fmt::format("sort_action.{}", name)},
+			    .label{label_view.data(), label_view.size()},
 			    .ascByDefault{asc},
 			});
 		}

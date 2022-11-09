@@ -47,6 +47,11 @@ namespace movies {
 		};
 	}
 
+	server::server(std::filesystem::path const& base) {
+		tr_.init(base);
+		lang_change(lngs::system_locales());
+	}
+
 	void server::load(std::filesystem::path const& database) {
 		using namespace std::chrono;
 		plugins_ = plugin::load_plugins();
@@ -222,7 +227,7 @@ namespace movies {
 		for (auto const& key : keys) {
 			auto it = movies_.find(key);
 			if (it == movies_.end()) continue;
-			auto [id, title] = grouping.header_for(it->second);
+			auto [id, title] = grouping.header_for(it->second, tr_);
 			auto group_it = group_pos.lower_bound(id);
 			if (group_it == group_pos.end() || group_it->first != id) {
 				auto const pos = result.size();
@@ -235,7 +240,7 @@ namespace movies {
 				group_it = group_pos.insert(group_it, {id, pos});
 			}
 			result[group_it->second].items.push_back(reference::from(
-			    key, it->second, grouping.sort_hint_for(it->second)));
+			    key, it->second, grouping.sort_hint_for(it->second, tr_)));
 		}
 
 		return result;
@@ -264,5 +269,16 @@ namespace movies {
 		sorted(keys, sort);
 		return sort.empty() ? quick_inflate(keys)
 		                    : inflate(keys, *sort.front());
+	}
+
+	bool server::lang_change(std::vector<std::string> const& langs) {
+		auto next_id = tr_.open_one_of(langs);
+		if (next_id) {
+			auto const changed = *next_id != lang_id_;
+			lang_id_ = std::move(*next_id);
+			return changed;
+		}
+
+		return false;
 	}
 }  // namespace movies

@@ -1,0 +1,15 @@
+[
+    project("movies-ws"),
+	namespace("movies::tags"),
+    version("latest"),
+    serial(1)
+] strings {
+	[help("UI string for a 'explicit' tag"), id(-1)]
+	TAG_EXPLICIT = "Sexually explicit";
+	[help("UI string for a 'lastchance' tag"), id(-1)]
+	TAG_LAST_CHANCE = "Last chance";
+	[help("UI string for a 'server-archived' tag"), id(-1)]
+	TAG_ARCHIVED = "Archived";
+	[help("UI string for a 'upcoming' tag"), id(-1)]
+	TAG_UPCOMING = "Upcoming";
+}

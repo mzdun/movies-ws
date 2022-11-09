@@ -1,12 +1,35 @@
+#define NOMINMAX
 #include <libwebsockets.h>
 
+#include <server/lngs.hh>
 #include <service.hh>
 
 #ifdef _WIN32
-#define NOMINMAX
 #include <Windows.h>
-#undef min
-#undef max
+
+std::filesystem::path exec_path() {
+	wchar_t modpath[2048];
+	GetModuleFileNameW(nullptr, modpath, sizeof(modpath) / sizeof(modpath[0]));
+	return modpath;
+}
+#else
+std::filesystem::path exec_path() {
+	using namespace std::literals;
+	std::error_code ec;
+	static constexpr std::string_view self_links[] = {
+	    "/proc/self/exe"sv,
+	    "/proc/curproc/file"sv,
+	    "/proc/curproc/exe"sv,
+	    "/proc/self/path/a.out"sv,
+	};
+	for (auto path : self_links) {
+		auto link = std::filesystem::read_symlink(path, ec);
+		if (!ec) return link;
+	}
+	[[unlikely]];  // GCOV_EXCL_LINE[POSIX]
+	return {};     // GCOV_EXCL_LINE[POSIX]
+}
+
 #endif
 
 #define X_CREATE_HANDLER(NS, NAME, VAR) \
@@ -24,7 +47,7 @@ int main(int argc, char** argv) {
 
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, NULL);
 
-	movies::server backend{};
+	movies::server backend{exec_path().parent_path() / "lngs"sv};
 	backend.load(argv[1]);
 	movies::rpc::dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);

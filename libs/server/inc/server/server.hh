@@ -7,6 +7,8 @@
 #include <full_text/engine.hh>
 #include <server/plugin.hh>
 #include <sorting/sort.hh>
+#include <server/lngs.hh>
+#include <base/lngs.hh>
 
 namespace movies {
 	struct reference {
@@ -31,6 +33,8 @@ namespace movies {
 
 	class server {
 	public:
+		explicit server(std::filesystem::path const& base);
+
 		void load(std::filesystem::path const& database);
 		extended_info find_movie_copy(std::string_view id) const;
 		std::vector<link> links_for(extended_info const&) const;
@@ -41,6 +45,9 @@ namespace movies {
 		    const noexcept {
 			return current_filters_;
 		}
+		bool lang_change(std::vector<std::string> const& langs);
+		Strings const& tr() const noexcept { return tr_; }
+		std::string const& lang_id() const noexcept { return lang_id_; }
 
 	private:
 		std::vector<std::string> filtered(std::string const& search,
@@ -52,7 +59,9 @@ namespace movies {
 		std::vector<group> quick_inflate(
 		    std::vector<std::string> const& keys) const;
 
+		Strings tr_{};
 		movie_db movies_{};
+		std::string lang_id_{};
 		std::vector<description::filter> current_filters_{};
 		full_text::engine engine_{};
 		std::map<string, std::string> ref2id_{};

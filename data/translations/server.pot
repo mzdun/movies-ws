@@ -1,0 +1,279 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the movies-ws package.
+# marcin.zdun@midnightbits.com, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: movies-ws latest\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-07 13:09+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Universal error message
+msgctxt "ARGS_ARGUMENT_MSG"
+msgid "argument {0}: {1}"
+msgstr ""
+
+#. Default name of an argument
+msgctxt "ARGS_DEF_META"
+msgid "<arg>"
+msgstr ""
+
+#. Name of a directory argument
+msgctxt "ARGS_DIR_META"
+msgid "<dir>"
+msgstr ""
+
+#. Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message
+msgctxt "ARGS_ERROR_MSG"
+msgid "{0}: error: {1}"
+msgstr ""
+
+#. Error message for conflicting arguments; used with ARGUMENT_MSG
+msgctxt "ARGS_EXCLUSIVE"
+msgid "not allowed with argument {0}"
+msgstr ""
+
+#. Name of a file argument
+msgctxt "ARGS_FILE_META"
+msgid "<file>"
+msgstr ""
+
+#. Needed file was not found
+msgctxt "ARGS_FILE_NOT_FOUND"
+msgid "cannot open {0}"
+msgstr ""
+
+#. Description for the -h/--help argument
+msgctxt "ARGS_HELP_DESCRIPTION"
+msgid "shows this help message and exits"
+msgstr ""
+
+#. Name of a, well, name argument, e.g. in cov config
+msgctxt "ARGS_NAME_META"
+msgid "<name>"
+msgstr ""
+
+#. Error message for a numeric argument, when parsing would get outside of representable bounds
+msgctxt "ARGS_NEEDED_NUMBER_EXCEEDED"
+msgid "argument {0}: number outside of expected bounds"
+msgstr ""
+
+#. Help message presenting a list of possible values for a list-type argument
+msgctxt "ARGS_NEEDS_ENUM_KNOWN_VALUES"
+msgid "known values for {0}: {1}"
+msgstr ""
+
+#. Error message for a list of arguments, when parsing failed
+msgctxt "ARGS_NEEDS_ENUM_UNKNOWN"
+msgid "argument {0}: value {1} is not recognized"
+msgstr ""
+
+#. Error message for unneeded value
+msgctxt "ARGS_NEEDS_NO_PARAM"
+msgid "argument {0}: value was not expected"
+msgstr ""
+
+#. Error message for a numeric argument, when parsing failed
+msgctxt "ARGS_NEEDS_NUMBER"
+msgid "argument {0}: expected a number"
+msgstr ""
+
+#. Error message for a missing argument
+msgctxt "ARGS_NEEDS_PARAM"
+msgid "argument {0}: expected one argument"
+msgstr ""
+
+#. Header for list of optional arguments
+msgctxt "ARGS_OPTIONALS"
+msgid "optional arguments"
+msgstr ""
+
+#. Name of a file or directory argument
+msgctxt "ARGS_PATH_META"
+msgid "<path>"
+msgstr ""
+
+#. Header for list of positional arguments
+msgctxt "ARGS_POSITIONALS"
+msgid "positional arguments"
+msgstr ""
+
+#. Error message for a missing required argument
+msgctxt "ARGS_REQUIRED"
+msgid "argument {0} is required"
+msgstr ""
+
+#. Error message for an unrecognized argument; the placeholder will contain the name of the argument
+msgctxt "ARGS_UNRECOGNIZED"
+msgid "unrecognized argument: {0}"
+msgstr ""
+
+#. Synopsis header; please note there is one space at the end of this entry
+msgctxt "ARGS_USAGE"
+msgid "usage: "
+msgstr ""
+
+#. Name of a value argument, e.g. in cov config
+msgctxt "ARGS_VALUE_META"
+msgid "<value>"
+msgstr ""
+
+#. Warning message template; placeholder 0 will get the name of program, placeholder 1 an actual message
+msgctxt "ARGS_WARNING_MSG"
+msgid "{0}: warning: {1}"
+msgstr ""
+
+#. Filter label for age restriction
+msgctxt "FILTER_LABEL_AGE"
+msgid "Age rating"
+msgstr ""
+
+#. Filter label for arrival to database
+msgctxt "FILTER_LABEL_ARRIVAL"
+msgid "Modification date"
+msgstr ""
+
+#. Filter label for movies with local or downloadable content
+msgctxt "FILTER_LABEL_AVAILABLE"
+msgid "Available"
+msgstr ""
+
+#. Filter label for movies not matching 'available'
+msgctxt "FILTER_LABEL_AVAILABLE_OPOSITE"
+msgid "Not available"
+msgstr ""
+
+#. Filter label for countries of origin
+msgctxt "FILTER_LABEL_COUNTRIES"
+msgid "Countries"
+msgstr ""
+
+#. Filter label for genres
+msgctxt "FILTER_LABEL_GENRES"
+msgid "Genres"
+msgstr ""
+
+#. Filter label for movies with link to IMDb
+msgctxt "FILTER_LABEL_HAS_IMDB"
+msgid "Has IMDb link"
+msgstr ""
+
+#. Filter label for movies not matching 'has_imdb'
+msgctxt "FILTER_LABEL_HAS_IMDB_OPOSITE"
+msgid "Has no IMDb link"
+msgstr ""
+
+#. Filter label for movies with detailed descriptionm
+msgctxt "FILTER_LABEL_HAS_INFO"
+msgid "Has info"
+msgstr ""
+
+#. Filter label for movies not matching 'has_info'
+msgctxt "FILTER_LABEL_HAS_INFO_OPOSITE"
+msgid "Has no info"
+msgstr ""
+
+#. Filter label for movies with local content
+msgctxt "FILTER_LABEL_HAS_VIDEO"
+msgid "Has video"
+msgstr ""
+
+#. Filter label for movies not matching 'has_video'
+msgctxt "FILTER_LABEL_HAS_VIDEO_OPOSITE"
+msgid "Has no video"
+msgstr ""
+
+#. Filter label for titles with episodes
+msgctxt "FILTER_LABEL_IS_SERIES"
+msgid "Is series"
+msgstr ""
+
+#. Filter label for titles without episodes
+msgctxt "FILTER_LABEL_IS_SERIES_OPOSITE"
+msgid "Is not series"
+msgstr ""
+
+#. Filter label for number of stars
+msgctxt "FILTER_LABEL_RATING"
+msgid "Rating"
+msgstr ""
+
+#. Filter label for length in minutes
+msgctxt "FILTER_LABEL_RUNTIME"
+msgid "Run time"
+msgstr ""
+
+#. Filter label for tags associated with te movie
+msgctxt "FILTER_LABEL_TAGS"
+msgid "Tags"
+msgstr ""
+
+#. Filter label for release year
+msgctxt "FILTER_LABEL_YEAR"
+msgid "Release year"
+msgstr ""
+
+#. Group label for items ordered by arrival time, for items in the future
+msgctxt "GROUP_LABEL_FUTURE"
+msgid "Soon"
+msgstr ""
+
+#. Group label for items ordered by arrival time, for items in the previous month
+msgctxt "GROUP_LABEL_LAST_MONTH"
+msgid "Previous month"
+msgstr ""
+
+#. Group label for items ordered by arrival time, for items in the previous year
+msgctxt "GROUP_LABEL_LAST_YEAR"
+msgid "Previous year"
+msgstr ""
+
+#. Group label for items ordered by arrival time, for items older, than previous year
+msgctxt "GROUP_LABEL_LONG_AGO"
+msgid "Older"
+msgstr ""
+
+#. Group label for items ordered by arrival time, for items since the begining of this month
+msgctxt "GROUP_LABEL_THIS_MONTH"
+msgid "This month"
+msgstr ""
+
+#. Group label for items ordered by arrival time, for items since the begining of this year
+msgctxt "GROUP_LABEL_THIS_YEAR"
+msgid "This year"
+msgstr ""
+
+#. Sort label for order by arrival to database
+msgctxt "SORT_LABEL_ARRIVAL"
+msgid "Modification date"
+msgstr ""
+
+#. Sort label for order by number of stars
+msgctxt "SORT_LABEL_RATING"
+msgid "Rating"
+msgstr ""
+
+#. Sort label for order by length in minutes
+msgctxt "SORT_LABEL_RUNTIME"
+msgid "Run time"
+msgstr ""
+
+#. Sort label for alfabetical order
+msgctxt "SORT_LABEL_TITLE"
+msgid "Title"
+msgstr ""
+
+#. Sort label for order by movie release year
+msgctxt "SORT_LABEL_YEAR"
+msgid "Release year"
+msgstr ""
+

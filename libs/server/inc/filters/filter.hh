@@ -4,32 +4,30 @@
 #pragma once
 #include <base/extended_info.hh>
 #include <memory>
+#include <server/lngs.hh>
 
 namespace movies {
 	namespace description {
 		struct range_filter {
-			enum format { num, year, minute_time, rating };
 			std::string field;
-			std::string label;
+			app::lng label;
 			std::optional<std::string> icon;
-			format type;
 			unsigned low, high;
 			bool is_optional;
 			std::variant<unsigned, std::vector<unsigned>> steps;
 		};
 
 		struct tokens_filter {
-			enum format { str, country, tags };
 			std::string field;
-			std::string label;
+			app::lng label;
 			std::optional<std::string> icon;
-			format type;
 			std::vector<std::string> values;
 		};
 
 		struct on_off_filter {
 			std::string field;
-			std::string label;
+			app::lng label;
+			app::lng opposite_label;
 			std::optional<std::string> icon;
 			bool defaultValue;
 		};

@@ -3791,7 +3791,7 @@
                      * Properties of an OnOffFilterDescription.
                      * @memberof movies.filters.v1
                      * @interface IOnOffFilterDescription
-                     * @property {boolean|null} [defaultValue] OnOffFilterDescription defaultValue
+                     * @property {string|null} [oppositeLabel] OnOffFilterDescription oppositeLabel
                      */
     
                     /**
@@ -3810,12 +3810,12 @@
                     }
     
                     /**
-                     * OnOffFilterDescription defaultValue.
-                     * @member {boolean} defaultValue
+                     * OnOffFilterDescription oppositeLabel.
+                     * @member {string} oppositeLabel
                      * @memberof movies.filters.v1.OnOffFilterDescription
                      * @instance
                      */
-                    OnOffFilterDescription.prototype.defaultValue = false;
+                    OnOffFilterDescription.prototype.oppositeLabel = "";
     
                     /**
                      * Creates a new OnOffFilterDescription instance using the specified properties.
@@ -3841,8 +3841,8 @@
                     OnOffFilterDescription.encode = function encode(message, writer) {
                         if (!writer)
                             writer = $Writer.create();
-                        if (message.defaultValue != null && Object.hasOwnProperty.call(message, "defaultValue"))
-                            writer.uint32(/* id 1, wireType 0 =*/8).bool(message.defaultValue);
+                        if (message.oppositeLabel != null && Object.hasOwnProperty.call(message, "oppositeLabel"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.oppositeLabel);
                         return writer;
                     };
     
@@ -3878,7 +3878,7 @@
                             var tag = reader.uint32();
                             switch (tag >>> 3) {
                             case 1:
-                                message.defaultValue = reader.bool();
+                                message.oppositeLabel = reader.string();
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -3915,9 +3915,9 @@
                     OnOffFilterDescription.verify = function verify(message) {
                         if (typeof message !== "object" || message === null)
                             return "object expected";
-                        if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
-                            if (typeof message.defaultValue !== "boolean")
-                                return "defaultValue: boolean expected";
+                        if (message.oppositeLabel != null && message.hasOwnProperty("oppositeLabel"))
+                            if (!$util.isString(message.oppositeLabel))
+                                return "oppositeLabel: string expected";
                         return null;
                     };
     
@@ -3933,8 +3933,8 @@
                         if (object instanceof $root.movies.filters.v1.OnOffFilterDescription)
                             return object;
                         var message = new $root.movies.filters.v1.OnOffFilterDescription();
-                        if (object.defaultValue != null)
-                            message.defaultValue = Boolean(object.defaultValue);
+                        if (object.oppositeLabel != null)
+                            message.oppositeLabel = String(object.oppositeLabel);
                         return message;
                     };
     
@@ -3952,9 +3952,9 @@
                             options = {};
                         var object = {};
                         if (options.defaults)
-                            object.defaultValue = false;
-                        if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
-                            object.defaultValue = message.defaultValue;
+                            object.oppositeLabel = "";
+                        if (message.oppositeLabel != null && message.hasOwnProperty("oppositeLabel"))
+                            object.oppositeLabel = message.oppositeLabel;
                         return object;
                     };
     
@@ -9914,6 +9914,7 @@
                      * Properties of a LangChangeResponse.
                      * @memberof movies.ui.v1
                      * @interface ILangChangeResponse
+                     * @property {string|null} [langId] LangChangeResponse langId
                      */
     
                     /**
@@ -9930,6 +9931,14 @@
                                 if (properties[keys[i]] != null)
                                     this[keys[i]] = properties[keys[i]];
                     }
+    
+                    /**
+                     * LangChangeResponse langId.
+                     * @member {string} langId
+                     * @memberof movies.ui.v1.LangChangeResponse
+                     * @instance
+                     */
+                    LangChangeResponse.prototype.langId = "";
     
                     /**
                      * Creates a new LangChangeResponse instance using the specified properties.
@@ -9955,6 +9964,8 @@
                     LangChangeResponse.encode = function encode(message, writer) {
                         if (!writer)
                             writer = $Writer.create();
+                        if (message.langId != null && Object.hasOwnProperty.call(message, "langId"))
+                            writer.uint32(/* id 2, wireType 2 =*/18).string(message.langId);
                         return writer;
                     };
     
@@ -9989,6 +10000,9 @@
                         while (reader.pos < end) {
                             var tag = reader.uint32();
                             switch (tag >>> 3) {
+                            case 2:
+                                message.langId = reader.string();
+                                break;
                             default:
                                 reader.skipType(tag & 7);
                                 break;
@@ -10024,6 +10038,9 @@
                     LangChangeResponse.verify = function verify(message) {
                         if (typeof message !== "object" || message === null)
                             return "object expected";
+                        if (message.langId != null && message.hasOwnProperty("langId"))
+                            if (!$util.isString(message.langId))
+                                return "langId: string expected";
                         return null;
                     };
     
@@ -10038,7 +10055,10 @@
                     LangChangeResponse.fromObject = function fromObject(object) {
                         if (object instanceof $root.movies.ui.v1.LangChangeResponse)
                             return object;
-                        return new $root.movies.ui.v1.LangChangeResponse();
+                        var message = new $root.movies.ui.v1.LangChangeResponse();
+                        if (object.langId != null)
+                            message.langId = String(object.langId);
+                        return message;
                     };
     
                     /**
@@ -10050,8 +10070,15 @@
                      * @param {$protobuf.IConversionOptions} [options] Conversion options
                      * @returns {Object.<string,*>} Plain object
                      */
-                    LangChangeResponse.toObject = function toObject() {
-                        return {};
+                    LangChangeResponse.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults)
+                            object.langId = "";
+                        if (message.langId != null && message.hasOwnProperty("langId"))
+                            object.langId = message.langId;
+                        return object;
                     };
     
                     /**
@@ -10236,6 +10263,8 @@
                      * @interface IGetConfigResponse
                      * @property {Array.<movies.filters.v1.IFilterDescription>|null} [filters] GetConfigResponse filters
                      * @property {Array.<movies.filters.v1.ISortDescription>|null} [sort] GetConfigResponse sort
+                     * @property {Array.<movies.ui.v1.IStrings>|null} [countries] GetConfigResponse countries
+                     * @property {Array.<movies.ui.v1.IStrings>|null} [tags] GetConfigResponse tags
                      */
     
                     /**
@@ -10249,6 +10278,8 @@
                     function GetConfigResponse(properties) {
                         this.filters = [];
                         this.sort = [];
+                        this.countries = [];
+                        this.tags = [];
                         if (properties)
                             for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                                 if (properties[keys[i]] != null)
@@ -10270,6 +10301,22 @@
                      * @instance
                      */
                     GetConfigResponse.prototype.sort = $util.emptyArray;
+    
+                    /**
+                     * GetConfigResponse countries.
+                     * @member {Array.<movies.ui.v1.IStrings>} countries
+                     * @memberof movies.ui.v1.GetConfigResponse
+                     * @instance
+                     */
+                    GetConfigResponse.prototype.countries = $util.emptyArray;
+    
+                    /**
+                     * GetConfigResponse tags.
+                     * @member {Array.<movies.ui.v1.IStrings>} tags
+                     * @memberof movies.ui.v1.GetConfigResponse
+                     * @instance
+                     */
+                    GetConfigResponse.prototype.tags = $util.emptyArray;
     
                     /**
                      * Creates a new GetConfigResponse instance using the specified properties.
@@ -10301,6 +10348,12 @@
                         if (message.sort != null && message.sort.length)
                             for (var i = 0; i < message.sort.length; ++i)
                                 $root.movies.filters.v1.SortDescription.encode(message.sort[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        if (message.countries != null && message.countries.length)
+                            for (var i = 0; i < message.countries.length; ++i)
+                                $root.movies.ui.v1.Strings.encode(message.countries[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                        if (message.tags != null && message.tags.length)
+                            for (var i = 0; i < message.tags.length; ++i)
+                                $root.movies.ui.v1.Strings.encode(message.tags[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
                         return writer;
                     };
     
@@ -10344,6 +10397,16 @@
                                 if (!(message.sort && message.sort.length))
                                     message.sort = [];
                                 message.sort.push($root.movies.filters.v1.SortDescription.decode(reader, reader.uint32()));
+                                break;
+                            case 3:
+                                if (!(message.countries && message.countries.length))
+                                    message.countries = [];
+                                message.countries.push($root.movies.ui.v1.Strings.decode(reader, reader.uint32()));
+                                break;
+                            case 4:
+                                if (!(message.tags && message.tags.length))
+                                    message.tags = [];
+                                message.tags.push($root.movies.ui.v1.Strings.decode(reader, reader.uint32()));
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -10398,6 +10461,24 @@
                                     return "sort." + error;
                             }
                         }
+                        if (message.countries != null && message.hasOwnProperty("countries")) {
+                            if (!Array.isArray(message.countries))
+                                return "countries: array expected";
+                            for (var i = 0; i < message.countries.length; ++i) {
+                                var error = $root.movies.ui.v1.Strings.verify(message.countries[i]);
+                                if (error)
+                                    return "countries." + error;
+                            }
+                        }
+                        if (message.tags != null && message.hasOwnProperty("tags")) {
+                            if (!Array.isArray(message.tags))
+                                return "tags: array expected";
+                            for (var i = 0; i < message.tags.length; ++i) {
+                                var error = $root.movies.ui.v1.Strings.verify(message.tags[i]);
+                                if (error)
+                                    return "tags." + error;
+                            }
+                        }
                         return null;
                     };
     
@@ -10433,6 +10514,26 @@
                                 message.sort[i] = $root.movies.filters.v1.SortDescription.fromObject(object.sort[i]);
                             }
                         }
+                        if (object.countries) {
+                            if (!Array.isArray(object.countries))
+                                throw TypeError(".movies.ui.v1.GetConfigResponse.countries: array expected");
+                            message.countries = [];
+                            for (var i = 0; i < object.countries.length; ++i) {
+                                if (typeof object.countries[i] !== "object")
+                                    throw TypeError(".movies.ui.v1.GetConfigResponse.countries: object expected");
+                                message.countries[i] = $root.movies.ui.v1.Strings.fromObject(object.countries[i]);
+                            }
+                        }
+                        if (object.tags) {
+                            if (!Array.isArray(object.tags))
+                                throw TypeError(".movies.ui.v1.GetConfigResponse.tags: array expected");
+                            message.tags = [];
+                            for (var i = 0; i < object.tags.length; ++i) {
+                                if (typeof object.tags[i] !== "object")
+                                    throw TypeError(".movies.ui.v1.GetConfigResponse.tags: object expected");
+                                message.tags[i] = $root.movies.ui.v1.Strings.fromObject(object.tags[i]);
+                            }
+                        }
                         return message;
                     };
     
@@ -10452,6 +10553,8 @@
                         if (options.arrays || options.defaults) {
                             object.filters = [];
                             object.sort = [];
+                            object.countries = [];
+                            object.tags = [];
                         }
                         if (message.filters && message.filters.length) {
                             object.filters = [];
@@ -10462,6 +10565,16 @@
                             object.sort = [];
                             for (var j = 0; j < message.sort.length; ++j)
                                 object.sort[j] = $root.movies.filters.v1.SortDescription.toObject(message.sort[j], options);
+                        }
+                        if (message.countries && message.countries.length) {
+                            object.countries = [];
+                            for (var j = 0; j < message.countries.length; ++j)
+                                object.countries[j] = $root.movies.ui.v1.Strings.toObject(message.countries[j], options);
+                        }
+                        if (message.tags && message.tags.length) {
+                            object.tags = [];
+                            for (var j = 0; j < message.tags.length; ++j)
+                                object.tags[j] = $root.movies.ui.v1.Strings.toObject(message.tags[j], options);
                         }
                         return object;
                     };
@@ -10478,6 +10591,216 @@
                     };
     
                     return GetConfigResponse;
+                })();
+    
+                v1.Strings = (function() {
+    
+                    /**
+                     * Properties of a Strings.
+                     * @memberof movies.ui.v1
+                     * @interface IStrings
+                     * @property {string|null} [key] Strings key
+                     * @property {string|null} [value] Strings value
+                     */
+    
+                    /**
+                     * Constructs a new Strings.
+                     * @memberof movies.ui.v1
+                     * @classdesc Represents a Strings.
+                     * @implements IStrings
+                     * @constructor
+                     * @param {movies.ui.v1.IStrings=} [properties] Properties to set
+                     */
+                    function Strings(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * Strings key.
+                     * @member {string} key
+                     * @memberof movies.ui.v1.Strings
+                     * @instance
+                     */
+                    Strings.prototype.key = "";
+    
+                    /**
+                     * Strings value.
+                     * @member {string} value
+                     * @memberof movies.ui.v1.Strings
+                     * @instance
+                     */
+                    Strings.prototype.value = "";
+    
+                    /**
+                     * Creates a new Strings instance using the specified properties.
+                     * @function create
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {movies.ui.v1.IStrings=} [properties] Properties to set
+                     * @returns {movies.ui.v1.Strings} Strings instance
+                     */
+                    Strings.create = function create(properties) {
+                        return new Strings(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified Strings message. Does not implicitly {@link movies.ui.v1.Strings.verify|verify} messages.
+                     * @function encode
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {movies.ui.v1.IStrings} message Strings message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Strings.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.key != null && Object.hasOwnProperty.call(message, "key"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
+                        if (message.value != null && Object.hasOwnProperty.call(message, "value"))
+                            writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified Strings message, length delimited. Does not implicitly {@link movies.ui.v1.Strings.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {movies.ui.v1.IStrings} message Strings message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Strings.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a Strings message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {movies.ui.v1.Strings} Strings
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Strings.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.movies.ui.v1.Strings();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.key = reader.string();
+                                break;
+                            case 2:
+                                message.value = reader.string();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a Strings message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {movies.ui.v1.Strings} Strings
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Strings.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a Strings message.
+                     * @function verify
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Strings.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.key != null && message.hasOwnProperty("key"))
+                            if (!$util.isString(message.key))
+                                return "key: string expected";
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            if (!$util.isString(message.value))
+                                return "value: string expected";
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a Strings message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {movies.ui.v1.Strings} Strings
+                     */
+                    Strings.fromObject = function fromObject(object) {
+                        if (object instanceof $root.movies.ui.v1.Strings)
+                            return object;
+                        var message = new $root.movies.ui.v1.Strings();
+                        if (object.key != null)
+                            message.key = String(object.key);
+                        if (object.value != null)
+                            message.value = String(object.value);
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a Strings message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof movies.ui.v1.Strings
+                     * @static
+                     * @param {movies.ui.v1.Strings} message Strings
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Strings.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.key = "";
+                            object.value = "";
+                        }
+                        if (message.key != null && message.hasOwnProperty("key"))
+                            object.key = message.key;
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            object.value = message.value;
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this Strings to JSON.
+                     * @function toJSON
+                     * @memberof movies.ui.v1.Strings
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Strings.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return Strings;
                 })();
     
                 return v1;

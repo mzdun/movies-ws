@@ -14,6 +14,10 @@ namespace movies::filters {
 		return !(!data.video_file && data.info.has_tag(u8"server-archived"sv));
 	}
 
+	ON_OFF(is_series) {
+		return !data.info.episodes.empty();
+	}
+
 	ON_OFF(has_video) {
 		return !!data.video_file;
 	}
@@ -36,7 +40,7 @@ namespace movies::filters {
 			filter::ptr (*make)(bool on);
 		};
 
-#define X_ON_OFF_FACTORY(NAME) {#NAME##sv, NAME##_filter::factory},
+#define X_ON_OFF_FACTORY(NAME, LABEL) {#NAME##sv, NAME##_filter::factory},
 		static constexpr on_off_filter_info on_off_filters[] = {
 		    ON_OFF_FILTER(X_ON_OFF_FACTORY)};
 	}  // namespace

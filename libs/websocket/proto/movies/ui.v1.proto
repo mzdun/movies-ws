@@ -8,11 +8,22 @@ message LangChangeRequest {
 	repeated string lang_id = 1;
 };
 
-message LangChangeResponse {};
+message LangChangeResponse {
+	string lang_id = 2;
+};
 
 message GetConfigRequest {};
 
 message GetConfigResponse {
 	repeated movies.filters.v1.FilterDescription filters = 1;
 	repeated movies.filters.v1.SortDescription sort = 2;
+	repeated Strings countries = 3;
+	repeated Strings tags = 4;
+};
+
+////////////////////////////////////////////
+
+message Strings {
+	string key = 1;
+	string value = 2;
 };

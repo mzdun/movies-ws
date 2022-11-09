@@ -25,6 +25,10 @@ find_package(Protobuf CONFIG REQUIRED)
 find_package(Libwebsockets CONFIG REQUIRED)
 find_package(ICU CONFIG REQUIRED)
 find_package(SQLiteCpp CONFIG REQUIRED)
+find_package(mbits-lngs CONFIG REQUIRED)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+find_program(LNGS_EXEC lngs HINTS ${CONAN_BIN_DIRS} REQUIRED)
 
 set(STAGING "${CMAKE_BINARY_DIR}/staging/${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
 

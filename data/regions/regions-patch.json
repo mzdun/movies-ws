@@ -1,0 +1,22 @@
+{
+"ES-AN": { "pl": "Andaluzja", "es": "Andalucía", "en": "Andalusia"},
+"ES-AR": { "pl": "Aragonia", "es": "Aragón", "en": "Aragon"},
+"ES-AS": { "pl": "Księstwo Asturii", "es": "Asturias, Principado de", "en": "Principality of Asturias"},
+"ES-CN": { "pl": "Wyspy Kanaryjskie", "es": "Canarias", "en": "Canary Islands"},
+"ES-CB": { "pl": "Kantabria", "es": "Cantabria", "en": "Cantabria"},
+"ES-CL": { "pl": "Kastylia i León", "es": "Castilla y León", "en": "Castile and León"},
+"ES-CM": { "pl": "Kastylia-La Mancha", "es": "Castilla-La Mancha", "en": "Castile-La Mancha"},
+"ES-CT": { "pl": "Katalonia", "ca": "Catalunya", "es": "Cataluña", "en": "Catalonia"},
+"ES-CE": { "pl": "Ceuta", "es": "Ceuta", "en": "Ceuta" },
+"ES-EX": { "pl": "Estremadura", "es": "Extremadura", "en": "Extremadura"},
+"ES-GA": { "pl": "Galicja", "en": "Galicia"},
+"ES-IB": { "pl": "Baleary", "ca": "Illes Balears", "es": "Islas Baleares", "en": "Balearic Islands"},
+"ES-RI": { "pl": "La Rioja", "es": "La Rioja",  "en": "La Rioja"},
+"ES-MD": { "pl": "Madryd", "es": "Madrid, Comunidad de", "en": "Community of Madrid"},
+"ES-ML": { "pl": "Melilla", "es": "Melilla", "en": "Melilla" },
+"ES-MC": { "pl": "Murcja", "es": "Murcia, Región de", "en": "Region of Murcia"},
+"ES-NC": { "pl": "Nawarra", "es": "Navarra, Comunidad Foral de", "eu": "Nafarroako Foru Komunitatea", "en": "Chartered Community of Navarre"},
+"ES-PV": { "pl": "Kraj Basków", "es": "País Vasco", "eu": "Euskal Herria", "en": "Basque Country"},
+"ES-VC": { "pl": "Walencja", "es": "Valenciana, Comunidad", "en": "Valencian Community"},
+"VARIOUS": { "pl": "Różne kraje", "en": "Various Countires"}
+}

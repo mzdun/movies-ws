@@ -43,7 +43,7 @@ namespace movies {
 			bool include_missing_{};
 		};
 
-#define X_DEFINE_RANGE_FILTER(FIELD, ACCESS, TYPE)            \
+#define X_DEFINE_RANGE_FILTER(FIELD, ACCESS, TYPE, LABEL)            \
 	class FIELD##_range_filter : public range_filter<TYPE> {  \
 	public:                                                   \
 		using range_filter<TYPE>::range_filter;               \
@@ -55,7 +55,7 @@ namespace movies {
 		}                                                     \
 	};
 
-#define X_INFO(FIELD, ACCESS, TYPE)                        \
+#define X_INFO(FIELD, ACCESS, TYPE, LABEL)                        \
 	{                                                      \
 	    #FIELD##sv,                                        \
 	    range_filter<TYPE>::factory<FIELD##_range_filter>, \

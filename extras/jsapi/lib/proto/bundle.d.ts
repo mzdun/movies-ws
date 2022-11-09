@@ -1585,8 +1585,8 @@ export namespace movies {
             /** Properties of an OnOffFilterDescription. */
             interface IOnOffFilterDescription {
 
-                /** OnOffFilterDescription defaultValue */
-                defaultValue?: (boolean|null);
+                /** OnOffFilterDescription oppositeLabel */
+                oppositeLabel?: (string|null);
             }
 
             /** Represents an OnOffFilterDescription. */
@@ -1598,8 +1598,8 @@ export namespace movies {
                  */
                 constructor(properties?: movies.filters.v1.IOnOffFilterDescription);
 
-                /** OnOffFilterDescription defaultValue. */
-                public defaultValue: boolean;
+                /** OnOffFilterDescription oppositeLabel. */
+                public oppositeLabel: string;
 
                 /**
                  * Creates a new OnOffFilterDescription instance using the specified properties.
@@ -3806,6 +3806,9 @@ export namespace movies {
 
             /** Properties of a LangChangeResponse. */
             interface ILangChangeResponse {
+
+                /** LangChangeResponse langId */
+                langId?: (string|null);
             }
 
             /** Represents a LangChangeResponse. */
@@ -3816,6 +3819,9 @@ export namespace movies {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: movies.ui.v1.ILangChangeResponse);
+
+                /** LangChangeResponse langId. */
+                public langId: string;
 
                 /**
                  * Creates a new LangChangeResponse instance using the specified properties.
@@ -3980,6 +3986,12 @@ export namespace movies {
 
                 /** GetConfigResponse sort */
                 sort?: (movies.filters.v1.ISortDescription[]|null);
+
+                /** GetConfigResponse countries */
+                countries?: (movies.ui.v1.IStrings[]|null);
+
+                /** GetConfigResponse tags */
+                tags?: (movies.ui.v1.IStrings[]|null);
             }
 
             /** Represents a GetConfigResponse. */
@@ -3996,6 +4008,12 @@ export namespace movies {
 
                 /** GetConfigResponse sort. */
                 public sort: movies.filters.v1.ISortDescription[];
+
+                /** GetConfigResponse countries. */
+                public countries: movies.ui.v1.IStrings[];
+
+                /** GetConfigResponse tags. */
+                public tags: movies.ui.v1.IStrings[];
 
                 /**
                  * Creates a new GetConfigResponse instance using the specified properties.
@@ -4063,6 +4081,102 @@ export namespace movies {
 
                 /**
                  * Converts this GetConfigResponse to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
+            /** Properties of a Strings. */
+            interface IStrings {
+
+                /** Strings key */
+                key?: (string|null);
+
+                /** Strings value */
+                value?: (string|null);
+            }
+
+            /** Represents a Strings. */
+            class Strings implements IStrings {
+
+                /**
+                 * Constructs a new Strings.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: movies.ui.v1.IStrings);
+
+                /** Strings key. */
+                public key: string;
+
+                /** Strings value. */
+                public value: string;
+
+                /**
+                 * Creates a new Strings instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns Strings instance
+                 */
+                public static create(properties?: movies.ui.v1.IStrings): movies.ui.v1.Strings;
+
+                /**
+                 * Encodes the specified Strings message. Does not implicitly {@link movies.ui.v1.Strings.verify|verify} messages.
+                 * @param message Strings message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: movies.ui.v1.IStrings, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified Strings message, length delimited. Does not implicitly {@link movies.ui.v1.Strings.verify|verify} messages.
+                 * @param message Strings message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: movies.ui.v1.IStrings, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a Strings message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns Strings
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): movies.ui.v1.Strings;
+
+                /**
+                 * Decodes a Strings message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns Strings
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): movies.ui.v1.Strings;
+
+                /**
+                 * Verifies a Strings message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a Strings message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns Strings
+                 */
+                public static fromObject(object: { [k: string]: any }): movies.ui.v1.Strings;
+
+                /**
+                 * Creates a plain object from a Strings message. Also converts values to other types if specified.
+                 * @param message Strings
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: movies.ui.v1.Strings, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this Strings to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };

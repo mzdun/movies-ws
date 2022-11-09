@@ -3,24 +3,26 @@
 
 #pragma once
 #include <date/date.h>
+#include <server/lngs.hh>
 
-#define RANGE_FILTER(X)         \
-	X(year, .info, unsigned)    \
-	X(runtime, .info, unsigned) \
-	X(rating, .info, unsigned)  \
-	X(arrival, , date::sys_seconds)
+#define RANGE_FILTER(X)                                    \
+	X(year, .info, unsigned, lng::FILTER_LABEL_YEAR)       \
+	X(runtime, .info, unsigned, lng::FILTER_LABEL_RUNTIME) \
+	X(rating, .info, unsigned, lng::FILTER_LABEL_RATING)   \
+	X(arrival, , date::sys_seconds, lng::FILTER_LABEL_ARRIVAL)
 
-#define TAGS_FILTER(X) \
-	X(genres)          \
-	X(countries)       \
-	X(age)             \
-	X(tags)
+#define TOKEN_FILTER(X)                       \
+	X(genres, lng::FILTER_LABEL_GENRES)       \
+	X(countries, lng::FILTER_LABEL_COUNTRIES) \
+	X(age, lng::FILTER_LABEL_AGE)             \
+	X(tags, lng::FILTER_LABEL_TAGS)
 
-#define ON_OFF_FILTER(X) \
-	X(available)         \
-	X(has_video)         \
-	X(has_info)          \
-	X(has_imdb)
+#define ON_OFF_FILTER(X)                      \
+	X(available, lng::FILTER_LABEL_AVAILABLE) \
+	X(is_series, lng::FILTER_LABEL_IS_SERIES) \
+	X(has_video, lng::FILTER_LABEL_HAS_VIDEO) \
+	X(has_info, lng::FILTER_LABEL_HAS_INFO)   \
+	X(has_imdb, lng::FILTER_LABEL_HAS_IMDB)
 
 namespace movies {
 	inline unsigned value_of(unsigned v) noexcept {

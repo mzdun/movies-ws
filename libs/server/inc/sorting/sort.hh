@@ -4,6 +4,7 @@
 #pragma once
 #include <base/extended_info.hh>
 #include <memory>
+#include <server/lngs.hh>
 
 namespace movies {
 	struct group_header {
@@ -26,11 +27,13 @@ namespace movies {
 		virtual ~sort();
 		virtual int compare(extended_info const&,
 		                    extended_info const&) const noexcept = 0;
-		virtual group_header header_for(extended_info const&) const = 0;
-		virtual std::string sort_hint_for(extended_info const&) const = 0;
+		virtual group_header header_for(extended_info const&,
+		                                app::Strings const&) const = 0;
+		virtual std::string sort_hint_for(extended_info const&,
+		                                  app::Strings const&) const = 0;
 
 		static ptr make(std::string const& term);
-		static std::vector<sort_types> get_config();
+		static std::vector<sort_types> get_config(app::Strings const&);
 
 		static int compare(list const&,
 		                   std::string const&,

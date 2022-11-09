@@ -4,22 +4,42 @@ import WsClient from './WsClient';
 
 export class Service extends MovieEventTarget {
 	_ws: WsClient;
+	_lang: string;
 	_onlangs: () => void;
 	constructor(port: number) {
 		super();
+
 		this._ws =
 		    new WsClient(port, (event) => this.dispatchEvent(event), false);
+
+		this._lang = navigator.language;
+		console.log('lang equals to', this._lang);
+
 		const self = this;
 		this._onlangs = () => self.updateLangs();
 		window.addEventListener('languagechange', this._onlangs);
+
 		this.updateLangs();
+	}
+
+	get lang() {
+		return this._lang;
 	}
 
 	updateLangs() {
 		(async () => {
-			await this._ws.send(
-			    {langChange: {langId: [...navigator.languages]}});
-			this.dispatchEvent({message: 'languageChanged'});
+			const nextLang = (await this._ws.send({
+				                 langChange: {langId: [...navigator.languages]}
+			                 })).langChange?.langId ||
+			    '';
+			const langChanged = nextLang !== this._lang;
+			this._lang = nextLang;
+			if (langChanged) {
+				console.log('lang changed to', this._lang);
+				this.dispatchEvent({message: 'languageChanged'});
+			} else {
+				console.log('lang still equals to', this._lang);
+			}
 		})();
 	}
 

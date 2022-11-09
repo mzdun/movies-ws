@@ -1,0 +1,35 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-07 09:12+0100\n"
+"PO-Revision-Date: 2022-11-07 09:19+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. UI string for a 'server-archived' tag
+msgctxt "TAG_ARCHIVED"
+msgid "Archived"
+msgstr "Archived"
+
+#. UI string for a 'explicit' tag
+msgctxt "TAG_EXPLICIT"
+msgid "Sexually explicit"
+msgstr "Sexually explicit"
+
+#. UI string for a 'lastchance' tag
+msgctxt "TAG_LAST_CHANCE"
+msgid "Last chance"
+msgstr "Last chance"
+
+#. UI string for a 'upcoming' tag
+msgctxt "TAG_UPCOMING"
+msgid "Upcoming"
+msgstr "Upcoming"

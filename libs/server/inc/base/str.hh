@@ -21,4 +21,8 @@ namespace movies {
 	inline std::string as_str(std::u8string_view v) {
 		return {reinterpret_cast<char const*>(v.data()), v.size()};
 	}
+
+	inline std::string as_str(std::string_view v) {
+		return {reinterpret_cast<char const*>(v.data()), v.size()};
+	}
 }  // namespace movies

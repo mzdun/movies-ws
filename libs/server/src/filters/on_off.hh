@@ -26,7 +26,7 @@ namespace movies::filters {
 		bool on_{true};
 	};
 
-#define X_ON_OFF(NAME)                                                \
+#define X_ON_OFF(NAME, LABEL)                                                \
 	class NAME##_filter : public on_off_filter<NAME##_filter> {       \
 	public:                                                           \
 		using on_off_filter<NAME##_filter>::on_off_filter;            \

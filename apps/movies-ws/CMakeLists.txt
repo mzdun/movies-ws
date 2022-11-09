@@ -32,8 +32,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/src/plugin_load_plugins.cc" "// THIS FIL
     "\t};\n"
     "}  // namespace movies")
 
-message(STATUS "${CMAKE_CURRENT_BINARY_DIR}/src/plugin_load_plugins.cc")
-message(STATUS "${MODS}")
+message(STATUS "MODS: ${MODS}")
 
 set(PROJECT_SOURCES
     src/main.cc
