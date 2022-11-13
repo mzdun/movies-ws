@@ -1,6 +1,6 @@
 import {movies} from './proto/bundle';
 type EventType =
-    Exclude<movies.rpc.v1.Event['message'], undefined>|'languageChanged';
+    Exclude<movies.rpc.v1.Event['message'], undefined>|'languageChange';
 type IEvent = movies.rpc.v1.IEvent;
 
 export interface MovieEvent extends Event {
@@ -29,13 +29,19 @@ export class MovieEventTarget {
 		    new MovieEvent(data as (IEvent & {message: EventType})));
 	}
 
-	addEventListener(type: 'languageChanged', callback?: () => any): void;
+	addEventListener(type: 'languageChange', callback?: () => any): void;
+	addEventListener(
+	    type: Exclude<movies.rpc.v1.Event['message'], undefined>,
+	    callback?: (e: MovieEvent) => any): void;
 	addEventListener(type: EventType, callback?: (e: MovieEvent) => any): void {
 		this._dispatch.addEventListener(
 		    type, callback as EventListenerOrEventListenerObject || null);
 	}
 
-	removeEventListener(type: 'languageChanged', callback?: () => any): void;
+	removeEventListener(type: 'languageChange', callback?: () => any): void;
+	removeEventListener(
+	    type: Exclude<movies.rpc.v1.Event['message'], undefined>,
+	    callback?: (e: MovieEvent) => any): void;
 	removeEventListener(type: EventType, callback?: (e: MovieEvent) => any):
 	    void {
 		this._dispatch.removeEventListener(

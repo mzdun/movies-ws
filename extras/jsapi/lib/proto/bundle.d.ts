@@ -570,13 +570,13 @@ export namespace movies {
             interface IListingResponseChangedEvent {
 
                 /** ListingResponseChangedEvent removed */
-                removed?: (movies.info.v1.IMovieGroup[]|null);
+                removed?: (movies.listing.v1.IMovieGroup[]|null);
 
                 /** ListingResponseChangedEvent added */
-                added?: (movies.info.v1.IMovieGroup[]|null);
+                added?: (movies.listing.v1.IMovieGroup[]|null);
 
                 /** ListingResponseChangedEvent changed */
-                changed?: (movies.info.v1.IMovieGroup[]|null);
+                changed?: (movies.listing.v1.IMovieGroup[]|null);
             }
 
             /** Represents a ListingResponseChangedEvent. */
@@ -589,13 +589,13 @@ export namespace movies {
                 constructor(properties?: movies.db.v1.IListingResponseChangedEvent);
 
                 /** ListingResponseChangedEvent removed. */
-                public removed: movies.info.v1.IMovieGroup[];
+                public removed: movies.listing.v1.IMovieGroup[];
 
                 /** ListingResponseChangedEvent added. */
-                public added: movies.info.v1.IMovieGroup[];
+                public added: movies.listing.v1.IMovieGroup[];
 
                 /** ListingResponseChangedEvent changed. */
-                public changed: movies.info.v1.IMovieGroup[];
+                public changed: movies.listing.v1.IMovieGroup[];
 
                 /**
                  * Creates a new ListingResponseChangedEvent instance using the specified properties.
@@ -1890,264 +1890,6 @@ export namespace movies {
         /** Namespace v1. */
         namespace v1 {
 
-            /** Properties of a MovieReference. */
-            interface IMovieReference {
-
-                /** MovieReference id */
-                id?: (string|null);
-
-                /** MovieReference pos */
-                pos?: (number|null);
-
-                /** MovieReference title */
-                title?: (string|null);
-
-                /** MovieReference cover */
-                cover?: (string|null);
-
-                /** MovieReference hasVideo */
-                hasVideo?: (boolean|null);
-
-                /** MovieReference tags */
-                tags?: (string[]|null);
-
-                /** MovieReference ageRating */
-                ageRating?: (string[]|null);
-
-                /** MovieReference sortHint */
-                sortHint?: (string|null);
-            }
-
-            /** Represents a MovieReference. */
-            class MovieReference implements IMovieReference {
-
-                /**
-                 * Constructs a new MovieReference.
-                 * @param [properties] Properties to set
-                 */
-                constructor(properties?: movies.info.v1.IMovieReference);
-
-                /** MovieReference id. */
-                public id: string;
-
-                /** MovieReference pos. */
-                public pos?: (number|null);
-
-                /** MovieReference title. */
-                public title?: (string|null);
-
-                /** MovieReference cover. */
-                public cover?: (string|null);
-
-                /** MovieReference hasVideo. */
-                public hasVideo?: (boolean|null);
-
-                /** MovieReference tags. */
-                public tags: string[];
-
-                /** MovieReference ageRating. */
-                public ageRating: string[];
-
-                /** MovieReference sortHint. */
-                public sortHint: string;
-
-                /** MovieReference _pos. */
-                public _pos?: "pos";
-
-                /** MovieReference _title. */
-                public _title?: "title";
-
-                /** MovieReference _cover. */
-                public _cover?: "cover";
-
-                /** MovieReference _hasVideo. */
-                public _hasVideo?: "hasVideo";
-
-                /**
-                 * Creates a new MovieReference instance using the specified properties.
-                 * @param [properties] Properties to set
-                 * @returns MovieReference instance
-                 */
-                public static create(properties?: movies.info.v1.IMovieReference): movies.info.v1.MovieReference;
-
-                /**
-                 * Encodes the specified MovieReference message. Does not implicitly {@link movies.info.v1.MovieReference.verify|verify} messages.
-                 * @param message MovieReference message or plain object to encode
-                 * @param [writer] Writer to encode to
-                 * @returns Writer
-                 */
-                public static encode(message: movies.info.v1.IMovieReference, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                /**
-                 * Encodes the specified MovieReference message, length delimited. Does not implicitly {@link movies.info.v1.MovieReference.verify|verify} messages.
-                 * @param message MovieReference message or plain object to encode
-                 * @param [writer] Writer to encode to
-                 * @returns Writer
-                 */
-                public static encodeDelimited(message: movies.info.v1.IMovieReference, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                /**
-                 * Decodes a MovieReference message from the specified reader or buffer.
-                 * @param reader Reader or buffer to decode from
-                 * @param [length] Message length if known beforehand
-                 * @returns MovieReference
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): movies.info.v1.MovieReference;
-
-                /**
-                 * Decodes a MovieReference message from the specified reader or buffer, length delimited.
-                 * @param reader Reader or buffer to decode from
-                 * @returns MovieReference
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): movies.info.v1.MovieReference;
-
-                /**
-                 * Verifies a MovieReference message.
-                 * @param message Plain object to verify
-                 * @returns `null` if valid, otherwise the reason why it is not
-                 */
-                public static verify(message: { [k: string]: any }): (string|null);
-
-                /**
-                 * Creates a MovieReference message from a plain object. Also converts values to their respective internal types.
-                 * @param object Plain object
-                 * @returns MovieReference
-                 */
-                public static fromObject(object: { [k: string]: any }): movies.info.v1.MovieReference;
-
-                /**
-                 * Creates a plain object from a MovieReference message. Also converts values to other types if specified.
-                 * @param message MovieReference
-                 * @param [options] Conversion options
-                 * @returns Plain object
-                 */
-                public static toObject(message: movies.info.v1.MovieReference, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-                /**
-                 * Converts this MovieReference to JSON.
-                 * @returns JSON object
-                 */
-                public toJSON(): { [k: string]: any };
-            }
-
-            /** Properties of a MovieGroup. */
-            interface IMovieGroup {
-
-                /** MovieGroup id */
-                id?: (string|null);
-
-                /** MovieGroup title */
-                title?: (string|null);
-
-                /** MovieGroup items */
-                items?: (movies.info.v1.IMovieReference[]|null);
-
-                /** MovieGroup pos */
-                pos?: (number|null);
-            }
-
-            /** Represents a MovieGroup. */
-            class MovieGroup implements IMovieGroup {
-
-                /**
-                 * Constructs a new MovieGroup.
-                 * @param [properties] Properties to set
-                 */
-                constructor(properties?: movies.info.v1.IMovieGroup);
-
-                /** MovieGroup id. */
-                public id: string;
-
-                /** MovieGroup title. */
-                public title?: (string|null);
-
-                /** MovieGroup items. */
-                public items: movies.info.v1.IMovieReference[];
-
-                /** MovieGroup pos. */
-                public pos?: (number|null);
-
-                /** MovieGroup _title. */
-                public _title?: "title";
-
-                /** MovieGroup _pos. */
-                public _pos?: "pos";
-
-                /**
-                 * Creates a new MovieGroup instance using the specified properties.
-                 * @param [properties] Properties to set
-                 * @returns MovieGroup instance
-                 */
-                public static create(properties?: movies.info.v1.IMovieGroup): movies.info.v1.MovieGroup;
-
-                /**
-                 * Encodes the specified MovieGroup message. Does not implicitly {@link movies.info.v1.MovieGroup.verify|verify} messages.
-                 * @param message MovieGroup message or plain object to encode
-                 * @param [writer] Writer to encode to
-                 * @returns Writer
-                 */
-                public static encode(message: movies.info.v1.IMovieGroup, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                /**
-                 * Encodes the specified MovieGroup message, length delimited. Does not implicitly {@link movies.info.v1.MovieGroup.verify|verify} messages.
-                 * @param message MovieGroup message or plain object to encode
-                 * @param [writer] Writer to encode to
-                 * @returns Writer
-                 */
-                public static encodeDelimited(message: movies.info.v1.IMovieGroup, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                /**
-                 * Decodes a MovieGroup message from the specified reader or buffer.
-                 * @param reader Reader or buffer to decode from
-                 * @param [length] Message length if known beforehand
-                 * @returns MovieGroup
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): movies.info.v1.MovieGroup;
-
-                /**
-                 * Decodes a MovieGroup message from the specified reader or buffer, length delimited.
-                 * @param reader Reader or buffer to decode from
-                 * @returns MovieGroup
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): movies.info.v1.MovieGroup;
-
-                /**
-                 * Verifies a MovieGroup message.
-                 * @param message Plain object to verify
-                 * @returns `null` if valid, otherwise the reason why it is not
-                 */
-                public static verify(message: { [k: string]: any }): (string|null);
-
-                /**
-                 * Creates a MovieGroup message from a plain object. Also converts values to their respective internal types.
-                 * @param object Plain object
-                 * @returns MovieGroup
-                 */
-                public static fromObject(object: { [k: string]: any }): movies.info.v1.MovieGroup;
-
-                /**
-                 * Creates a plain object from a MovieGroup message. Also converts values to other types if specified.
-                 * @param message MovieGroup
-                 * @param [options] Conversion options
-                 * @returns Plain object
-                 */
-                public static toObject(message: movies.info.v1.MovieGroup, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-                /**
-                 * Converts this MovieGroup to JSON.
-                 * @returns JSON object
-                 */
-                public toJSON(): { [k: string]: any };
-            }
-
             /** Properties of a MovieInfo. */
             interface IMovieInfo {
 
@@ -2182,7 +1924,7 @@ export namespace movies {
                 tags?: (string[]|null);
 
                 /** MovieInfo episodes */
-                episodes?: (movies.info.v1.IMovieReference[]|null);
+                episodes?: (movies.listing.v1.IMovieReference[]|null);
 
                 /** MovieInfo summary */
                 summary?: (string|null);
@@ -2240,7 +1982,7 @@ export namespace movies {
                 public tags: string[];
 
                 /** MovieInfo episodes. */
-                public episodes: movies.info.v1.IMovieReference[];
+                public episodes: movies.listing.v1.IMovieReference[];
 
                 /** MovieInfo summary. */
                 public summary?: (string|null);
@@ -3992,6 +3734,9 @@ export namespace movies {
 
                 /** GetConfigResponse tags */
                 tags?: (movies.ui.v1.IStrings[]|null);
+
+                /** GetConfigResponse app */
+                app?: (movies.ui.v1.IAppStrings|null);
             }
 
             /** Represents a GetConfigResponse. */
@@ -4014,6 +3759,9 @@ export namespace movies {
 
                 /** GetConfigResponse tags. */
                 public tags: movies.ui.v1.IStrings[];
+
+                /** GetConfigResponse app. */
+                public app?: (movies.ui.v1.IAppStrings|null);
 
                 /**
                  * Creates a new GetConfigResponse instance using the specified properties.
@@ -4177,6 +3925,90 @@ export namespace movies {
 
                 /**
                  * Converts this Strings to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
+            /** Properties of an AppStrings. */
+            interface IAppStrings {
+            }
+
+            /** Represents an AppStrings. */
+            class AppStrings implements IAppStrings {
+
+                /**
+                 * Constructs a new AppStrings.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: movies.ui.v1.IAppStrings);
+
+                /**
+                 * Creates a new AppStrings instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns AppStrings instance
+                 */
+                public static create(properties?: movies.ui.v1.IAppStrings): movies.ui.v1.AppStrings;
+
+                /**
+                 * Encodes the specified AppStrings message. Does not implicitly {@link movies.ui.v1.AppStrings.verify|verify} messages.
+                 * @param message AppStrings message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: movies.ui.v1.IAppStrings, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified AppStrings message, length delimited. Does not implicitly {@link movies.ui.v1.AppStrings.verify|verify} messages.
+                 * @param message AppStrings message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: movies.ui.v1.IAppStrings, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes an AppStrings message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns AppStrings
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): movies.ui.v1.AppStrings;
+
+                /**
+                 * Decodes an AppStrings message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns AppStrings
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): movies.ui.v1.AppStrings;
+
+                /**
+                 * Verifies an AppStrings message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates an AppStrings message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns AppStrings
+                 */
+                public static fromObject(object: { [k: string]: any }): movies.ui.v1.AppStrings;
+
+                /**
+                 * Creates a plain object from an AppStrings message. Also converts values to other types if specified.
+                 * @param message AppStrings
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: movies.ui.v1.AppStrings, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this AppStrings to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };

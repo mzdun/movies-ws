@@ -1316,9 +1316,9 @@
                      * Properties of a ListingResponseChangedEvent.
                      * @memberof movies.db.v1
                      * @interface IListingResponseChangedEvent
-                     * @property {Array.<movies.info.v1.IMovieGroup>|null} [removed] ListingResponseChangedEvent removed
-                     * @property {Array.<movies.info.v1.IMovieGroup>|null} [added] ListingResponseChangedEvent added
-                     * @property {Array.<movies.info.v1.IMovieGroup>|null} [changed] ListingResponseChangedEvent changed
+                     * @property {Array.<movies.listing.v1.IMovieGroup>|null} [removed] ListingResponseChangedEvent removed
+                     * @property {Array.<movies.listing.v1.IMovieGroup>|null} [added] ListingResponseChangedEvent added
+                     * @property {Array.<movies.listing.v1.IMovieGroup>|null} [changed] ListingResponseChangedEvent changed
                      */
     
                     /**
@@ -1341,7 +1341,7 @@
     
                     /**
                      * ListingResponseChangedEvent removed.
-                     * @member {Array.<movies.info.v1.IMovieGroup>} removed
+                     * @member {Array.<movies.listing.v1.IMovieGroup>} removed
                      * @memberof movies.db.v1.ListingResponseChangedEvent
                      * @instance
                      */
@@ -1349,7 +1349,7 @@
     
                     /**
                      * ListingResponseChangedEvent added.
-                     * @member {Array.<movies.info.v1.IMovieGroup>} added
+                     * @member {Array.<movies.listing.v1.IMovieGroup>} added
                      * @memberof movies.db.v1.ListingResponseChangedEvent
                      * @instance
                      */
@@ -1357,7 +1357,7 @@
     
                     /**
                      * ListingResponseChangedEvent changed.
-                     * @member {Array.<movies.info.v1.IMovieGroup>} changed
+                     * @member {Array.<movies.listing.v1.IMovieGroup>} changed
                      * @memberof movies.db.v1.ListingResponseChangedEvent
                      * @instance
                      */
@@ -1389,13 +1389,13 @@
                             writer = $Writer.create();
                         if (message.removed != null && message.removed.length)
                             for (var i = 0; i < message.removed.length; ++i)
-                                $root.movies.info.v1.MovieGroup.encode(message.removed[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                                $root.movies.listing.v1.MovieGroup.encode(message.removed[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                         if (message.added != null && message.added.length)
                             for (var i = 0; i < message.added.length; ++i)
-                                $root.movies.info.v1.MovieGroup.encode(message.added[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                                $root.movies.listing.v1.MovieGroup.encode(message.added[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                         if (message.changed != null && message.changed.length)
                             for (var i = 0; i < message.changed.length; ++i)
-                                $root.movies.info.v1.MovieGroup.encode(message.changed[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                                $root.movies.listing.v1.MovieGroup.encode(message.changed[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                         return writer;
                     };
     
@@ -1433,17 +1433,17 @@
                             case 1:
                                 if (!(message.removed && message.removed.length))
                                     message.removed = [];
-                                message.removed.push($root.movies.info.v1.MovieGroup.decode(reader, reader.uint32()));
+                                message.removed.push($root.movies.listing.v1.MovieGroup.decode(reader, reader.uint32()));
                                 break;
                             case 2:
                                 if (!(message.added && message.added.length))
                                     message.added = [];
-                                message.added.push($root.movies.info.v1.MovieGroup.decode(reader, reader.uint32()));
+                                message.added.push($root.movies.listing.v1.MovieGroup.decode(reader, reader.uint32()));
                                 break;
                             case 3:
                                 if (!(message.changed && message.changed.length))
                                     message.changed = [];
-                                message.changed.push($root.movies.info.v1.MovieGroup.decode(reader, reader.uint32()));
+                                message.changed.push($root.movies.listing.v1.MovieGroup.decode(reader, reader.uint32()));
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -1484,7 +1484,7 @@
                             if (!Array.isArray(message.removed))
                                 return "removed: array expected";
                             for (var i = 0; i < message.removed.length; ++i) {
-                                var error = $root.movies.info.v1.MovieGroup.verify(message.removed[i]);
+                                var error = $root.movies.listing.v1.MovieGroup.verify(message.removed[i]);
                                 if (error)
                                     return "removed." + error;
                             }
@@ -1493,7 +1493,7 @@
                             if (!Array.isArray(message.added))
                                 return "added: array expected";
                             for (var i = 0; i < message.added.length; ++i) {
-                                var error = $root.movies.info.v1.MovieGroup.verify(message.added[i]);
+                                var error = $root.movies.listing.v1.MovieGroup.verify(message.added[i]);
                                 if (error)
                                     return "added." + error;
                             }
@@ -1502,7 +1502,7 @@
                             if (!Array.isArray(message.changed))
                                 return "changed: array expected";
                             for (var i = 0; i < message.changed.length; ++i) {
-                                var error = $root.movies.info.v1.MovieGroup.verify(message.changed[i]);
+                                var error = $root.movies.listing.v1.MovieGroup.verify(message.changed[i]);
                                 if (error)
                                     return "changed." + error;
                             }
@@ -1529,7 +1529,7 @@
                             for (var i = 0; i < object.removed.length; ++i) {
                                 if (typeof object.removed[i] !== "object")
                                     throw TypeError(".movies.db.v1.ListingResponseChangedEvent.removed: object expected");
-                                message.removed[i] = $root.movies.info.v1.MovieGroup.fromObject(object.removed[i]);
+                                message.removed[i] = $root.movies.listing.v1.MovieGroup.fromObject(object.removed[i]);
                             }
                         }
                         if (object.added) {
@@ -1539,7 +1539,7 @@
                             for (var i = 0; i < object.added.length; ++i) {
                                 if (typeof object.added[i] !== "object")
                                     throw TypeError(".movies.db.v1.ListingResponseChangedEvent.added: object expected");
-                                message.added[i] = $root.movies.info.v1.MovieGroup.fromObject(object.added[i]);
+                                message.added[i] = $root.movies.listing.v1.MovieGroup.fromObject(object.added[i]);
                             }
                         }
                         if (object.changed) {
@@ -1549,7 +1549,7 @@
                             for (var i = 0; i < object.changed.length; ++i) {
                                 if (typeof object.changed[i] !== "object")
                                     throw TypeError(".movies.db.v1.ListingResponseChangedEvent.changed: object expected");
-                                message.changed[i] = $root.movies.info.v1.MovieGroup.fromObject(object.changed[i]);
+                                message.changed[i] = $root.movies.listing.v1.MovieGroup.fromObject(object.changed[i]);
                             }
                         }
                         return message;
@@ -1576,17 +1576,17 @@
                         if (message.removed && message.removed.length) {
                             object.removed = [];
                             for (var j = 0; j < message.removed.length; ++j)
-                                object.removed[j] = $root.movies.info.v1.MovieGroup.toObject(message.removed[j], options);
+                                object.removed[j] = $root.movies.listing.v1.MovieGroup.toObject(message.removed[j], options);
                         }
                         if (message.added && message.added.length) {
                             object.added = [];
                             for (var j = 0; j < message.added.length; ++j)
-                                object.added[j] = $root.movies.info.v1.MovieGroup.toObject(message.added[j], options);
+                                object.added[j] = $root.movies.listing.v1.MovieGroup.toObject(message.added[j], options);
                         }
                         if (message.changed && message.changed.length) {
                             object.changed = [];
                             for (var j = 0; j < message.changed.length; ++j)
-                                object.changed[j] = $root.movies.info.v1.MovieGroup.toObject(message.changed[j], options);
+                                object.changed[j] = $root.movies.listing.v1.MovieGroup.toObject(message.changed[j], options);
                         }
                         return object;
                     };
@@ -4536,755 +4536,6 @@
                  */
                 var v1 = {};
     
-                v1.MovieReference = (function() {
-    
-                    /**
-                     * Properties of a MovieReference.
-                     * @memberof movies.info.v1
-                     * @interface IMovieReference
-                     * @property {string|null} [id] MovieReference id
-                     * @property {number|null} [pos] MovieReference pos
-                     * @property {string|null} [title] MovieReference title
-                     * @property {string|null} [cover] MovieReference cover
-                     * @property {boolean|null} [hasVideo] MovieReference hasVideo
-                     * @property {Array.<string>|null} [tags] MovieReference tags
-                     * @property {Array.<string>|null} [ageRating] MovieReference ageRating
-                     * @property {string|null} [sortHint] MovieReference sortHint
-                     */
-    
-                    /**
-                     * Constructs a new MovieReference.
-                     * @memberof movies.info.v1
-                     * @classdesc Represents a MovieReference.
-                     * @implements IMovieReference
-                     * @constructor
-                     * @param {movies.info.v1.IMovieReference=} [properties] Properties to set
-                     */
-                    function MovieReference(properties) {
-                        this.tags = [];
-                        this.ageRating = [];
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-    
-                    /**
-                     * MovieReference id.
-                     * @member {string} id
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.id = "";
-    
-                    /**
-                     * MovieReference pos.
-                     * @member {number|null|undefined} pos
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.pos = null;
-    
-                    /**
-                     * MovieReference title.
-                     * @member {string|null|undefined} title
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.title = null;
-    
-                    /**
-                     * MovieReference cover.
-                     * @member {string|null|undefined} cover
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.cover = null;
-    
-                    /**
-                     * MovieReference hasVideo.
-                     * @member {boolean|null|undefined} hasVideo
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.hasVideo = null;
-    
-                    /**
-                     * MovieReference tags.
-                     * @member {Array.<string>} tags
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.tags = $util.emptyArray;
-    
-                    /**
-                     * MovieReference ageRating.
-                     * @member {Array.<string>} ageRating
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.ageRating = $util.emptyArray;
-    
-                    /**
-                     * MovieReference sortHint.
-                     * @member {string} sortHint
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    MovieReference.prototype.sortHint = "";
-    
-                    // OneOf field names bound to virtual getters and setters
-                    var $oneOfFields;
-    
-                    /**
-                     * MovieReference _pos.
-                     * @member {"pos"|undefined} _pos
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    Object.defineProperty(MovieReference.prototype, "_pos", {
-                        get: $util.oneOfGetter($oneOfFields = ["pos"]),
-                        set: $util.oneOfSetter($oneOfFields)
-                    });
-    
-                    /**
-                     * MovieReference _title.
-                     * @member {"title"|undefined} _title
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    Object.defineProperty(MovieReference.prototype, "_title", {
-                        get: $util.oneOfGetter($oneOfFields = ["title"]),
-                        set: $util.oneOfSetter($oneOfFields)
-                    });
-    
-                    /**
-                     * MovieReference _cover.
-                     * @member {"cover"|undefined} _cover
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    Object.defineProperty(MovieReference.prototype, "_cover", {
-                        get: $util.oneOfGetter($oneOfFields = ["cover"]),
-                        set: $util.oneOfSetter($oneOfFields)
-                    });
-    
-                    /**
-                     * MovieReference _hasVideo.
-                     * @member {"hasVideo"|undefined} _hasVideo
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     */
-                    Object.defineProperty(MovieReference.prototype, "_hasVideo", {
-                        get: $util.oneOfGetter($oneOfFields = ["hasVideo"]),
-                        set: $util.oneOfSetter($oneOfFields)
-                    });
-    
-                    /**
-                     * Creates a new MovieReference instance using the specified properties.
-                     * @function create
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {movies.info.v1.IMovieReference=} [properties] Properties to set
-                     * @returns {movies.info.v1.MovieReference} MovieReference instance
-                     */
-                    MovieReference.create = function create(properties) {
-                        return new MovieReference(properties);
-                    };
-    
-                    /**
-                     * Encodes the specified MovieReference message. Does not implicitly {@link movies.info.v1.MovieReference.verify|verify} messages.
-                     * @function encode
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {movies.info.v1.IMovieReference} message MovieReference message or plain object to encode
-                     * @param {$protobuf.Writer} [writer] Writer to encode to
-                     * @returns {$protobuf.Writer} Writer
-                     */
-                    MovieReference.encode = function encode(message, writer) {
-                        if (!writer)
-                            writer = $Writer.create();
-                        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
-                        if (message.pos != null && Object.hasOwnProperty.call(message, "pos"))
-                            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.pos);
-                        if (message.title != null && Object.hasOwnProperty.call(message, "title"))
-                            writer.uint32(/* id 3, wireType 2 =*/26).string(message.title);
-                        if (message.cover != null && Object.hasOwnProperty.call(message, "cover"))
-                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.cover);
-                        if (message.hasVideo != null && Object.hasOwnProperty.call(message, "hasVideo"))
-                            writer.uint32(/* id 5, wireType 0 =*/40).bool(message.hasVideo);
-                        if (message.tags != null && message.tags.length)
-                            for (var i = 0; i < message.tags.length; ++i)
-                                writer.uint32(/* id 6, wireType 2 =*/50).string(message.tags[i]);
-                        if (message.ageRating != null && message.ageRating.length)
-                            for (var i = 0; i < message.ageRating.length; ++i)
-                                writer.uint32(/* id 7, wireType 2 =*/58).string(message.ageRating[i]);
-                        if (message.sortHint != null && Object.hasOwnProperty.call(message, "sortHint"))
-                            writer.uint32(/* id 8, wireType 2 =*/66).string(message.sortHint);
-                        return writer;
-                    };
-    
-                    /**
-                     * Encodes the specified MovieReference message, length delimited. Does not implicitly {@link movies.info.v1.MovieReference.verify|verify} messages.
-                     * @function encodeDelimited
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {movies.info.v1.IMovieReference} message MovieReference message or plain object to encode
-                     * @param {$protobuf.Writer} [writer] Writer to encode to
-                     * @returns {$protobuf.Writer} Writer
-                     */
-                    MovieReference.encodeDelimited = function encodeDelimited(message, writer) {
-                        return this.encode(message, writer).ldelim();
-                    };
-    
-                    /**
-                     * Decodes a MovieReference message from the specified reader or buffer.
-                     * @function decode
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @param {number} [length] Message length if known beforehand
-                     * @returns {movies.info.v1.MovieReference} MovieReference
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    MovieReference.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.movies.info.v1.MovieReference();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                message.id = reader.string();
-                                break;
-                            case 2:
-                                message.pos = reader.uint32();
-                                break;
-                            case 3:
-                                message.title = reader.string();
-                                break;
-                            case 4:
-                                message.cover = reader.string();
-                                break;
-                            case 5:
-                                message.hasVideo = reader.bool();
-                                break;
-                            case 6:
-                                if (!(message.tags && message.tags.length))
-                                    message.tags = [];
-                                message.tags.push(reader.string());
-                                break;
-                            case 7:
-                                if (!(message.ageRating && message.ageRating.length))
-                                    message.ageRating = [];
-                                message.ageRating.push(reader.string());
-                                break;
-                            case 8:
-                                message.sortHint = reader.string();
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-    
-                    /**
-                     * Decodes a MovieReference message from the specified reader or buffer, length delimited.
-                     * @function decodeDelimited
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @returns {movies.info.v1.MovieReference} MovieReference
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    MovieReference.decodeDelimited = function decodeDelimited(reader) {
-                        if (!(reader instanceof $Reader))
-                            reader = new $Reader(reader);
-                        return this.decode(reader, reader.uint32());
-                    };
-    
-                    /**
-                     * Verifies a MovieReference message.
-                     * @function verify
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {Object.<string,*>} message Plain object to verify
-                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                     */
-                    MovieReference.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        var properties = {};
-                        if (message.id != null && message.hasOwnProperty("id"))
-                            if (!$util.isString(message.id))
-                                return "id: string expected";
-                        if (message.pos != null && message.hasOwnProperty("pos")) {
-                            properties._pos = 1;
-                            if (!$util.isInteger(message.pos))
-                                return "pos: integer expected";
-                        }
-                        if (message.title != null && message.hasOwnProperty("title")) {
-                            properties._title = 1;
-                            if (!$util.isString(message.title))
-                                return "title: string expected";
-                        }
-                        if (message.cover != null && message.hasOwnProperty("cover")) {
-                            properties._cover = 1;
-                            if (!$util.isString(message.cover))
-                                return "cover: string expected";
-                        }
-                        if (message.hasVideo != null && message.hasOwnProperty("hasVideo")) {
-                            properties._hasVideo = 1;
-                            if (typeof message.hasVideo !== "boolean")
-                                return "hasVideo: boolean expected";
-                        }
-                        if (message.tags != null && message.hasOwnProperty("tags")) {
-                            if (!Array.isArray(message.tags))
-                                return "tags: array expected";
-                            for (var i = 0; i < message.tags.length; ++i)
-                                if (!$util.isString(message.tags[i]))
-                                    return "tags: string[] expected";
-                        }
-                        if (message.ageRating != null && message.hasOwnProperty("ageRating")) {
-                            if (!Array.isArray(message.ageRating))
-                                return "ageRating: array expected";
-                            for (var i = 0; i < message.ageRating.length; ++i)
-                                if (!$util.isString(message.ageRating[i]))
-                                    return "ageRating: string[] expected";
-                        }
-                        if (message.sortHint != null && message.hasOwnProperty("sortHint"))
-                            if (!$util.isString(message.sortHint))
-                                return "sortHint: string expected";
-                        return null;
-                    };
-    
-                    /**
-                     * Creates a MovieReference message from a plain object. Also converts values to their respective internal types.
-                     * @function fromObject
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {Object.<string,*>} object Plain object
-                     * @returns {movies.info.v1.MovieReference} MovieReference
-                     */
-                    MovieReference.fromObject = function fromObject(object) {
-                        if (object instanceof $root.movies.info.v1.MovieReference)
-                            return object;
-                        var message = new $root.movies.info.v1.MovieReference();
-                        if (object.id != null)
-                            message.id = String(object.id);
-                        if (object.pos != null)
-                            message.pos = object.pos >>> 0;
-                        if (object.title != null)
-                            message.title = String(object.title);
-                        if (object.cover != null)
-                            message.cover = String(object.cover);
-                        if (object.hasVideo != null)
-                            message.hasVideo = Boolean(object.hasVideo);
-                        if (object.tags) {
-                            if (!Array.isArray(object.tags))
-                                throw TypeError(".movies.info.v1.MovieReference.tags: array expected");
-                            message.tags = [];
-                            for (var i = 0; i < object.tags.length; ++i)
-                                message.tags[i] = String(object.tags[i]);
-                        }
-                        if (object.ageRating) {
-                            if (!Array.isArray(object.ageRating))
-                                throw TypeError(".movies.info.v1.MovieReference.ageRating: array expected");
-                            message.ageRating = [];
-                            for (var i = 0; i < object.ageRating.length; ++i)
-                                message.ageRating[i] = String(object.ageRating[i]);
-                        }
-                        if (object.sortHint != null)
-                            message.sortHint = String(object.sortHint);
-                        return message;
-                    };
-    
-                    /**
-                     * Creates a plain object from a MovieReference message. Also converts values to other types if specified.
-                     * @function toObject
-                     * @memberof movies.info.v1.MovieReference
-                     * @static
-                     * @param {movies.info.v1.MovieReference} message MovieReference
-                     * @param {$protobuf.IConversionOptions} [options] Conversion options
-                     * @returns {Object.<string,*>} Plain object
-                     */
-                    MovieReference.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.arrays || options.defaults) {
-                            object.tags = [];
-                            object.ageRating = [];
-                        }
-                        if (options.defaults) {
-                            object.id = "";
-                            object.sortHint = "";
-                        }
-                        if (message.id != null && message.hasOwnProperty("id"))
-                            object.id = message.id;
-                        if (message.pos != null && message.hasOwnProperty("pos")) {
-                            object.pos = message.pos;
-                            if (options.oneofs)
-                                object._pos = "pos";
-                        }
-                        if (message.title != null && message.hasOwnProperty("title")) {
-                            object.title = message.title;
-                            if (options.oneofs)
-                                object._title = "title";
-                        }
-                        if (message.cover != null && message.hasOwnProperty("cover")) {
-                            object.cover = message.cover;
-                            if (options.oneofs)
-                                object._cover = "cover";
-                        }
-                        if (message.hasVideo != null && message.hasOwnProperty("hasVideo")) {
-                            object.hasVideo = message.hasVideo;
-                            if (options.oneofs)
-                                object._hasVideo = "hasVideo";
-                        }
-                        if (message.tags && message.tags.length) {
-                            object.tags = [];
-                            for (var j = 0; j < message.tags.length; ++j)
-                                object.tags[j] = message.tags[j];
-                        }
-                        if (message.ageRating && message.ageRating.length) {
-                            object.ageRating = [];
-                            for (var j = 0; j < message.ageRating.length; ++j)
-                                object.ageRating[j] = message.ageRating[j];
-                        }
-                        if (message.sortHint != null && message.hasOwnProperty("sortHint"))
-                            object.sortHint = message.sortHint;
-                        return object;
-                    };
-    
-                    /**
-                     * Converts this MovieReference to JSON.
-                     * @function toJSON
-                     * @memberof movies.info.v1.MovieReference
-                     * @instance
-                     * @returns {Object.<string,*>} JSON object
-                     */
-                    MovieReference.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-    
-                    return MovieReference;
-                })();
-    
-                v1.MovieGroup = (function() {
-    
-                    /**
-                     * Properties of a MovieGroup.
-                     * @memberof movies.info.v1
-                     * @interface IMovieGroup
-                     * @property {string|null} [id] MovieGroup id
-                     * @property {string|null} [title] MovieGroup title
-                     * @property {Array.<movies.info.v1.IMovieReference>|null} [items] MovieGroup items
-                     * @property {number|null} [pos] MovieGroup pos
-                     */
-    
-                    /**
-                     * Constructs a new MovieGroup.
-                     * @memberof movies.info.v1
-                     * @classdesc Represents a MovieGroup.
-                     * @implements IMovieGroup
-                     * @constructor
-                     * @param {movies.info.v1.IMovieGroup=} [properties] Properties to set
-                     */
-                    function MovieGroup(properties) {
-                        this.items = [];
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-    
-                    /**
-                     * MovieGroup id.
-                     * @member {string} id
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     */
-                    MovieGroup.prototype.id = "";
-    
-                    /**
-                     * MovieGroup title.
-                     * @member {string|null|undefined} title
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     */
-                    MovieGroup.prototype.title = null;
-    
-                    /**
-                     * MovieGroup items.
-                     * @member {Array.<movies.info.v1.IMovieReference>} items
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     */
-                    MovieGroup.prototype.items = $util.emptyArray;
-    
-                    /**
-                     * MovieGroup pos.
-                     * @member {number|null|undefined} pos
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     */
-                    MovieGroup.prototype.pos = null;
-    
-                    // OneOf field names bound to virtual getters and setters
-                    var $oneOfFields;
-    
-                    /**
-                     * MovieGroup _title.
-                     * @member {"title"|undefined} _title
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     */
-                    Object.defineProperty(MovieGroup.prototype, "_title", {
-                        get: $util.oneOfGetter($oneOfFields = ["title"]),
-                        set: $util.oneOfSetter($oneOfFields)
-                    });
-    
-                    /**
-                     * MovieGroup _pos.
-                     * @member {"pos"|undefined} _pos
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     */
-                    Object.defineProperty(MovieGroup.prototype, "_pos", {
-                        get: $util.oneOfGetter($oneOfFields = ["pos"]),
-                        set: $util.oneOfSetter($oneOfFields)
-                    });
-    
-                    /**
-                     * Creates a new MovieGroup instance using the specified properties.
-                     * @function create
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {movies.info.v1.IMovieGroup=} [properties] Properties to set
-                     * @returns {movies.info.v1.MovieGroup} MovieGroup instance
-                     */
-                    MovieGroup.create = function create(properties) {
-                        return new MovieGroup(properties);
-                    };
-    
-                    /**
-                     * Encodes the specified MovieGroup message. Does not implicitly {@link movies.info.v1.MovieGroup.verify|verify} messages.
-                     * @function encode
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {movies.info.v1.IMovieGroup} message MovieGroup message or plain object to encode
-                     * @param {$protobuf.Writer} [writer] Writer to encode to
-                     * @returns {$protobuf.Writer} Writer
-                     */
-                    MovieGroup.encode = function encode(message, writer) {
-                        if (!writer)
-                            writer = $Writer.create();
-                        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
-                        if (message.title != null && Object.hasOwnProperty.call(message, "title"))
-                            writer.uint32(/* id 2, wireType 2 =*/18).string(message.title);
-                        if (message.items != null && message.items.length)
-                            for (var i = 0; i < message.items.length; ++i)
-                                $root.movies.info.v1.MovieReference.encode(message.items[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                        if (message.pos != null && Object.hasOwnProperty.call(message, "pos"))
-                            writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.pos);
-                        return writer;
-                    };
-    
-                    /**
-                     * Encodes the specified MovieGroup message, length delimited. Does not implicitly {@link movies.info.v1.MovieGroup.verify|verify} messages.
-                     * @function encodeDelimited
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {movies.info.v1.IMovieGroup} message MovieGroup message or plain object to encode
-                     * @param {$protobuf.Writer} [writer] Writer to encode to
-                     * @returns {$protobuf.Writer} Writer
-                     */
-                    MovieGroup.encodeDelimited = function encodeDelimited(message, writer) {
-                        return this.encode(message, writer).ldelim();
-                    };
-    
-                    /**
-                     * Decodes a MovieGroup message from the specified reader or buffer.
-                     * @function decode
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @param {number} [length] Message length if known beforehand
-                     * @returns {movies.info.v1.MovieGroup} MovieGroup
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    MovieGroup.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.movies.info.v1.MovieGroup();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                message.id = reader.string();
-                                break;
-                            case 2:
-                                message.title = reader.string();
-                                break;
-                            case 3:
-                                if (!(message.items && message.items.length))
-                                    message.items = [];
-                                message.items.push($root.movies.info.v1.MovieReference.decode(reader, reader.uint32()));
-                                break;
-                            case 4:
-                                message.pos = reader.uint32();
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-    
-                    /**
-                     * Decodes a MovieGroup message from the specified reader or buffer, length delimited.
-                     * @function decodeDelimited
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @returns {movies.info.v1.MovieGroup} MovieGroup
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    MovieGroup.decodeDelimited = function decodeDelimited(reader) {
-                        if (!(reader instanceof $Reader))
-                            reader = new $Reader(reader);
-                        return this.decode(reader, reader.uint32());
-                    };
-    
-                    /**
-                     * Verifies a MovieGroup message.
-                     * @function verify
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {Object.<string,*>} message Plain object to verify
-                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                     */
-                    MovieGroup.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        var properties = {};
-                        if (message.id != null && message.hasOwnProperty("id"))
-                            if (!$util.isString(message.id))
-                                return "id: string expected";
-                        if (message.title != null && message.hasOwnProperty("title")) {
-                            properties._title = 1;
-                            if (!$util.isString(message.title))
-                                return "title: string expected";
-                        }
-                        if (message.items != null && message.hasOwnProperty("items")) {
-                            if (!Array.isArray(message.items))
-                                return "items: array expected";
-                            for (var i = 0; i < message.items.length; ++i) {
-                                var error = $root.movies.info.v1.MovieReference.verify(message.items[i]);
-                                if (error)
-                                    return "items." + error;
-                            }
-                        }
-                        if (message.pos != null && message.hasOwnProperty("pos")) {
-                            properties._pos = 1;
-                            if (!$util.isInteger(message.pos))
-                                return "pos: integer expected";
-                        }
-                        return null;
-                    };
-    
-                    /**
-                     * Creates a MovieGroup message from a plain object. Also converts values to their respective internal types.
-                     * @function fromObject
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {Object.<string,*>} object Plain object
-                     * @returns {movies.info.v1.MovieGroup} MovieGroup
-                     */
-                    MovieGroup.fromObject = function fromObject(object) {
-                        if (object instanceof $root.movies.info.v1.MovieGroup)
-                            return object;
-                        var message = new $root.movies.info.v1.MovieGroup();
-                        if (object.id != null)
-                            message.id = String(object.id);
-                        if (object.title != null)
-                            message.title = String(object.title);
-                        if (object.items) {
-                            if (!Array.isArray(object.items))
-                                throw TypeError(".movies.info.v1.MovieGroup.items: array expected");
-                            message.items = [];
-                            for (var i = 0; i < object.items.length; ++i) {
-                                if (typeof object.items[i] !== "object")
-                                    throw TypeError(".movies.info.v1.MovieGroup.items: object expected");
-                                message.items[i] = $root.movies.info.v1.MovieReference.fromObject(object.items[i]);
-                            }
-                        }
-                        if (object.pos != null)
-                            message.pos = object.pos >>> 0;
-                        return message;
-                    };
-    
-                    /**
-                     * Creates a plain object from a MovieGroup message. Also converts values to other types if specified.
-                     * @function toObject
-                     * @memberof movies.info.v1.MovieGroup
-                     * @static
-                     * @param {movies.info.v1.MovieGroup} message MovieGroup
-                     * @param {$protobuf.IConversionOptions} [options] Conversion options
-                     * @returns {Object.<string,*>} Plain object
-                     */
-                    MovieGroup.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.arrays || options.defaults)
-                            object.items = [];
-                        if (options.defaults)
-                            object.id = "";
-                        if (message.id != null && message.hasOwnProperty("id"))
-                            object.id = message.id;
-                        if (message.title != null && message.hasOwnProperty("title")) {
-                            object.title = message.title;
-                            if (options.oneofs)
-                                object._title = "title";
-                        }
-                        if (message.items && message.items.length) {
-                            object.items = [];
-                            for (var j = 0; j < message.items.length; ++j)
-                                object.items[j] = $root.movies.info.v1.MovieReference.toObject(message.items[j], options);
-                        }
-                        if (message.pos != null && message.hasOwnProperty("pos")) {
-                            object.pos = message.pos;
-                            if (options.oneofs)
-                                object._pos = "pos";
-                        }
-                        return object;
-                    };
-    
-                    /**
-                     * Converts this MovieGroup to JSON.
-                     * @function toJSON
-                     * @memberof movies.info.v1.MovieGroup
-                     * @instance
-                     * @returns {Object.<string,*>} JSON object
-                     */
-                    MovieGroup.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-    
-                    return MovieGroup;
-                })();
-    
                 v1.MovieInfo = (function() {
     
                     /**
@@ -5301,7 +4552,7 @@
                      * @property {Array.<string>|null} [countries] MovieInfo countries
                      * @property {Array.<string>|null} [ageRating] MovieInfo ageRating
                      * @property {Array.<string>|null} [tags] MovieInfo tags
-                     * @property {Array.<movies.info.v1.IMovieReference>|null} [episodes] MovieInfo episodes
+                     * @property {Array.<movies.listing.v1.IMovieReference>|null} [episodes] MovieInfo episodes
                      * @property {string|null} [summary] MovieInfo summary
                      * @property {movies.info.v1.IImageInfo|null} [image] MovieInfo image
                      * @property {number|null} [year] MovieInfo year
@@ -5413,7 +4664,7 @@
     
                     /**
                      * MovieInfo episodes.
-                     * @member {Array.<movies.info.v1.IMovieReference>} episodes
+                     * @member {Array.<movies.listing.v1.IMovieReference>} episodes
                      * @memberof movies.info.v1.MovieInfo
                      * @instance
                      */
@@ -5558,7 +4809,7 @@
                                 writer.uint32(/* id 10, wireType 2 =*/82).string(message.tags[i]);
                         if (message.episodes != null && message.episodes.length)
                             for (var i = 0; i < message.episodes.length; ++i)
-                                $root.movies.info.v1.MovieReference.encode(message.episodes[i], writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
+                                $root.movies.listing.v1.MovieReference.encode(message.episodes[i], writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
                         if (message.summary != null && Object.hasOwnProperty.call(message, "summary"))
                             writer.uint32(/* id 12, wireType 2 =*/98).string(message.summary);
                         if (message.image != null && Object.hasOwnProperty.call(message, "image"))
@@ -5648,7 +4899,7 @@
                             case 11:
                                 if (!(message.episodes && message.episodes.length))
                                     message.episodes = [];
-                                message.episodes.push($root.movies.info.v1.MovieReference.decode(reader, reader.uint32()));
+                                message.episodes.push($root.movies.listing.v1.MovieReference.decode(reader, reader.uint32()));
                                 break;
                             case 12:
                                 message.summary = reader.string();
@@ -5767,7 +5018,7 @@
                             if (!Array.isArray(message.episodes))
                                 return "episodes: array expected";
                             for (var i = 0; i < message.episodes.length; ++i) {
-                                var error = $root.movies.info.v1.MovieReference.verify(message.episodes[i]);
+                                var error = $root.movies.listing.v1.MovieReference.verify(message.episodes[i]);
                                 if (error)
                                     return "episodes." + error;
                             }
@@ -5881,7 +5132,7 @@
                             for (var i = 0; i < object.episodes.length; ++i) {
                                 if (typeof object.episodes[i] !== "object")
                                     throw TypeError(".movies.info.v1.MovieInfo.episodes: object expected");
-                                message.episodes[i] = $root.movies.info.v1.MovieReference.fromObject(object.episodes[i]);
+                                message.episodes[i] = $root.movies.listing.v1.MovieReference.fromObject(object.episodes[i]);
                             }
                         }
                         if (object.summary != null)
@@ -5970,7 +5221,7 @@
                         if (message.episodes && message.episodes.length) {
                             object.episodes = [];
                             for (var j = 0; j < message.episodes.length; ++j)
-                                object.episodes[j] = $root.movies.info.v1.MovieReference.toObject(message.episodes[j], options);
+                                object.episodes[j] = $root.movies.listing.v1.MovieReference.toObject(message.episodes[j], options);
                         }
                         if (message.summary != null && message.hasOwnProperty("summary")) {
                             object.summary = message.summary;
@@ -10265,6 +9516,7 @@
                      * @property {Array.<movies.filters.v1.ISortDescription>|null} [sort] GetConfigResponse sort
                      * @property {Array.<movies.ui.v1.IStrings>|null} [countries] GetConfigResponse countries
                      * @property {Array.<movies.ui.v1.IStrings>|null} [tags] GetConfigResponse tags
+                     * @property {movies.ui.v1.IAppStrings|null} [app] GetConfigResponse app
                      */
     
                     /**
@@ -10319,6 +9571,14 @@
                     GetConfigResponse.prototype.tags = $util.emptyArray;
     
                     /**
+                     * GetConfigResponse app.
+                     * @member {movies.ui.v1.IAppStrings|null|undefined} app
+                     * @memberof movies.ui.v1.GetConfigResponse
+                     * @instance
+                     */
+                    GetConfigResponse.prototype.app = null;
+    
+                    /**
                      * Creates a new GetConfigResponse instance using the specified properties.
                      * @function create
                      * @memberof movies.ui.v1.GetConfigResponse
@@ -10354,6 +9614,8 @@
                         if (message.tags != null && message.tags.length)
                             for (var i = 0; i < message.tags.length; ++i)
                                 $root.movies.ui.v1.Strings.encode(message.tags[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                        if (message.app != null && Object.hasOwnProperty.call(message, "app"))
+                            $root.movies.ui.v1.AppStrings.encode(message.app, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                         return writer;
                     };
     
@@ -10407,6 +9669,9 @@
                                 if (!(message.tags && message.tags.length))
                                     message.tags = [];
                                 message.tags.push($root.movies.ui.v1.Strings.decode(reader, reader.uint32()));
+                                break;
+                            case 5:
+                                message.app = $root.movies.ui.v1.AppStrings.decode(reader, reader.uint32());
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -10479,6 +9744,11 @@
                                     return "tags." + error;
                             }
                         }
+                        if (message.app != null && message.hasOwnProperty("app")) {
+                            var error = $root.movies.ui.v1.AppStrings.verify(message.app);
+                            if (error)
+                                return "app." + error;
+                        }
                         return null;
                     };
     
@@ -10534,6 +9804,11 @@
                                 message.tags[i] = $root.movies.ui.v1.Strings.fromObject(object.tags[i]);
                             }
                         }
+                        if (object.app != null) {
+                            if (typeof object.app !== "object")
+                                throw TypeError(".movies.ui.v1.GetConfigResponse.app: object expected");
+                            message.app = $root.movies.ui.v1.AppStrings.fromObject(object.app);
+                        }
                         return message;
                     };
     
@@ -10556,6 +9831,8 @@
                             object.countries = [];
                             object.tags = [];
                         }
+                        if (options.defaults)
+                            object.app = null;
                         if (message.filters && message.filters.length) {
                             object.filters = [];
                             for (var j = 0; j < message.filters.length; ++j)
@@ -10576,6 +9853,8 @@
                             for (var j = 0; j < message.tags.length; ++j)
                                 object.tags[j] = $root.movies.ui.v1.Strings.toObject(message.tags[j], options);
                         }
+                        if (message.app != null && message.hasOwnProperty("app"))
+                            object.app = $root.movies.ui.v1.AppStrings.toObject(message.app, options);
                         return object;
                     };
     
@@ -10801,6 +10080,166 @@
                     };
     
                     return Strings;
+                })();
+    
+                v1.AppStrings = (function() {
+    
+                    /**
+                     * Properties of an AppStrings.
+                     * @memberof movies.ui.v1
+                     * @interface IAppStrings
+                     */
+    
+                    /**
+                     * Constructs a new AppStrings.
+                     * @memberof movies.ui.v1
+                     * @classdesc Represents an AppStrings.
+                     * @implements IAppStrings
+                     * @constructor
+                     * @param {movies.ui.v1.IAppStrings=} [properties] Properties to set
+                     */
+                    function AppStrings(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * Creates a new AppStrings instance using the specified properties.
+                     * @function create
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {movies.ui.v1.IAppStrings=} [properties] Properties to set
+                     * @returns {movies.ui.v1.AppStrings} AppStrings instance
+                     */
+                    AppStrings.create = function create(properties) {
+                        return new AppStrings(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified AppStrings message. Does not implicitly {@link movies.ui.v1.AppStrings.verify|verify} messages.
+                     * @function encode
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {movies.ui.v1.IAppStrings} message AppStrings message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    AppStrings.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified AppStrings message, length delimited. Does not implicitly {@link movies.ui.v1.AppStrings.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {movies.ui.v1.IAppStrings} message AppStrings message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    AppStrings.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes an AppStrings message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {movies.ui.v1.AppStrings} AppStrings
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    AppStrings.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.movies.ui.v1.AppStrings();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes an AppStrings message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {movies.ui.v1.AppStrings} AppStrings
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    AppStrings.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies an AppStrings message.
+                     * @function verify
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    AppStrings.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        return null;
+                    };
+    
+                    /**
+                     * Creates an AppStrings message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {movies.ui.v1.AppStrings} AppStrings
+                     */
+                    AppStrings.fromObject = function fromObject(object) {
+                        if (object instanceof $root.movies.ui.v1.AppStrings)
+                            return object;
+                        return new $root.movies.ui.v1.AppStrings();
+                    };
+    
+                    /**
+                     * Creates a plain object from an AppStrings message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof movies.ui.v1.AppStrings
+                     * @static
+                     * @param {movies.ui.v1.AppStrings} message AppStrings
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    AppStrings.toObject = function toObject() {
+                        return {};
+                    };
+    
+                    /**
+                     * Converts this AppStrings to JSON.
+                     * @function toJSON
+                     * @memberof movies.ui.v1.AppStrings
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    AppStrings.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return AppStrings;
                 })();
     
                 return v1;
