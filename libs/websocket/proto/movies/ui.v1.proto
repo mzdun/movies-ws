@@ -3,6 +3,7 @@ syntax = "proto3";
 package movies.ui.v1;
 
 import "proto/movies/filters.v1.proto";
+import "proto/movies/appstr.v1.proto";
 
 message LangChangeRequest {
 	repeated string lang_id = 1;
@@ -19,6 +20,7 @@ message GetConfigResponse {
 	repeated movies.filters.v1.SortDescription sort = 2;
 	repeated Strings countries = 3;
 	repeated Strings tags = 4;
+	movies.appstr.v1.AppStrings app = 5;
 };
 
 ////////////////////////////////////////////

@@ -64,3 +64,4 @@ export class Service extends MovieEventTarget {
 
 export {movies};
 export * from './filters';
+export * from './appstr';

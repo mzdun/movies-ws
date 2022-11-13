@@ -1,0 +1,21 @@
+[
+    project("movies-ws"),
+	namespace("movies::web"),
+    version("latest"),
+    serial(1)
+] strings {
+	[help("Label for Play command"), id(-1)]
+	COMMAND_PLAY = "Play";
+
+	[help("Crew group name for movie directors"), id(-1)]
+	CREW_DIRECTORS = "Directors";
+	[help("Crew group name for movie writers"), id(-1)]
+	CREW_WRITERS = "Writers";
+	[help("Crew group name for movie cast"), id(-1)]
+	CREW_CAST = "Cast";
+
+	[help("Section title for episode list"), id(-1)]
+	HEADER_EPISODES = "Episodes";
+	[help("Section title for episode list"), id(-1)]
+	HEADER_GALLERY = "Gallery";
+}

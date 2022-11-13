@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the movies-ws package.
+# marcin.zdun@midnightbits.com, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: movies-ws latest\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-13 09:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Label for Play command
+msgctxt "COMMAND_PLAY"
+msgid "Play"
+msgstr ""
+
+#. Crew group name for movie cast
+msgctxt "CREW_CAST"
+msgid "Cast"
+msgstr ""
+
+#. Crew group name for movie directors
+msgctxt "CREW_DIRECTORS"
+msgid "Directors"
+msgstr ""
+
+#. Crew group name for movie writers
+msgctxt "CREW_WRITERS"
+msgid "Writers"
+msgstr ""
+
+#. Section title for episode list
+msgctxt "HEADER_EPISODES"
+msgid "Episodes"
+msgstr ""
+
+#. Section title for episode list
+msgctxt "HEADER_GALLERY"
+msgid "Gallery"
+msgstr ""
+

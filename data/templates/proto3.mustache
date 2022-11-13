@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package movies.appstr.v1;
+
+message AppStrings {
+{{#with_singular}}
+{{#singular}}
+    // "{{{value}}}"{{#help}} ({{{help}}}){{/help}}
+    string {{case.snake}} = {{id}};
+{{/singular}}
+{{/with_singular}}
+}

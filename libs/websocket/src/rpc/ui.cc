@@ -4,6 +4,7 @@
 #include <base/overload.hh>
 #include <regions/mapping.hh>
 #include <rpc/ui.hh>
+#include "appstr.hh"
 
 #define OPT_COPY(FLD) \
 	if (src.FLD) v1::copy(*src.FLD, *dst.mutable_##FLD())
@@ -208,6 +209,9 @@ namespace movies::ui::v1 {
 				dst.set_value(value.data(), value.size());
 			}
 		}
+
+		copy_strings(tr, *resp.mutable_app());
+
 		return true;
 	}
 }  // namespace movies::ui::v1

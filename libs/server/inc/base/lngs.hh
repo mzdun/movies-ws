@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include <fmt/format.h>
+#include <regions/lngs.hh>
 #include <server/lngs.hh>
 #include <tags/lngs.hh>
-#include <regions/lngs.hh>
-#include <fmt/format.h>
+#include <webapp/lngs.hh>
 
 using namespace std::literals;
 
@@ -71,6 +72,8 @@ namespace movies {
 	STRINGS_TRAITS(app::Strings, server);
 	STRINGS_TRAITS(tags::Strings, tags);
 	STRINGS_TRAITS(region::Strings, regions);
+	STRINGS_TRAITS(web::Strings, webapp);
 
-	using Strings = Wrapped<app::Strings, tags::Strings, region::Strings>;
+	using Strings =
+	    Wrapped<app::Strings, tags::Strings, region::Strings, web::Strings>;
 }  // namespace movies

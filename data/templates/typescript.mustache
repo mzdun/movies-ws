@@ -1,0 +1,28 @@
+import {movies} from './proto/bundle';
+
+export interface AppStrings {
+{{#with_singular}}
+{{#singular}}
+    // "{{{value}}}"{{#help}} ({{{help}}}){{/help}}
+    {{case.camel}}: string;
+{{/singular}}
+{{/with_singular}}
+}
+
+export const appStrings: AppStrings = {
+{{#with_singular}}
+{{#singular}}
+    {{case.camel}}: "{{{warpped.value}}}",
+{{/singular}}
+{{/with_singular}}
+};
+
+export function AppStringsFrom(str: movies.appstr.v1.IAppStrings): AppStrings {
+	return {
+{{#with_singular}}
+{{#singular}}
+		{{case.camel}}: str?.{{case.camel}} || appStrings.{{case.camel}},
+{{/singular}}
+{{/with_singular}}
+	};
+}

@@ -34,7 +34,7 @@ set(LNGS_DIR "${DATA_DIR}/strings")
 set(TR_DIR "${DATA_DIR}/translations")
 set(BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../bin")
 
-set(LNG_SOURCES server tags regions)
+set(LNG_SOURCES server tags regions webapp)
 
 set(GEN_SRCS "${CMAKE_CURRENT_BINARY_DIR}/inc/regions/mapping.hh")
 set(DATA_SRCS)
