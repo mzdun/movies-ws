@@ -34,7 +34,7 @@ set(LNGS_DIR "${DATA_DIR}/strings")
 set(TR_DIR "${DATA_DIR}/translations")
 set(BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../bin")
 
-set(LNG_SORUCES server tags regions)
+set(LNG_SOURCES server tags regions)
 
 set(GEN_SRCS "${CMAKE_CURRENT_BINARY_DIR}/inc/regions/mapping.hh")
 set(DATA_SRCS)
@@ -42,7 +42,7 @@ set(BIN_SRCS)
 
 message(STATUS "${CMAKE_CURRENT_BINARY_DIR}/inc/regions/mapping.hh")
 
-foreach(LNG_SOURCE ${LNG_SORUCES})
+foreach(LNG_SOURCE ${LNG_SOURCES})
     list(APPEND GEN_SRCS
         "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
         "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}/lngs.hh"
@@ -64,7 +64,7 @@ source_group(TREE ${CMAKE_CURRENT_BINARY_DIR} FILES ${GEN_SRCS} PREFIX gen)
 source_group(TREE ${BIN_DIR} FILES ${BIN_SRCS} PREFIX gen/bin)
 source_group(TREE ${DATA_DIR} FILES ${DATA_SRCS} PREFIX data)
 
-foreach(LNG_SOURCE ${LNG_SORUCES})
+foreach(LNG_SOURCE ${LNG_SOURCES})
     set(__LNGS_FILES "${LNGS_DIR}/${LNG_SOURCE}.lngs")
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
     COMMAND "${LNGS_EXEC}"

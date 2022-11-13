@@ -2,23 +2,7 @@ syntax = "proto3";
 
 package movies.info.v1;
 
-message MovieReference {
-	string id = 1;
-	optional uint32 pos = 2;
-	optional string title = 3;
-	optional string cover = 4;
-	optional bool has_video = 5;
-	repeated string tags = 6;
-	repeated string age_rating = 7;
-	string sort_hint = 8;
-};
-
-message MovieGroup {
-	string id = 1;
-	optional string title = 2;
-	repeated MovieReference items = 3;
-	optional uint32 pos = 4;
-}
+import "proto/movies/listing.v1.proto";
 
 message MovieInfo {
 	string id = 1;
@@ -31,7 +15,7 @@ message MovieInfo {
 	repeated string countries = 8;
 	repeated string age_rating = 9;
 	repeated string tags = 10;
-	repeated MovieReference episodes = 11;
+	repeated movies.listing.v1.MovieReference episodes = 11;
 	optional string summary = 12;
 	ImageInfo image = 13;
 	optional uint32 year = 14;

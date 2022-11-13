@@ -3,15 +3,19 @@
 
 #pragma once
 #include <base/extended_info.hh>
+#include <base/lngs.hh>
 #include <filters/filter.hh>
 #include <full_text/engine.hh>
+#include <server/lngs.hh>
 #include <server/plugin.hh>
 #include <sorting/sort.hh>
-#include <server/lngs.hh>
-#include <base/lngs.hh>
 
 namespace movies {
 	struct reference {
+		enum cover_size {
+			cover_normal = true,
+			cover_small = false,
+		};
 		std::string id{};
 		string title{};
 		std::optional<string> cover{};
@@ -22,7 +26,8 @@ namespace movies {
 
 		static reference from(std::string const&,
 		                      extended_info const&,
-		                      std::string&& sort_hint);
+		                      std::string&& sort_hint,
+		                      cover_size = cover_normal);
 	};
 
 	struct group {
@@ -37,6 +42,8 @@ namespace movies {
 
 		void load(std::filesystem::path const& database);
 		extended_info find_movie_copy(std::string_view id) const;
+		std::vector<reference> get_episodes(
+		    std::vector<string> const& episodes) const;
 		std::vector<link> links_for(extended_info const&) const;
 		std::vector<group> listing(std::string const& search,
 		                           filter::list const& filters,

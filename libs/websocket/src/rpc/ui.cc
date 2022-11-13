@@ -163,7 +163,7 @@ namespace movies::ui::v1 {
 			if (!dbg.empty()) dbg += ", ";
 			dbg.append(lng);
 		}
-		lwsl_user("GetConfig(%s)\n", dbg.c_str());
+		lwsl_user("LangChange(%s)\n", dbg.c_str());
 
 		auto const& lang_ids = req.lang_id();
 

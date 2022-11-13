@@ -6,6 +6,7 @@
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <base/overload.hh>
+#include <base/str.hh>
 #include <iostream>
 #include <movies/opt.hpp>
 #include <server/server.hh>
@@ -32,14 +33,19 @@ namespace movies {
 	std::optional<string> normal_cover(poster_info const& poster) {
 		return poster.normal || poster.large || poster.small;
 	}
+	std::optional<string> small_cover(poster_info const& poster) {
+		return poster.small || poster.normal || poster.large;
+	}
 
 	reference reference::from(std::string const& key,
 	                          extended_info const& data,
-	                          std::string&& sort_hint) {
+	                          std::string&& sort_hint,
+	                          cover_size size) {
 		return {
 		    .id = key,
 		    .title = find_title(data.info.title),
-		    .cover = normal_cover(data.info.image.poster),
+		    .cover = size == cover_normal ? normal_cover(data.info.image.poster)
+		                                  : small_cover(data.info.image.poster),
 		    .has_video = !!data.video_file || data.episodes_have_videos,
 		    .tags = data.info.tags,
 		    .age_rating = data.info.age,
@@ -170,6 +176,22 @@ namespace movies {
 		auto it = movies_.find(id);
 		if (it == movies_.end()) return {};
 		return it->second;
+	}
+
+	std::vector<reference> server::get_episodes(
+	    std::vector<string> const& episodes) const {
+		std::vector<reference> result{};
+		result.reserve(episodes.size());
+		for (auto const& ref : episodes) {
+			auto ref_it = ref2id_.find(ref);
+			if (ref_it == ref2id_.end()) continue;
+			auto movie_it = movies_.find(ref_it->second);
+			if (movie_it == movies_.end()) continue;
+			
+			result.push_back(reference::from(ref_it->second, movie_it->second,
+			                                 {}, reference::cover_small));
+		}
+		return result;
 	}
 
 	std::vector<link> server::links_for(extended_info const& data) const {

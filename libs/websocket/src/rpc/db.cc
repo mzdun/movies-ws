@@ -20,20 +20,15 @@ namespace movies::db::v1 {
 			dst = src;
 		}
 
-		void copy(vector<string> const& src,
-		          RepeatedPtrField<std::string>& dst) {
-			dst.Reserve(ws::isize(src));
-
-			for (auto const& val : src) {
-				copy(val, *dst.Add());
-			}
-		}
+		template <typename Src, typename Dst>
+		inline void copy(std::vector<Src> const& src,
+		                 RepeatedPtrField<Dst>& dst);
 
 #define OPT_COPY(FLD) \
-	if (src.FLD) copy(*src.FLD, *dst.mutable_##FLD())
+	if (src.FLD) v1::copy(*src.FLD, *dst.mutable_##FLD())
 #define OPT_SET(FLD) \
 	if (src.FLD) dst.set_##FLD(*src.FLD)
-#define COPY(FLD) copy(src.FLD, *dst.mutable_##FLD())
+#define COPY(FLD) v1::copy(src.FLD, *dst.mutable_##FLD())
 #define SET(FLD) dst.set_##FLD(src.FLD)
 
 		void copy(reference const& src, listing::v1::MovieReference& dst) {
@@ -46,28 +41,10 @@ namespace movies::db::v1 {
 			COPY(sort_hint);
 		}
 
-		void copy(std::vector<reference> const& src,
-		          RepeatedPtrField<listing::v1::MovieReference>& dst) {
-			dst.Reserve(ws::isize(src));
-
-			for (auto const& val : src) {
-				copy(val, *dst.Add());
-			}
-		}
-
 		void copy(group const& src, listing::v1::MovieGroup& dst) {
 			COPY(id);
 			COPY(title);
 			COPY(items);
-		}
-
-		void copy(std::vector<group> const& src,
-		          RepeatedPtrField<listing::v1::MovieGroup>& dst) {
-			dst.Reserve(ws::isize(src));
-
-			for (auto const& val : src) {
-				copy(val, *dst.Add());
-			}
 		}
 
 		void copy(title_info const& src, info::v1::TitleInfo& dst) {
@@ -78,14 +55,6 @@ namespace movies::db::v1 {
 		void copy(person_info const& src, info::v1::PersonInfo& dst) {
 			COPY(key);
 			OPT_COPY(contribution);
-		}
-
-		void copy(crew_info::people_list const& src,
-		          RepeatedPtrField<info::v1::PersonInfo>& dst) {
-			dst.Reserve(ws::isize(src));
-
-			for (auto const& src_item : src)
-				copy(src_item, *dst.Add());
 		}
 
 		void copy(crew_info const& src, info::v1::CrewInfo& dst) {
@@ -144,23 +113,26 @@ namespace movies::db::v1 {
 			OPT_COPY(rel);
 		}
 
-		void copy(std::vector<link> const& src,
-		          RepeatedPtrField<info::v1::Link>& dst) {
+		template <typename Src, typename Dst>
+		inline void copy(std::vector<Src> const& src,
+		                 RepeatedPtrField<Dst>& dst) {
 			dst.Reserve(ws::isize(src));
 
 			for (auto const& val : src) {
-				copy(val, *dst.Add());
+				v1::copy(val, *dst.Add());
 			}
 		}
 
 		void copy(movie_data const& src,
 		          std::string const& key,
 		          std::vector<link> const& links,
+		          std::vector<reference> const& episodes,
 		          info::v1::MovieInfo& dst) {
 			dst.set_id(key);
 			dst.set_has_video(!!src.video_file);
-			copy(src.info, dst);
-			copy(links, *dst.mutable_links());
+			v1::copy(src.info, dst);
+			v1::copy(links, *dst.mutable_links());
+			v1::copy(episodes, *dst.mutable_episodes());
 		}
 
 		std::string debug_str(db::v1::GetListingRequest const& req) {
@@ -307,7 +279,9 @@ namespace movies::db::v1 {
 	MSG_HANDLER(GetMovieInfo) {
 		lwsl_user("GetMovieInfo(%s)\n", req.key().c_str());
 		auto info = server()->find_movie_copy(req.key());
-		copy(info, req.key(), server()->links_for(info), *resp.mutable_info());
+		auto const episodes = server()->get_episodes(info.info.episodes);
+		copy(info, req.key(), server()->links_for(info), episodes,
+		     *resp.mutable_info());
 		if (resp.info().title().has_local())
 			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
 		else

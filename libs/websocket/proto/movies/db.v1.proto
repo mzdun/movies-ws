@@ -33,9 +33,9 @@ message GetVideoFileResponse {
 };
 
 message ListingResponseChangedEvent {
-	repeated movies.info.v1.MovieGroup removed = 1;
-	repeated movies.info.v1.MovieGroup added = 2;
-	repeated movies.info.v1.MovieGroup changed = 3;
+	repeated movies.listing.v1.MovieGroup removed = 1;
+	repeated movies.listing.v1.MovieGroup added = 2;
+	repeated movies.listing.v1.MovieGroup changed = 3;
 };
 
 message MovieInfoChangedEvent {
