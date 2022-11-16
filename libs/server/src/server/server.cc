@@ -101,6 +101,8 @@ namespace movies {
 
 		for (auto& [parent, movie] : movies_) {
 			if (movie.info.episodes.empty()) continue;
+
+			decltype(movies_)::iterator prev_it{movies_.end()};
 			for (auto const& ep : movie.info.episodes) {
 				auto id_iter = ref2id_.find(ep);
 				if (id_iter == ref2id_.end()) continue;
@@ -109,6 +111,25 @@ namespace movies {
 				auto& episode = ep_iter->second;
 				episode.is_episode = true;
 				episode.series_id = parent;
+
+				if (prev_it != movies_.end()) {
+					auto& prev_episode = prev_it->second;
+					prev_episode.next.id = ep_iter->first;
+					prev_episode.next.title =
+					    episode.info.title.local || nothing;
+					prev_episode.link_flags =
+					    static_cast<extended_info::link_flags_t>(
+					        prev_episode.link_flags | extended_info::has_next);
+
+					episode.prev.id = prev_it->first;
+					episode.prev.title =
+					    prev_episode.info.title.local || nothing;
+					episode.link_flags =
+					    static_cast<extended_info::link_flags_t>(
+					        episode.link_flags | extended_info::has_prev);
+				}
+				prev_it = ep_iter;
+
 				if (episode.video_file) movie.episodes_have_videos = true;
 			}
 		}
@@ -188,7 +209,7 @@ namespace movies {
 			if (ref_it == ref2id_.end()) continue;
 			auto movie_it = movies_.find(ref_it->second);
 			if (movie_it == movies_.end()) continue;
-			
+
 			result.push_back(reference::from(ref_it->second, movie_it->second,
 			                                 {}, reference::cover_small));
 		}
@@ -292,9 +313,8 @@ namespace movies {
 	                                   bool hide_episodes) const {
 		auto keys = filtered(search, filters, hide_episodes);
 		sorted(keys, sort);
-		return sort.empty() || !group_items
-		           ? quick_inflate(keys)
-		           : inflate(keys, *sort.front());
+		return sort.empty() || !group_items ? quick_inflate(keys)
+		                                    : inflate(keys, *sort.front());
 	}
 
 	bool server::lang_change(std::vector<std::string> const& langs) {

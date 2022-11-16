@@ -113,6 +113,11 @@ namespace movies::db::v1 {
 			OPT_COPY(rel);
 		}
 
+		void copy(extended_info::link const& src, info::v1::MovieLink& dst) {
+			COPY(id);
+			COPY(title);
+		}
+
 		template <typename Src, typename Dst>
 		inline void copy(std::vector<Src> const& src,
 		                 RepeatedPtrField<Dst>& dst) {
@@ -123,7 +128,7 @@ namespace movies::db::v1 {
 			}
 		}
 
-		void copy(movie_data const& src,
+		void copy(extended_info const& src,
 		          std::string const& key,
 		          std::vector<link> const& links,
 		          std::vector<reference> const& episodes,
@@ -133,6 +138,14 @@ namespace movies::db::v1 {
 			v1::copy(src.info, dst);
 			v1::copy(links, *dst.mutable_links());
 			v1::copy(episodes, *dst.mutable_episodes());
+
+			if (src.link_flags & extended_info::has_prev)
+				v1::copy(src.prev, *dst.mutable_prev());
+
+			if (src.link_flags & extended_info::has_next)
+				v1::copy(src.next, *dst.mutable_next());
+
+			if (src.is_episode) v1::copy(src.series_id, *dst.mutable_parent());
 		}
 
 		template <typename Request>

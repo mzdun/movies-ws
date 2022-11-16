@@ -21,6 +21,15 @@ message MovieInfo {
 	optional uint32 year = 14;
 	optional uint32 runtime = 15;
 	optional uint32 rating = 16;
+
+	optional MovieLink prev = 17;
+	optional MovieLink next = 18;
+	optional string parent = 19;
+};
+
+message MovieLink {
+	string title = 1;
+	string id = 2;
 };
 
 message TitleInfo {

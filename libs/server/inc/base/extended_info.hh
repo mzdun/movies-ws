@@ -27,6 +27,17 @@ namespace movies {
 		std::string series_id{};
 		dates_info::opt_seconds arrival{};
 		title_category title{};
+
+		struct link {
+			std::string id{};
+			string title{};
+		} prev, next;
+		enum link_flags_t {
+			has_none,
+			has_prev,
+			has_next,
+			has_both,
+		} link_flags{has_none};
 	};
 
 	using movie_db = std::map<std::string, extended_info, std::less<>>;
