@@ -15,6 +15,8 @@ namespace movies {
 			unsigned low, high;
 			bool is_optional;
 			std::variant<unsigned, std::vector<unsigned>> steps;
+
+			bool operator==(range_filter const&) const noexcept = default;
 		};
 
 		struct tokens_filter {
@@ -22,6 +24,8 @@ namespace movies {
 			app::lng label;
 			std::optional<std::string> icon;
 			std::vector<std::string> values;
+
+			bool operator==(tokens_filter const&) const noexcept = default;
 		};
 
 		struct on_off_filter {
@@ -30,6 +34,8 @@ namespace movies {
 			app::lng opposite_label;
 			std::optional<std::string> icon;
 			bool defaultValue;
+
+			bool operator==(on_off_filter const&) const noexcept = default;
 		};
 
 		using filter = std::variant<range_filter, tokens_filter, on_off_filter>;

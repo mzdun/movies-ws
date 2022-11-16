@@ -18,6 +18,8 @@ namespace movies {
 		char_class grouping{char_class::other};
 		UChar32 upper{};
 
+		bool operator==(title_category const&) const noexcept = default;
+
 		void init(title_info const&, icu::Normalizer2 const*);
 	};
 
@@ -31,6 +33,8 @@ namespace movies {
 		struct link {
 			std::string id{};
 			string title{};
+
+			bool operator==(link const&) const noexcept = default;
 		} prev, next;
 		enum link_flags_t {
 			has_none,
@@ -38,6 +42,8 @@ namespace movies {
 			has_next,
 			has_both,
 		} link_flags{has_none};
+
+		bool operator==(extended_info const&) const noexcept = default;
 	};
 
 	using movie_db = std::map<std::string, extended_info, std::less<>>;

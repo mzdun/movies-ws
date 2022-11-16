@@ -54,9 +54,13 @@ int main(int argc, char** argv) {
 
 	movies::service service{&handler};
 	backend.set_on_db_update(
-	    [&](bool, std::span<std::string> const& lines) {
+	    [&](bool notify, std::span<std::string> const& lines) {
 		    for (auto const& line : lines) {
 			    lwsl_user("%s", line.c_str());
+		    }
+		    if (notify) {
+			    lwsl_user("  -> Sending update\n");
+			    service.emit_database_contents_change();
 		    }
 	    });
 

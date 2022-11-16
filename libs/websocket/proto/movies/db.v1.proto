@@ -44,6 +44,8 @@ message GetVideoFileResponse {
 	optional string uri = 1;
 };
 
+message DatabaseContentsChangeEvent {};
+
 message ListingResponseChangedEvent {
 	repeated movies.listing.v1.MovieGroup removed = 1;
 	repeated movies.listing.v1.MovieGroup added = 2;

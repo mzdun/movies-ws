@@ -4,8 +4,8 @@
 #pragma once
 
 #include <rpc/db.hh>
-#include <rpc/ui.hh>
 #include <rpc/rpc.hh>
+#include <rpc/ui.hh>
 
 namespace movies {
 	class service : public ws::service {
@@ -19,6 +19,12 @@ namespace movies {
 		// service
 		void broadcast(std::span<unsigned char> payload,
 		               bool is_binary) override;
+
+		void emit_database_contents_change() {
+			rpc::v1::Event event{};
+			event.mutable_database_contents_change();
+			broadcast(event);
+		}
 
 	private:
 		void broadcast(rpc::v1::Event const& ev) {

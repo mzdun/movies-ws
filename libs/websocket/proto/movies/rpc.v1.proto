@@ -9,8 +9,9 @@ message Event {
 	int32 id = 1;
 
 	oneof message {
-		movies.db.v1.ListingResponseChangedEvent listing_reponse_changed = 2;
-		movies.db.v1.MovieInfoChangedEvent movie_info_changed = 3;
+		movies.db.v1.DatabaseContentsChangeEvent database_contents_change = 2;
+		movies.db.v1.ListingResponseChangedEvent listing_reponse_changed = 3;
+		movies.db.v1.MovieInfoChangedEvent movie_info_changed = 4;
 	}
 }
 

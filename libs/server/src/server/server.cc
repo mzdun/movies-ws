@@ -219,6 +219,38 @@ namespace movies {
 			std::lock_guard writing{db_access_};
 			locked = steady_clock::now();
 
+			if (movies_ != ldr.movies || ref2id_ != ldr.ref2id) {
+				changed = true;
+
+				if (movies_.size() != ldr.movies.size())
+					dbg.push_back(fmt::format("movies changed ({} -> {})\n",
+					                          movies_.size(),
+					                          ldr.movies.size()));
+				else
+					dbg.push_back("movies changed\n");
+			}
+
+			if (current_filters_ != ldr.current_filters) {
+				changed = true;
+
+				auto const field = [](auto const& flt) {
+					return std::visit([](auto const& flt) { return flt.field; },
+					                  flt);
+				};
+
+				for (auto const& flt : ldr.current_filters) {
+					auto const it = std::find_if(
+					    current_filters_.begin(), current_filters_.end(),
+					    [&flt, &field](auto const& prev) {
+						    return field(flt) == field(prev);
+					    });
+					if (it != current_filters_.end() && *it == flt) continue;
+					dbg.push_back(std::visit(filter_formatter{}, flt));
+				}
+			}
+
+			printed = steady_clock::now();
+
 			movies_ = std::move(ldr.movies);
 			current_filters_ = std::move(ldr.current_filters);
 			ref2id_ = std::move(ldr.ref2id);
@@ -236,8 +268,9 @@ namespace movies {
 		dbg[1] = fmt::format(
 		    "Installed in {total} (waiting for {waiting}, moving in "
 		    "{moving}, sqlite {sqlite})\n",
-		    dur_arg("waiting", then, locked), dur_arg("moving", locked, sqlite),
-		    dur_arg("sqlite", sqlite, now), dur_arg("total", then, now));
+		    dur_arg("waiting", then, locked),
+		    dur_arg("moving", printed, sqlite), dur_arg("sqlite", sqlite, now),
+		    dur_arg("total", then, now));
 #undef dur_arg
 
 		auto lines = std::span{dbg};
