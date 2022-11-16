@@ -5,7 +5,6 @@
 #include <date/date.h>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <base/overload.hh>
 #include <base/str.hh>
 #include <iostream>
 #include <movies/opt.hpp>
@@ -62,6 +61,7 @@ namespace movies {
 		plugins_ = plugin::load_plugins();
 		database_ = database;
 		load_async(false);
+		db_observer_.observe(*this, database);
 	}
 
 	std::string server::loader::load_async(
@@ -429,5 +429,9 @@ namespace movies {
 	    std::function<void(bool, std::span<std::string> const&)> const& cb) {
 		std::shared_lock guard{db_access_};
 		on_db_update_ = cb;
+	}
+
+	void server::on_files_changed() {
+		load_async(true);
 	}
 }  // namespace movies

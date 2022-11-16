@@ -8,6 +8,7 @@ set(SRCS
     inc/base/str.hh
     inc/filters/filter.hh
     inc/full_text/engine.hh
+    inc/server/fs_observer.hh
     inc/server/plugin.hh
     inc/server/server.hh
     inc/sorting/sort.hh
@@ -28,6 +29,12 @@ set(SRCS
     src/sorting/sort.cc
     src/utf/utf.cc
 )
+
+if (WIN32)
+    list(APPEND SRCS
+        src/server/fs_observer_win32.cc
+    )
+endif()
 
 set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../data")
 

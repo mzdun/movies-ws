@@ -6,6 +6,7 @@
 #include <base/lngs.hh>
 #include <filters/filter.hh>
 #include <full_text/engine.hh>
+#include <server/fs_observer.hh>
 #include <server/lngs.hh>
 #include <server/plugin.hh>
 #include <shared_mutex>
@@ -38,7 +39,7 @@ namespace movies {
 		std::vector<reference> items;
 	};
 
-	class server {
+	class server : private observer_callback {
 	public:
 		explicit server(std::filesystem::path const& base);
 
@@ -83,6 +84,9 @@ namespace movies {
 		std::vector<group> quick_inflate_locked(
 		    std::vector<std::string> const& keys) const;
 
+		// observer_callback
+		void on_files_changed();
+
 		mutable std::shared_mutex db_access_{};
 		std::function<void(bool, std::span<std::string> const&)>
 		    on_db_update_{};
@@ -94,5 +98,6 @@ namespace movies {
 		full_text::engine engine_{};
 		std::map<string, std::string> ref2id_{};
 		plugin::list plugins_{};
+		observer db_observer_{};
 	};
 }  // namespace movies
