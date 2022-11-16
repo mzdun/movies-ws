@@ -135,7 +135,8 @@ namespace movies::db::v1 {
 			v1::copy(episodes, *dst.mutable_episodes());
 		}
 
-		std::string debug_str(db::v1::GetListingRequest const& req) {
+		template <typename Request>
+		std::string debug_str_base(Request const& req) {
 			auto const& filters = req.filters();
 			auto const& sort = req.sort();
 			std::string const* search = nullptr;
@@ -194,6 +195,16 @@ namespace movies::db::v1 {
 			return result;
 		}
 
+		std::string debug_str(db::v1::GetListingRequest const& req) {
+			return debug_str_base(req);
+		}
+
+		std::string debug_str(db::v1::GetFilterListingRequest const& req) {
+			auto const std_dbg = debug_str_base(req);
+			return fmt::format("{}/{}{}{}", req.category(), req.term(),
+			                   std_dbg.empty() ? "" : ", ", std_dbg);
+		}
+
 		filter::ptr filter_from(filters::v1::RangeFilter const& rng) {
 			return movies::filter::make_range(
 			    rng.field(), rng.low(), rng.high(), rng.include_missing());
@@ -226,9 +237,11 @@ namespace movies::db::v1 {
 		}
 
 		filter::list from_req(
-		    RepeatedPtrField<filters::v1::Filter> const& filters) {
+		    RepeatedPtrField<filters::v1::Filter> const& filters,
+		    filter::ptr prefix = {}) {
 			filter::list result{};
-			result.reserve(filters.size());
+			result.reserve(filters.size() + (prefix ? 1 : 0));
+			if (prefix) result.push_back(std::move(prefix));
 
 			for (auto const& filter : filters) {
 				auto flt = filter_from(filter);
@@ -259,8 +272,8 @@ namespace movies::db::v1 {
 		std::string const* search = nullptr;
 		if (req.has_search()) search = &req.search();
 
-		auto const result =
-		    server()->listing(search ? *search : std::string{}, filters, sort);
+		auto const result = server()->listing(search ? *search : std::string{},
+		                                      filters, sort, true, true);
 		size_t groups = 0, refs = 0;
 		for (auto const& grp : result) {
 			++groups;
@@ -273,6 +286,31 @@ namespace movies::db::v1 {
 		};
 		lwsl_user("   -> %zu group%s, %zu title%s\n", groups, s(groups), refs,
 		          s(refs));
+		return true;
+	}
+
+	MSG_HANDLER(GetFilterListing) {
+		lwsl_user("GetFilterListing(%s)\n", debug_str(req).c_str());
+
+		auto const filters =
+		    from_req(req.filters(),
+		             movies::filter::make_term(req.category(), req.term()));
+		auto const sort = from_req(req.sort());
+		std::string const* search = nullptr;
+		if (req.has_search()) search = &req.search();
+
+		std::vector<reference> result;
+		{
+			auto group = server()->listing(search ? *search : std::string{},
+			                               filters, sort, false, false);
+			if (!group.empty()) result = std::move(group.front().items);
+		}
+
+		copy(result, *resp.mutable_items());
+		static constexpr auto s = [](size_t count) {
+			return count == 1 ? "" : "s";
+		};
+		lwsl_user("   -> %zu title%s\n", result.size(), s(result.size()));
 		return true;
 	}
 

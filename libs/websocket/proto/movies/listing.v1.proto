@@ -10,7 +10,7 @@ message MovieReference {
 	optional bool has_video = 5;
 	repeated string tags = 6;
 	repeated string age_rating = 7;
-	string sort_hint = 8;
+	optional string sort_hint = 8;
 };
 
 message MovieGroup {

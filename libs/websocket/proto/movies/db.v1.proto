@@ -16,6 +16,18 @@ message GetListingResponse {
 	repeated movies.listing.v1.MovieGroup groups = 1;
 };
 
+message GetFilterListingRequest {
+	repeated movies.filters.v1.Filter filters = 1;
+	repeated string sort = 2;
+	optional string search = 3;
+	string category = 4;
+	string term = 5;
+};
+
+message GetFilterListingResponse {
+	repeated movies.listing.v1.MovieReference items = 1;
+};
+
 message GetMovieInfoRequest {
 	string key = 1;
 };

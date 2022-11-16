@@ -18,4 +18,18 @@
 	HEADER_EPISODES = "Episodes";
 	[help("Section title for episode list"), id(-1)]
 	HEADER_GALLERY = "Gallery";
+
+	[help("Empty listing header"), id(-1)]
+	NO_ITEMS_HEADER = "No items";
+	[help("Hint if some filters, but no search terms, are applied"), id(-1)]
+	NO_ITEMS_CHANGE_FILTERS = "Maybe different filters would show more results.";
+	[help("Hint if some search terms, but no filters, are applied"), id(-1)]
+	NO_ITEMS_CHANGE_SEARCH = "Maybe different search terms would show more results.";
+	[help("Hint if both some filters and search terms are applied"), id(-1)]
+	NO_ITEMS_CHANGE_FILTERS_OR_SEARCH = "Maybe different filters or search terms would show more results.";
+	[help("Header for list of currently active filters"), id(-1)]
+	NO_ITEMS_FILTERS_HEADER = "Currently selected:";
+
+	[help("Header for listing views waiting for items"), id(-1)]
+	LOADING_HEADER = "Loading...";
 }

@@ -47,7 +47,9 @@ namespace movies {
 		std::vector<link> links_for(extended_info const&) const;
 		std::vector<group> listing(std::string const& search,
 		                           filter::list const& filters,
-		                           sort::list const& sort) const;
+		                           sort::list const& sort,
+		                           bool group_items,
+		                           bool hide_episodes) const;
 		std::vector<description::filter> const& current_filters()
 		    const noexcept {
 			return current_filters_;
@@ -58,7 +60,8 @@ namespace movies {
 
 	private:
 		std::vector<std::string> filtered(std::string const& search,
-		                                  filter::list const& filters) const;
+		                                  filter::list const& filters,
+		                                  bool hide_episodes) const;
 		void sorted(std::vector<std::string>& keys,
 		            sort::list const& sort) const;
 		std::vector<group> inflate(std::vector<std::string> const& keys,

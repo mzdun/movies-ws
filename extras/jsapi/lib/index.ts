@@ -40,6 +40,15 @@ export class Service extends MovieEventTarget {
 		return (await this._ws.send({getConfig: {}})).getConfig || {};
 	};
 
+	async getFilterListing(
+	    category: string, term: string, filters: movies.filters.v1.IFilter[],
+	    sort: string[], search?: string) {
+		return (await this._ws.send({
+			       getFilterListing: {filters, sort, search, category, term}
+		       })).getFilterListing?.items ??
+		    [];
+	}
+
 	async getListing(
 	    filters: movies.filters.v1.IFilter[], sort: string[], search?: string) {
 		return (await this._ws.send({

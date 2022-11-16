@@ -1,5 +1,5 @@
 include(appstr.cmake)
-set(JSAPI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../extras/jsapi/lib")
+set(JSAPI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../extras/jsapi")
 
 set(PROTO_SRCS
     proto/movies/appstr.v1.proto
@@ -28,7 +28,8 @@ set(SRCS
 
 set(GEN_SRCS
     ${CMAKE_CURRENT_BINARY_DIR}/src/rpc/appstr.cc
-    ${JSAPI_DIR}/appstr.ts)
+    ${JSAPI_DIR}/lib/appstr.ts
+)
 
 set(_PROTO_GEN)
 foreach(_PROTO ${PROTO_SRCS})
@@ -45,7 +46,7 @@ source_group(appstr FILES ${GEN_SRCS})
 
 add_idl_mustache("${CMAKE_CURRENT_BINARY_DIR}/src/rpc/appstr.cc" cxx_rpc)
 add_idl_mustache("${CMAKE_CURRENT_SOURCE_DIR}/proto/movies/appstr.v1.proto" proto3)
-add_idl_mustache("${JSAPI_DIR}/appstr.ts" typescript)
+add_idl_mustache("${JSAPI_DIR}/lib/appstr.ts" typescript)
 
 add_library(websocket STATIC ${SRCS} ${PROTO_SRCS} ${GEN_SRCS})
 target_include_directories(websocket

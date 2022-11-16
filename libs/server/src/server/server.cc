@@ -198,9 +198,9 @@ namespace movies {
 		return plugin::page_links(plugins_, data);
 	}
 
-	std::vector<std::string> server::filtered(
-	    std::string const& search,
-	    filter::list const& filters) const {
+	std::vector<std::string> server::filtered(std::string const& search,
+	                                          filter::list const& filters,
+	                                          bool hide_episodes) const {
 		std::vector<std::string> keys{};
 
 		if (!search.empty()) {
@@ -216,7 +216,7 @@ namespace movies {
 				if (it == movies_.end()) continue;
 
 				auto const& data = it->second;
-				if (data.is_episode) continue;
+				if (hide_episodes && data.is_episode) continue;
 				if (filter::matches_all(filters, data))
 					keys.push_back({key.data(), key.size()});
 			}
@@ -224,7 +224,7 @@ namespace movies {
 			keys.reserve(movies_.size());
 
 			for (auto const& [key, data] : movies_) {
-				if (data.is_episode) continue;
+				if (hide_episodes && data.is_episode) continue;
 				if (filter::matches_all(filters, data)) keys.push_back(key);
 			}
 		}
@@ -286,11 +286,14 @@ namespace movies {
 
 	std::vector<group> server::listing(std::string const& search,
 	                                   filter::list const& filters,
-	                                   sort::list const& sort) const {
-		auto keys = filtered(search, filters);
+	                                   sort::list const& sort,
+	                                   bool group_items,
+	                                   bool hide_episodes) const {
+		auto keys = filtered(search, filters, hide_episodes);
 		sorted(keys, sort);
-		return sort.empty() ? quick_inflate(keys)
-		                    : inflate(keys, *sort.front());
+		return sort.empty() || !group_items
+		           ? quick_inflate(keys)
+		           : inflate(keys, *sort.front());
 	}
 
 	bool server::lang_change(std::vector<std::string> const& langs) {

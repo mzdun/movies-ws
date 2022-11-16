@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: movies-ws latest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-13 09:38+0100\n"
+"POT-Creation-Date: 2022-11-14 11:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,5 +45,35 @@ msgstr ""
 #. Section title for episode list
 msgctxt "HEADER_GALLERY"
 msgid "Gallery"
+msgstr ""
+
+#. Header for listing views waiting for items
+msgctxt "LOADING_HEADER"
+msgid "Loading..."
+msgstr ""
+
+#. Hint if some filters, but no search terms, are applied
+msgctxt "NO_ITEMS_CHANGE_FILTERS"
+msgid "Maybe different filters would show more results."
+msgstr ""
+
+#. Hint if both some filters and search terms are applied
+msgctxt "NO_ITEMS_CHANGE_FILTERS_OR_SEARCH"
+msgid "Maybe different filters or search terms would show more results."
+msgstr ""
+
+#. Hint if some search terms, but no filters, are applied
+msgctxt "NO_ITEMS_CHANGE_SEARCH"
+msgid "Maybe different search terms would show more results."
+msgstr ""
+
+#. Header for list of currently active filters
+msgctxt "NO_ITEMS_FILTERS_HEADER"
+msgid "Currently selected:"
+msgstr ""
+
+#. Empty listing header
+msgctxt "NO_ITEMS_HEADER"
+msgid "No items"
 msgstr ""
 

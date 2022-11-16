@@ -11,6 +11,7 @@ namespace movies::db {
 
 #define DB_HANDLERS(X)                              \
 	X(movies::db::v1, GetListing, get_listing)      \
+	X(movies::db::v1, GetFilterListing, get_filter_listing) \
 	X(movies::db::v1, GetMovieInfo, get_movie_info) \
 	X(movies::db::v1, GetVideoFile, get_video_file)
 

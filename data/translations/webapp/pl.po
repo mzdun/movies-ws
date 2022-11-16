@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: movies-ws latest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-13 09:38+0100\n"
-"PO-Revision-Date: 2022-11-13 09:39+0100\n"
+"POT-Creation-Date: 2022-11-14 11:01+0100\n"
+"PO-Revision-Date: 2022-11-14 11:06+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -48,3 +48,33 @@ msgstr "Odcinki"
 msgctxt "HEADER_GALLERY"
 msgid "Gallery"
 msgstr "Galeria"
+
+#. Header for listing views waiting for items
+msgctxt "LOADING_HEADER"
+msgid "Loading..."
+msgstr "Ładowanie..."
+
+#. Hint if some filters, but no search terms, are applied
+msgctxt "NO_ITEMS_CHANGE_FILTERS"
+msgid "Maybe different filters would show more results."
+msgstr "Może inne filtry pokazałyby więcej wyników."
+
+#. Hint if both some filters and search terms are applied
+msgctxt "NO_ITEMS_CHANGE_FILTERS_OR_SEARCH"
+msgid "Maybe different filters or search terms would show more results."
+msgstr "Być może inne filtry lub wyszukiwane hasła pokażą więcej wyników."
+
+#. Hint if some search terms, but no filters, are applied
+msgctxt "NO_ITEMS_CHANGE_SEARCH"
+msgid "Maybe different search terms would show more results."
+msgstr "Być może inne wyszukiwane hasła wyświetlą więcej wyników."
+
+#. Header for list of currently active filters
+msgctxt "NO_ITEMS_FILTERS_HEADER"
+msgid "Currently selected:"
+msgstr "Aktualnie wybrane:"
+
+#. Empty listing header
+msgctxt "NO_ITEMS_HEADER"
+msgid "No items"
+msgstr "Brak elementów"

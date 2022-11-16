@@ -45,6 +45,7 @@ namespace movies {
 
 		static std::vector<description::filter> gather_from_db(movie_db const&);
 
+		static ptr make_term(std::string_view cat, std::string_view term);
 		static ptr make_range(std::string_view field,
 		                      unsigned low,
 		                      unsigned high,
