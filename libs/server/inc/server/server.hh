@@ -8,6 +8,7 @@
 #include <full_text/engine.hh>
 #include <server/lngs.hh>
 #include <server/plugin.hh>
+#include <shared_mutex>
 #include <sorting/sort.hh>
 
 namespace movies {
@@ -62,16 +63,17 @@ namespace movies {
 		}
 
 	private:
-		std::vector<std::string> filtered(std::string const& search,
-		                                  filter::list const& filters,
-		                                  bool hide_episodes) const;
-		void sorted(std::vector<std::string>& keys,
-		            sort::list const& sort) const;
-		std::vector<group> inflate(std::vector<std::string> const& keys,
-		                           sort const& grouping) const;
-		std::vector<group> quick_inflate(
+		std::vector<std::string> filtered_locked(std::string const& search,
+		                                         filter::list const& filters,
+		                                         bool hide_episodes) const;
+		void sorted_locked(std::vector<std::string>& keys,
+		                   sort::list const& sort) const;
+		std::vector<group> inflate_locked(std::vector<std::string> const& keys,
+		                                  sort const& grouping) const;
+		std::vector<group> quick_inflate_locked(
 		    std::vector<std::string> const& keys) const;
 
+		mutable std::shared_mutex db_access_{};
 		Strings tr_{};
 		movie_db movies_{};
 		std::string lang_id_{};

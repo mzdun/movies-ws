@@ -195,6 +195,7 @@ namespace movies {
 	}
 
 	extended_info server::find_movie_copy(std::string_view id) const {
+		std::shared_lock guard{db_access_};
 		auto it = movies_.find(id);
 		if (it == movies_.end()) return {};
 		return it->second;
@@ -204,25 +205,31 @@ namespace movies {
 	    std::vector<string> const& episodes) const {
 		std::vector<reference> result{};
 		result.reserve(episodes.size());
-		for (auto const& ref : episodes) {
-			auto ref_it = ref2id_.find(ref);
-			if (ref_it == ref2id_.end()) continue;
-			auto movie_it = movies_.find(ref_it->second);
-			if (movie_it == movies_.end()) continue;
+		{
+			std::shared_lock guard{db_access_};
+			for (auto const& ref : episodes) {
+				auto ref_it = ref2id_.find(ref);
+				if (ref_it == ref2id_.end()) continue;
+				auto movie_it = movies_.find(ref_it->second);
+				if (movie_it == movies_.end()) continue;
 
-			result.push_back(reference::from(ref_it->second, movie_it->second,
-			                                 {}, reference::cover_small));
+				result.push_back(reference::from(ref_it->second,
+				                                 movie_it->second, {},
+				                                 reference::cover_small));
+			}
 		}
 		return result;
 	}
 
 	std::vector<link> server::links_for(extended_info const& data) const {
+		std::shared_lock guard{db_access_};
 		return plugin::page_links(plugins_, data);
 	}
 
-	std::vector<std::string> server::filtered(std::string const& search,
-	                                          filter::list const& filters,
-	                                          bool hide_episodes) const {
+	std::vector<std::string> server::filtered_locked(
+	    std::string const& search,
+	    filter::list const& filters,
+	    bool hide_episodes) const {
 		std::vector<std::string> keys{};
 
 		if (!search.empty()) {
@@ -254,8 +261,8 @@ namespace movies {
 		return keys;
 	}
 
-	void server::sorted(std::vector<std::string>& keys,
-	                    sort::list const& sorter) const {
+	void server::sorted_locked(std::vector<std::string>& keys,
+	                           sort::list const& sorter) const {
 		auto const less = [&](std::string const& lhs, std::string const& rhs) {
 			return sort::compare(sorter, lhs, rhs, movies_) < 0;
 		};
@@ -263,8 +270,9 @@ namespace movies {
 		std::sort(keys.begin(), keys.end(), less);
 	}
 
-	std::vector<group> server::inflate(std::vector<std::string> const& keys,
-	                                   sort const& grouping) const {
+	std::vector<group> server::inflate_locked(
+	    std::vector<std::string> const& keys,
+	    sort const& grouping) const {
 		std::vector<group> result{};
 		std::map<std::string, size_t> group_pos{};
 
@@ -290,7 +298,7 @@ namespace movies {
 		return result;
 	}
 
-	std::vector<group> server::quick_inflate(
+	std::vector<group> server::quick_inflate_locked(
 	    std::vector<std::string> const& keys) const {
 		std::vector<group> result{};
 		result.push_back({});
@@ -311,13 +319,16 @@ namespace movies {
 	                                   sort::list const& sort,
 	                                   bool group_items,
 	                                   bool hide_episodes) const {
-		auto keys = filtered(search, filters, hide_episodes);
-		sorted(keys, sort);
-		return sort.empty() || !group_items ? quick_inflate(keys)
-		                                    : inflate(keys, *sort.front());
+		std::shared_lock guard{db_access_};
+		auto keys = filtered_locked(search, filters, hide_episodes);
+		sorted_locked(keys, sort);
+		return sort.empty() || !group_items
+		           ? quick_inflate_locked(keys)
+		           : inflate_locked(keys, *sort.front());
 	}
 
 	bool server::lang_change(std::vector<std::string> const& langs) {
+		std::shared_lock guard{db_access_};
 		auto next_id = tr_.open_one_of(langs);
 		if (next_id) {
 			auto const changed = *next_id != lang_id_;
