@@ -8,7 +8,7 @@ using namespace std::literals;
 #define LINK(CAT, VAR)                                              \
 	{                                                               \
 		.href = u8"https://www.imdb.com/" #CAT "/" + (VAR) + u8"/", \
-		.label = u8"IMDb",                  \
+		.icon = u8"local:imdb", .alt = u8"IMDb",                    \
 		.rel = link::str(link::noreferrer),                         \
 	}
 
