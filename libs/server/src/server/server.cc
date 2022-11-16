@@ -77,7 +77,7 @@ namespace movies {
 			    movie.info_file ? movie.info_file->id : movie.video_file->id;
 			std::string key{reinterpret_cast<char const*>(u8key.data()),
 			                u8key.size()};
-			movies_[key] = {std::move(movie)};
+			movies[key] = {std::move(movie)};
 		}
 
 		auto const copied = steady_clock::now();
@@ -85,9 +85,9 @@ namespace movies {
 		UErrorCode ec{};
 		auto norm = icu::Normalizer2::getNFCInstance(ec);
 		if (U_FAILURE(ec)) norm = nullptr;
-		for (auto& [key, movie] : movies_) {
+		for (auto& [key, movie] : movies) {
 			for (auto const& ref : movie.info.refs)
-				ref2id_[ref] = key;
+				ref2id[ref] = key;
 
 			movie.arrival = [&movie] {
 				auto const published = movie.info.dates.published;
@@ -104,20 +104,20 @@ namespace movies {
 
 		auto const arrival_and_title = steady_clock::now();
 
-		for (auto& [parent, movie] : movies_) {
+		for (auto& [parent, movie] : movies) {
 			if (movie.info.episodes.empty()) continue;
 
-			decltype(movies_)::iterator prev_it{movies_.end()};
+			decltype(movies)::iterator prev_it{movies.end()};
 			for (auto const& ep : movie.info.episodes) {
-				auto id_iter = ref2id_.find(ep);
-				if (id_iter == ref2id_.end()) continue;
-				auto ep_iter = movies_.find(id_iter->second);
-				if (ep_iter == movies_.end()) continue;
+				auto id_iter = ref2id.find(ep);
+				if (id_iter == ref2id.end()) continue;
+				auto ep_iter = movies.find(id_iter->second);
+				if (ep_iter == movies.end()) continue;
 				auto& episode = ep_iter->second;
 				episode.is_episode = true;
 				episode.series_id = parent;
 
-				if (prev_it != movies_.end()) {
+				if (prev_it != movies.end()) {
 					auto& prev_episode = prev_it->second;
 					prev_episode.next.id = ep_iter->first;
 					prev_episode.next.title =
@@ -141,7 +141,7 @@ namespace movies {
 
 		auto const episodes = steady_clock::now();
 
-		current_filters_ = filter::gather_from_db(movies_);
+		current_filters = filter::gather_from_db(movies);
 
 		auto const now = steady_clock::now();
 
@@ -151,8 +151,8 @@ namespace movies {
 		return fmt::format(
 		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
 		    "{episodes}, filters {filters}, total {total})\n",
-		    fmt::arg("count", movies_.size()),
-		    fmt::arg("pl", movies_.size() == 1 ? "" : "s"),
+		    fmt::arg("count", movies.size()),
+		    fmt::arg("pl", movies.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
 		    dur_arg("enh", loaded, arrival_and_title),
 		    dur_arg("episodes", arrival_and_title, episodes),
@@ -160,42 +160,43 @@ namespace movies {
 #undef dur_arg
 	}
 
-	static auto const filter_formatter = overload{
-	    [](description::range_filter const& flt) {
-		    using namespace std::chrono;
+	struct filter_formatter {
+		std::string operator()(description::range_filter const& flt) {
+			using namespace std::chrono;
 
-		    auto const range = [&] {
-			    if (flt.field == "arrival"sv) {
-				    auto const ymd_low = date::year_month_day{
-				        time_point_cast<days>(sys_seconds{seconds{flt.low}})};
-				    auto const ymd_high = date::year_month_day{
-				        time_point_cast<days>(sys_seconds{seconds{flt.high}})};
-				    return fmt::format(
-				        "{}-{}-{} - {}-{}-{}", (int)ymd_low.year(),
-				        (unsigned)ymd_low.month(), (unsigned)ymd_low.day(),
-				        (int)ymd_high.year(), (unsigned)ymd_high.month(),
-				        (unsigned)ymd_high.day());
-			    } else if (flt.field == "rating"sv) {
-				    return fmt::format("{} - {}", flt.low / 20.0,
-				                       flt.high / 20.0);
-			    } else {
-				    return fmt::format("{} - {}", flt.low, flt.high);
-			    }
-			    return std::string{};
-		    }();
-		    return fmt::format("<rng> [{}] {}\n", flt.field, range);
-	    },
+			auto const range = [&] {
+				if (flt.field == "arrival"sv) {
+					auto const ymd_low = date::year_month_day{
+					    time_point_cast<days>(sys_seconds{seconds{flt.low}})};
+					auto const ymd_high = date::year_month_day{
+					    time_point_cast<days>(sys_seconds{seconds{flt.high}})};
+					return fmt::format(
+					    "{}-{}-{} - {}-{}-{}", (int)ymd_low.year(),
+					    (unsigned)ymd_low.month(), (unsigned)ymd_low.day(),
+					    (int)ymd_high.year(), (unsigned)ymd_high.month(),
+					    (unsigned)ymd_high.day());
+				} else if (flt.field == "rating"sv) {
+					return fmt::format("{} - {}", flt.low / 20.0,
+					                   flt.high / 20.0);
+				} else {
+					return fmt::format("{} - {}", flt.low, flt.high);
+				}
+				return std::string{};
+			}();
+			return fmt::format("<rng> [{}] {}\n", flt.field, range);
+		}
 
-	    [](description::tokens_filter const& flt) {
-		    auto result = fmt::format("<tok> [{}]", flt.field);
-		    for (auto const& item : flt.values)
-			    result.append(fmt::format(" {}", item));
-		    result.push_back('\n');
-		    return result;
-	    },
-	    [](description::on_off_filter const& flt) {
-		    return fmt::format("<0/1> [{}]\n", flt.field);
-	    },
+		std::string operator()(description::tokens_filter const& flt) {
+			auto result = fmt::format("<tok> [{}]", flt.field);
+			for (auto const& item : flt.values)
+				result.append(fmt::format(" {}", item));
+			result.push_back('\n');
+			return result;
+		}
+
+		std::string operator()(description::on_off_filter const& flt) {
+			return fmt::format("<0/1> [{}]\n", flt.field);
+		}
 	};
 
 	void server::load_async(bool notify) {
@@ -218,9 +219,9 @@ namespace movies {
 			std::lock_guard writing{db_access_};
 			locked = steady_clock::now();
 
-			movies_ = std::move(ldr.movies_);
-			current_filters_ = std::move(ldr.current_filters_);
-			ref2id_ = std::move(ldr.ref2id_);
+			movies_ = std::move(ldr.movies);
+			current_filters_ = std::move(ldr.current_filters);
+			ref2id_ = std::move(ldr.ref2id);
 
 			on_db_update = on_db_update_;
 
