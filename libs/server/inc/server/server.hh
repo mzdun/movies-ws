@@ -10,6 +10,7 @@
 #include <server/plugin.hh>
 #include <shared_mutex>
 #include <sorting/sort.hh>
+#include <span>
 
 namespace movies {
 	struct reference {
@@ -61,8 +62,17 @@ namespace movies {
 		std::filesystem::path const& database() const noexcept {
 			return database_;
 		}
+		void set_on_db_update(
+		    std::function<void(bool, std::span<std::string> const&)> const& cb);
 
 	private:
+		struct loader {
+			movie_db movies_{};
+			std::vector<description::filter> current_filters_{};
+			std::map<string, std::string> ref2id_{};
+			std::string load_async(std::filesystem::path const& database);
+		};
+		void load_async(bool notify);
 		std::vector<std::string> filtered_locked(std::string const& search,
 		                                         filter::list const& filters,
 		                                         bool hide_episodes) const;
@@ -74,6 +84,8 @@ namespace movies {
 		    std::vector<std::string> const& keys) const;
 
 		mutable std::shared_mutex db_access_{};
+		std::function<void(bool, std::span<std::string> const&)>
+		    on_db_update_{};
 		Strings tr_{};
 		movie_db movies_{};
 		std::string lang_id_{};

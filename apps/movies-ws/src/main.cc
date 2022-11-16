@@ -48,13 +48,19 @@ int main(int argc, char** argv) {
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, NULL);
 
 	movies::server backend{exec_path().parent_path() / "lngs"sv};
-	backend.load(argv[1]);
 	movies::rpc::dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);
 	UI_HANDLERS(X_CREATE_HANDLER);
 
 	movies::service service{&handler};
-	// backend.set_sink(&service);
+	backend.set_on_db_update(
+	    [&](bool, std::span<std::string> const& lines) {
+		    for (auto const& line : lines) {
+			    lwsl_user("%s", line.c_str());
+		    }
+	    });
+
+	backend.load(argv[1]);
 	service.init();
 	lwsl_user("http://localhost:%d\n", service.port());
 	service.run();

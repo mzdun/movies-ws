@@ -59,14 +59,19 @@ namespace movies {
 	}
 
 	void server::load(std::filesystem::path const& database) {
-		using namespace std::chrono;
 		plugins_ = plugin::load_plugins();
 		database_ = database;
+		load_async(false);
+	}
+
+	std::string server::loader::load_async(
+	    std::filesystem::path const& database) {
+		using namespace std::chrono;
 
 		auto const then = steady_clock::now();
-		auto movies = load_from(database / "db", database / "videos");
+		auto jsons = load_from(database / "db", database / "videos");
 		auto const loaded = steady_clock::now();
-		for (auto&& movie : movies) {
+		for (auto&& movie : jsons) {
 			if (!movie.info_file && !movie.video_file) continue;
 			auto const& u8key =
 			    movie.info_file ? movie.info_file->id : movie.video_file->id;
@@ -138,60 +143,107 @@ namespace movies {
 
 		current_filters_ = filter::gather_from_db(movies_);
 
-		auto const filters = steady_clock::now();
-
-		engine_.rebuild(movies_);
-
 		auto const now = steady_clock::now();
 
 #define dur_arg(name, start, stop) \
 	fmt::arg(name, duration_cast<milliseconds>(stop - start))
 
-		fmt::print(
-		    "\nLoaded {count} movie{pl} in {load} (enh {enh}, episodes "
-		    "{episodes}, filters {filters}, sqlite {sqlite}, total {total})\n",
+		return fmt::format(
+		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
+		    "{episodes}, filters {filters}, total {total})\n",
 		    fmt::arg("count", movies_.size()),
 		    fmt::arg("pl", movies_.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
 		    dur_arg("enh", loaded, arrival_and_title),
 		    dur_arg("episodes", arrival_and_title, episodes),
-		    dur_arg("filters", episodes, filters),
-		    dur_arg("sqlite", filters, now), dur_arg("total", then, now));
+		    dur_arg("filters", episodes, now), dur_arg("total", then, now));
+#undef dur_arg
+	}
 
-		auto const printer = overload{
-		    // range_filter, tokens_filter, on_off_filter
-		    [](description::range_filter const& flt) {
-			    fmt::print("[{}] <range>", flt.field);
+	static auto const filter_formatter = overload{
+	    [](description::range_filter const& flt) {
+		    using namespace std::chrono;
+
+		    auto const range = [&] {
 			    if (flt.field == "arrival"sv) {
 				    auto const ymd_low = date::year_month_day{
 				        time_point_cast<days>(sys_seconds{seconds{flt.low}})};
 				    auto const ymd_high = date::year_month_day{
 				        time_point_cast<days>(sys_seconds{seconds{flt.high}})};
-				    fmt::print(" {}-{}-{} - {}-{}-{}", (int)ymd_low.year(),
-				               (unsigned)ymd_low.month(),
-				               (unsigned)ymd_low.day(), (int)ymd_high.year(),
-				               (unsigned)ymd_high.month(),
-				               (unsigned)ymd_high.day());
+				    return fmt::format(
+				        "{}-{}-{} - {}-{}-{}", (int)ymd_low.year(),
+				        (unsigned)ymd_low.month(), (unsigned)ymd_low.day(),
+				        (int)ymd_high.year(), (unsigned)ymd_high.month(),
+				        (unsigned)ymd_high.day());
 			    } else if (flt.field == "rating"sv) {
-				    fmt::print(" {} - {}", flt.low / 20.0, flt.high / 20.0);
+				    return fmt::format("{} - {}", flt.low / 20.0,
+				                       flt.high / 20.0);
 			    } else {
-				    fmt::print(" {} - {}", flt.low, flt.high);
+				    return fmt::format("{} - {}", flt.low, flt.high);
 			    }
-			    fmt::print("\n");
-		    },
-		    [](description::tokens_filter const& flt) {
-			    fmt::print("[{}] <tok>", flt.field);
-			    for (auto const& item : flt.values)
-				    fmt::print(" {}", item);
-			    fmt::print("\n");
-		    },
-		    [](description::on_off_filter const& flt) {
-			    fmt::print("[{}] <on/off>\n", flt.field);
-		    },
+			    return std::string{};
+		    }();
+		    return fmt::format("<rng> [{}] {}\n", flt.field, range);
+	    },
+
+	    [](description::tokens_filter const& flt) {
+		    auto result = fmt::format("<tok> [{}]", flt.field);
+		    for (auto const& item : flt.values)
+			    result.append(fmt::format(" {}", item));
+		    result.push_back('\n');
+		    return result;
+	    },
+	    [](description::on_off_filter const& flt) {
+		    return fmt::format("<0/1> [{}]\n", flt.field);
+	    },
+	};
+
+	void server::load_async(bool notify) {
+		loader ldr{};
+		auto const database = [&] {
+			std::shared_lock guard{db_access_};
+			return database_;
 		};
-		for (auto const& flt : current_filters_) {
-			std::visit(printer, flt);
+
+		std::vector dbg{ldr.load_async(database_), std::string{}};
+		bool changed = false;
+
+		using namespace std::chrono;
+
+		auto const then = steady_clock::now();
+		steady_clock::time_point locked{}, printed{}, sqlite{};
+
+		std::function<void(bool, std::span<std::string> const&)> on_db_update{};
+		{
+			std::lock_guard writing{db_access_};
+			locked = steady_clock::now();
+
+			movies_ = std::move(ldr.movies_);
+			current_filters_ = std::move(ldr.current_filters_);
+			ref2id_ = std::move(ldr.ref2id_);
+
+			on_db_update = on_db_update_;
+
+			sqlite = steady_clock::now();
+			engine_.rebuild(movies_);
 		}
+		auto const now = steady_clock::now();
+
+#define dur_arg(name, start, stop) \
+	fmt::arg(name, duration_cast<milliseconds>(stop - start))
+
+		dbg[1] = fmt::format(
+		    "Installed in {total} (waiting for {waiting}, moving in "
+		    "{moving}, sqlite {sqlite})\n",
+		    dur_arg("waiting", then, locked), dur_arg("moving", locked, sqlite),
+		    dur_arg("sqlite", sqlite, now), dur_arg("total", then, now));
+#undef dur_arg
+
+		auto lines = std::span{dbg};
+		if (!changed)
+			lines = lines.subspan(0, std::min(size_t{2}, lines.size()));
+
+		on_db_update(notify && changed, lines);
 	}
 
 	extended_info server::find_movie_copy(std::string_view id) const {
@@ -337,5 +389,11 @@ namespace movies {
 		}
 
 		return false;
+	}
+
+	void server::set_on_db_update(
+	    std::function<void(bool, std::span<std::string> const&)> const& cb) {
+		std::shared_lock guard{db_access_};
+		on_db_update_ = cb;
 	}
 }  // namespace movies
