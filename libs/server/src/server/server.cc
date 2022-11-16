@@ -61,6 +61,7 @@ namespace movies {
 	void server::load(std::filesystem::path const& database) {
 		using namespace std::chrono;
 		plugins_ = plugin::load_plugins();
+		database_ = database;
 
 		auto const then = steady_clock::now();
 		auto movies = load_from(database / "db", database / "videos");

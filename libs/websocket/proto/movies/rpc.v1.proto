@@ -24,6 +24,7 @@ message Request {
 		movies.db.v1.GetFilterListingRequest get_filter_listing = 5;
 		movies.db.v1.GetMovieInfoRequest get_movie_info = 6;
 		movies.db.v1.GetVideoFileRequest get_video_file = 7;
+		movies.ui.v1.OpenMovieRequest open_movie = 8;
 	}
 };
 
@@ -37,5 +38,6 @@ message Response {
 		movies.db.v1.GetFilterListingResponse get_filter_listing = 5;
 		movies.db.v1.GetMovieInfoResponse get_movie_info = 6;
 		movies.db.v1.GetVideoFileResponse get_video_file = 7;
+		movies.ui.v1.OpenMovieResponse open_movie = 8;
 	}
 };

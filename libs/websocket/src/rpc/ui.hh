@@ -11,7 +11,8 @@ namespace movies::ui {
 
 #define UI_HANDLERS(X)                         \
 	X(movies::ui::v1, LangChange, lang_change) \
-	X(movies::ui::v1, GetConfig, get_config)
+	X(movies::ui::v1, GetConfig, get_config)   \
+	X(movies::ui::v1, OpenMovie, open_movie)
 
 namespace movies::rpc::v1 {
 	UI_HANDLERS(X_MSG_TRAITS);

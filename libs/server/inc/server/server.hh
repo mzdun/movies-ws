@@ -57,6 +57,9 @@ namespace movies {
 		bool lang_change(std::vector<std::string> const& langs);
 		Strings const& tr() const noexcept { return tr_; }
 		std::string const& lang_id() const noexcept { return lang_id_; }
+		std::filesystem::path const& database() const noexcept {
+			return database_;
+		}
 
 	private:
 		std::vector<std::string> filtered(std::string const& search,
@@ -72,6 +75,7 @@ namespace movies {
 		Strings tr_{};
 		movie_db movies_{};
 		std::string lang_id_{};
+		std::filesystem::path database_{};
 		std::vector<description::filter> current_filters_{};
 		full_text::engine engine_{};
 		std::map<string, std::string> ref2id_{};

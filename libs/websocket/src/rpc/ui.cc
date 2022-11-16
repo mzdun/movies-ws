@@ -1,10 +1,18 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
+#define NOMINMAX
+
 #include <base/overload.hh>
+#include <base/str.hh>
 #include <regions/mapping.hh>
 #include <rpc/ui.hh>
 #include "appstr.hh"
+
+#ifdef _WIN32
+#include <shellapi.h>
+#pragma comment(lib, "shell32.lib")
+#endif
 
 #define OPT_COPY(FLD) \
 	if (src.FLD) v1::copy(*src.FLD, *dst.mutable_##FLD())
@@ -145,6 +153,13 @@ namespace movies::ui::v1 {
 			}
 		}
 
+#ifdef _WIN32
+		void open_file(std::filesystem::path const& file) {
+			ShellExecuteW(nullptr, nullptr, file.c_str(), nullptr,
+			              file.parent_path().c_str(), SW_SHOW);
+		}
+#endif
+
 		struct tag_info {
 			std::string_view known_tag;
 			tags::lng label;
@@ -212,6 +227,22 @@ namespace movies::ui::v1 {
 
 		copy_strings(tr, *resp.mutable_app());
 
+		return true;
+	}
+
+	MSG_HANDLER(OpenMovie) {
+		lwsl_user("OpenMovie(%s)\n", req.id().c_str());
+		auto info = server()->find_movie_copy(req.id());
+		if (info.video_file) {
+			auto const path =
+			    fmt::format("videos/{}.mp4", as_sv(info.video_file->id));
+			auto filename = server()->database() / as_u8v(path);
+			filename.make_preferred();
+			open_file(filename);
+			lwsl_user("   -> %s\n", filename.u8string().c_str());
+		} else {
+			lwsl_user("   -> no video\n");
+		}
 		return true;
 	}
 }  // namespace movies::ui::v1

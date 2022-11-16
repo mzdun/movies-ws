@@ -13,6 +13,13 @@ message LangChangeResponse {
 	string lang_id = 2;
 };
 
+message OpenMovieRequest {
+	string id = 1;
+};
+
+message OpenMovieResponse {
+};
+
 message GetConfigRequest {};
 
 message GetConfigResponse {

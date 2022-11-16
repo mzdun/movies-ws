@@ -69,6 +69,10 @@ export class Service extends MovieEventTarget {
 		    (await this._ws.send({getVideoFile: {key}})).getVideoFile?.uri;
 		return uri === null ? undefined : uri;
 	}
+
+	async openMovie(id: string) {
+		await this._ws.send({openMovie: {id}});
+	}
 };
 
 export {movies};
