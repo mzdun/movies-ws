@@ -10,7 +10,8 @@ function(add_idl_mustache OUTPUT MUSTACHE)
             -o "${OUTPUT}"
             --tmplt-dir "${MUSTACHE_DIR}"
             --tmplt ${MUSTACHE}
-        DEPENDS "${LNGS_FILE}" "${MUSTACHE_DIR}/${MUSTACHE}.mustache"
+        MAIN_DEPENDENCY "${LNGS_FILE}"
+        DEPENDS "${MUSTACHE_DIR}/${MUSTACHE}.mustache"
         VERBATIM)
     message(STATUS "{{> ${MUSTACHE}}} ${OUTPUT}")
 endfunction()

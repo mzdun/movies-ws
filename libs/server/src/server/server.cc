@@ -69,7 +69,7 @@ namespace movies {
 		using namespace std::chrono;
 
 		auto const then = steady_clock::now();
-		auto jsons = load_from(database / "db", database / "videos");
+		auto jsons = load_from(database / "db", database / "videos", false);
 		auto const loaded = steady_clock::now();
 		for (auto&& movie : jsons) {
 			if (!movie.info_file && !movie.video_file) continue;
