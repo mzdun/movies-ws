@@ -9,8 +9,7 @@ export class Service extends MovieEventTarget {
 	constructor(port: number) {
 		super();
 
-		this._ws =
-		    new WsClient(port, (event) => this.dispatchEvent(event), false);
+		this._ws = new WsClient(port, (event) => this.dispatchEvent(event));
 
 		const self = this;
 		this._onlangs = () => self.updateLangs();

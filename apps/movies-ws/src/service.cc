@@ -28,8 +28,7 @@ namespace movies {
 		    {"/videos"s, database / "videos"sv},
 		    {"/db"s, database / "db"sv},
 		});
-		ctx_.add_protocol(pull_);
-		ctx_.add_protocol(push_);
+		ctx_.add_protocol(conn_);
 		std::cout << "SERVING FROM: "sv << as_sv(site.generic_u8string())
 		          << '\n';
 
@@ -41,7 +40,7 @@ namespace movies {
 	}
 
 	void service::broadcast(std::span<unsigned char> payload, bool is_binary) {
-		push_.broadcast(payload, is_binary);
+		conn_.broadcast(payload, is_binary);
 	}
 
 	void service::run() {

@@ -29,12 +29,14 @@ namespace movies {
 	private:
 		void broadcast(rpc::v1::Event const& ev) {
 			std::vector<unsigned char> buffer;
-			if (ws::protobuf::serialize(ev, buffer)) broadcast(buffer, true);
+			rpc::v1::GenericResponse response{};
+			*response.mutable_event() = ev;
+			if (ws::protobuf::serialize(response, buffer))
+				broadcast(buffer, true);
 		}
 
 		ws::handler* proxy_;
-		ws::web_socket push_{"push", nullptr};
-		ws::web_socket pull_{"pull", proxy_, ws::default_protocol};
+		ws::web_socket conn_{"data"s, proxy_, ws::default_protocol};
 		ws::server_context ctx_{};
 	};
 };  // namespace movies

@@ -12,7 +12,7 @@ namespace movies::rpc {
 }
 
 namespace movies::rpc::v1 {
-	using dispatcher = ws::protobuf::dispatcher<Request, Response, Event>;
+	using dispatcher = ws::protobuf::dispatcher<Request, GenericResponse>;
 	using handler = dispatcher::handler;
 
 	template <typename HandledRequest>
@@ -47,28 +47,27 @@ namespace movies::rpc::v1 {
 		base_handler(movies::server* server) : server_{server} {}
 
 		// Overridables
-		bool handle_message(handled_request const& req, Response& resp) {
-			return static_cast<Final*>(this)->handle_message(
-			    req, msg_traits::resp(resp));
-		}
-
-		bool handle_message(handled_request const& req,
+		void handle_message(handled_request const& req,
 		                    handled_response& resp) {
-			return false;
 		}
 
 		movies::server* server() noexcept { return server_; }
 		movies::server const* server() const noexcept { return server_; }
 
 	private:
-		bool handle(query& query) override {
+		void handle(query& query) override {
 			auto const msgid = query.req().id();
-			Response resp{};
-			if (!static_cast<Final*>(this)->handle_message(
-			        msg_traits::req(query.req()), resp))
-				return false;
-			resp.set_id(query.req().id());
-			return query.send_response(resp);
+			GenericResponse generic{};
+			auto& answer = *generic.mutable_response();
+			try {
+				auto& resp = msg_traits::resp(answer);
+				static_cast<Final*>(this)->handle_message(
+				    msg_traits::req(query.req()), resp);
+			} catch (std::exception& ex) {
+				answer.set_error(ex.what());
+			}
+			answer.set_id(msgid);
+			query.send_response(generic);
 		}
 
 		movies::server* server_;
@@ -84,21 +83,21 @@ namespace movies::rpc::v1 {
 
 #define X_MSG_TRAITS(NS, NAME, VAR) MSG_TRAITS(NS, NAME, VAR);
 
-#define MSG_HANDLER_DECL(MESSAGE)                                             \
-	class MESSAGE##Handler                                                    \
-	    : public ::movies::rpc::v1::base_handler<MESSAGE##Handler,               \
-	                                          MESSAGE##Request> {             \
-	public:                                                                   \
-		using ::movies::rpc::v1::base_handler<MESSAGE##Handler,                  \
-		                                   MESSAGE##Request>::base_handler;   \
-		using ::movies::rpc::v1::base_handler<MESSAGE##Handler,                  \
-		                                   MESSAGE##Request>::handle_message; \
-		bool handle_message(handled_request const& req,                       \
-		                    handled_response& resp);                          \
+#define MSG_HANDLER_DECL(MESSAGE)                                              \
+	class MESSAGE##Handler                                                     \
+	    : public ::movies::rpc::v1::base_handler<MESSAGE##Handler,             \
+	                                             MESSAGE##Request> {           \
+	public:                                                                    \
+		using ::movies::rpc::v1::base_handler<MESSAGE##Handler,                \
+		                                      MESSAGE##Request>::base_handler; \
+		using ::movies::rpc::v1::                                              \
+		    base_handler<MESSAGE##Handler, MESSAGE##Request>::handle_message;  \
+		void handle_message(handled_request const& req,                        \
+		                    handled_response& resp);                           \
 	}
 
 #define X_MSG_HANDLER_DECL(NS, NAME, VAR) MSG_HANDLER_DECL(NAME);
 
 #define MSG_HANDLER(MESSAGE)                                          \
-	bool MESSAGE##Handler::handle_message(handled_request const& req, \
+	void MESSAGE##Handler::handle_message(handled_request const& req, \
 	                                      handled_response& resp)

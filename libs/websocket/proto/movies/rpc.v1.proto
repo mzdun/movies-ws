@@ -5,16 +5,6 @@ package movies.rpc.v1;
 import "proto/movies/db.v1.proto";
 import "proto/movies/ui.v1.proto";
 
-message Event {
-	int32 id = 1;
-
-	oneof message {
-		movies.db.v1.DatabaseContentsChangeEvent database_contents_change = 2;
-		movies.db.v1.ListingResponseChangedEvent listing_reponse_changed = 3;
-		movies.db.v1.MovieInfoChangedEvent movie_info_changed = 4;
-	}
-}
-
 message Request {
 	int32 id = 1;
 
@@ -33,12 +23,28 @@ message Response {
 	int32 id = 1;
 
 	oneof message {
-		movies.ui.v1.LangChangeResponse lang_change = 2;
-		movies.ui.v1.GetConfigResponse get_config = 3;
-		movies.db.v1.GetListingResponse get_listing = 4;
-		movies.db.v1.GetFilterListingResponse get_filter_listing = 5;
-		movies.db.v1.GetMovieInfoResponse get_movie_info = 6;
-		movies.db.v1.GetVideoFileResponse get_video_file = 7;
-		movies.ui.v1.OpenMovieResponse open_movie = 8;
+		string error = 2;
+		movies.ui.v1.LangChangeResponse lang_change = 3;
+		movies.ui.v1.GetConfigResponse get_config = 4;
+		movies.db.v1.GetListingResponse get_listing = 5;
+		movies.db.v1.GetFilterListingResponse get_filter_listing = 6;
+		movies.db.v1.GetMovieInfoResponse get_movie_info = 7;
+		movies.db.v1.GetVideoFileResponse get_video_file = 8;
+		movies.ui.v1.OpenMovieResponse open_movie = 9;
 	}
-};
+}
+
+message Event {
+	int32 id = 1;
+
+	oneof message {
+		movies.db.v1.DatabaseContentsChangeEvent database_contents_change = 2;
+	}
+}
+
+message GenericResponse {
+	oneof kind {
+		Response response = 1;
+		Event event = 3;
+	}
+}

@@ -67,25 +67,19 @@ namespace ws::protobuf {
 		using query = ws::protobuf::query<dispatcher>;
 
 		virtual ~handler() = default;
-		virtual bool handle(query& req) = 0;
+		virtual void handle(query& req) = 0;
 	};
 
-	template <typename Request, typename Response, typename Event>
+	template <typename Request, typename Response>
 	class dispatcher : public ws::handler {
 	public:
 		using request = Request;
 		using response = Response;
-		using event = Event;
 		using handler = ws::protobuf::handler<dispatcher>;
 		using query = handler::query;
 		using message_id = request::MessageCase;
 
 		void attach(service* svc) { svc_ = svc; }
-
-		void broadcast(event const& ev) {
-			std::vector<unsigned char> buffer;
-			if (serialize(ev, buffer)) svc_->broadcast(buffer, true);
-		}
 
 		void add_handler(message_id id, std::unique_ptr<handler>&& handler) {
 			handlers_[id] = std::move(handler);

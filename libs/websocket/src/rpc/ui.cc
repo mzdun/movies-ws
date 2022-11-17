@@ -192,8 +192,6 @@ namespace movies::ui::v1 {
 		*resp.mutable_lang_id() = server()->lang_id();
 		lwsl_user("   -> %s [%schanged]\n", server()->lang_id().c_str(),
 		          (changed ? "" : "not "));
-
-		return true;
 	}
 
 	MSG_HANDLER(GetConfig) {
@@ -226,8 +224,6 @@ namespace movies::ui::v1 {
 		}
 
 		copy_strings(tr, *resp.mutable_app());
-
-		return true;
 	}
 
 	MSG_HANDLER(OpenMovie) {
@@ -243,6 +239,5 @@ namespace movies::ui::v1 {
 		} else {
 			lwsl_user("   -> no video\n");
 		}
-		return true;
 	}
 }  // namespace movies::ui::v1

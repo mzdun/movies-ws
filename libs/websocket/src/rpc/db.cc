@@ -293,13 +293,13 @@ namespace movies::db::v1 {
 			for (auto const& item : grp.items)
 				++refs;
 		}
+
 		copy(result, *resp.mutable_groups());
 		static constexpr auto s = [](size_t count) {
 			return count == 1 ? "" : "s";
 		};
 		lwsl_user("   -> %zu group%s, %zu title%s\n", groups, s(groups), refs,
 		          s(refs));
-		return true;
 	}
 
 	MSG_HANDLER(GetFilterListing) {
@@ -324,20 +324,19 @@ namespace movies::db::v1 {
 			return count == 1 ? "" : "s";
 		};
 		lwsl_user("   -> %zu title%s\n", result.size(), s(result.size()));
-		return true;
 	}
 
 	MSG_HANDLER(GetMovieInfo) {
 		lwsl_user("GetMovieInfo(%s)\n", req.key().c_str());
 		auto info = server()->find_movie_copy(req.key());
 		auto const episodes = server()->get_episodes(info.info.episodes);
+
 		copy(info, req.key(), server()->links_for(info), episodes,
 		     *resp.mutable_info());
 		if (resp.info().title().has_local())
 			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
 		else
 			lwsl_user("   -> untitled\n");
-		return true;
 	}
 
 	MSG_HANDLER(GetVideoFile) {
@@ -350,6 +349,5 @@ namespace movies::db::v1 {
 		} else {
 			lwsl_user("   -> no video\n");
 		}
-		return true;
 	}
 }  // namespace movies::db::v1

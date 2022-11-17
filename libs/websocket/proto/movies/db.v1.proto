@@ -45,13 +45,3 @@ message GetVideoFileResponse {
 };
 
 message DatabaseContentsChangeEvent {};
-
-message ListingResponseChangedEvent {
-	repeated movies.listing.v1.MovieGroup removed = 1;
-	repeated movies.listing.v1.MovieGroup added = 2;
-	repeated movies.listing.v1.MovieGroup changed = 3;
-};
-
-message MovieInfoChangedEvent {
-	movies.info.v1.MovieInfo info = 1;
-};

@@ -8,32 +8,29 @@ function ws_url(port: number) {
 	else
 		url.protocol = 'ws';
 	url.port = `${port}`
-	url.pathname = '/';
+	url.pathname = '/app';
 	return `${url}`;
 }
 
+interface Future {
+	resolve: (value: movies.rpc.v1.Response) => void;
+	reject: (value: any) => void;
+}
+
 export default class WsClient {
-	private _push: QueuedSocket;
-	private _pull: QueuedSocket;
+	private _conn: QueuedSocket;
 	private _onEvent: (ev: movies.rpc.v1.Event) => void;
 
 	private _next_id = 1;
-	private _awaiting: Map<number, (value: movies.rpc.v1.Response) => void> =
-	    new Map();
+	private _awaiting: Map<number, Future> = new Map();
 
 	constructor(
 	    port: number,
 	    onEvent: (ev: movies.rpc.v1.Event) => void,
-	    reconnect: boolean,
 	) {
 		const url = ws_url(port);
-		this._push = new QueuedSocket(
-		    (ev) => this._onevent(ev.data as ArrayBuffer as Uint8Array), false,
-		    url, 'push');
-		this._pull = new QueuedSocket(
-		    (ev) => this._handle(ev.data as ArrayBuffer as Uint8Array),
-		    reconnect, url, 'pull');
-		this._pull.peer = this._push;
+		this._conn = new QueuedSocket(
+		    (ev) => this._handle(ev.data as ArrayBuffer as Uint8Array), url);
 		this._onEvent = onEvent;
 	}
 
@@ -43,27 +40,36 @@ export default class WsClient {
 
 		const payload = movies.rpc.v1.Request.encode({...msg, id}).finish();
 
-		return new Promise<movies.rpc.v1.Response>((sink) => {
-			this._awaiting.set(id, sink);
-			this._pull.send(payload);
+		return new Promise<movies.rpc.v1.Response>((resolve, reject) => {
+			this._awaiting.set(id, {resolve, reject});
+			this._conn.send(payload);
 		});
 	}
 
 	_handle(msg: Uint8Array) {
-		const response = movies.rpc.v1.Response.decode(new Uint8Array(msg));
-		const cb = this._awaiting.get(response.id);
-		if (cb) {
-			this._awaiting.delete(response.id);
-			cb(response);
-		} else {
-			console.error('Unhandled', response);
-		}
-	}
+		const generic =
+		    movies.rpc.v1.GenericResponse.decode(new Uint8Array(msg));
 
-	_onevent(msg: Uint8Array) {
-		const event = movies.rpc.v1.Event.decode(new Uint8Array(msg));
-		console.log(event);
-		if (this._onEvent)
-			this._onEvent(event);
+		if (generic.response) {
+			const response = new movies.rpc.v1.Response(generic.response);
+			const cb = this._awaiting.get(response.id);
+			if (cb) {
+				this._awaiting.delete(response.id);
+				if (response.error)
+					cb.reject(response.error);
+				else
+					cb.resolve(response);
+			} else {
+				console.error('Unhandled', response);
+			}
+			return;
+		}
+
+		if (generic.event) {
+			const event = new movies.rpc.v1.Event(generic.event);
+			if (this._onEvent)
+				this._onEvent(event);
+			return;
+		}
 	}
 };
