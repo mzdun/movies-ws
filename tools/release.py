@@ -123,7 +123,7 @@ def set_version(version: str):
     _, after = rest.split("\n", 1)
     with open(os.path.join(ROOT, "CMakeLists.txt"), "wb") as f:
         f.write(
-            f"{preamble}project (cov{before}VERSION {version}\n{after}){text}".encode(
+            f"{preamble}project ({CMAKE_PROJECT}{before}VERSION {version}\n{after}){text}".encode(
                 "UTF-8"
             )
         )
@@ -585,6 +585,11 @@ if dry_run:
         print(
             f"Would create release in GitHub under {GITHUB_LINK}/releases/tag/{NEW_TAG}"
         )
+    else:
+        if GITHUB_TOKEN is None:
+            print(
+                f"No token to create release in GitHub under {GITHUB_LINK}/releases/tag/{NEW_TAG}"
+            )
     sys.exit(0)
 
 print(f'Committing "chore: {MESSAGE}"')
