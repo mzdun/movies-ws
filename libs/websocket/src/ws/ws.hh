@@ -54,9 +54,12 @@ namespace ws {
 		                    connection* conn) = 0;
 	};
 
+	enum proto_priority { default_protocol = true, normal_protocol = false };
+
 	struct base_lws_protocol {
 		virtual ~base_lws_protocol();
 		virtual lws_protocols make_protocol() = 0;
+		virtual proto_priority priorty() const noexcept = 0;
 	};
 
 	template <typename ProtocolImpl>
@@ -114,6 +117,11 @@ namespace ws {
 	}
 
 	template <typename ProtocolImpl>
+	inline proto_priority protocol_priority(ProtocolImpl* impl) {
+		return impl->priority();
+	}
+
+	template <typename ProtocolImpl>
 	inline lws_protocols make_protocol(ProtocolImpl* impl) {
 		return {
 		    .name = protocol_name(impl),
@@ -129,6 +137,10 @@ namespace ws {
 			return ws::make_protocol(impl);
 		}
 
+		proto_priority priorty() const noexcept override {
+			return ws::protocol_priority(impl);
+		}
+
 		ProtocolImpl* impl{};
 	};
 
@@ -138,9 +150,10 @@ namespace ws {
 	public:
 		explicit web_socket(std::string const& name,
 		                    handler* handler,
-		                    bool with_http);
+		                    proto_priority priority = normal_protocol);
 		~web_socket();
 		std::string const& name() const noexcept { return name_; }
+		proto_priority priority() const noexcept { return priority_; }
 		int lws_callback(lws* wsi,
 		                 lws_callback_reasons reason,
 		                 void* user,
@@ -158,7 +171,7 @@ namespace ws {
 
 		std::string name_;
 		handler* handler_;
-		bool with_http_;
+		proto_priority priority_;
 		std::unordered_map<lws*, std::shared_ptr<session>> sessions_;
 		mutable std::mutex m_;
 	};

@@ -33,8 +33,8 @@ namespace movies {
 		}
 
 		ws::handler* proxy_;
-		ws::web_socket push_{"push", nullptr, false};
-		ws::web_socket pull_{"pull", proxy_, false};
+		ws::web_socket push_{"push", nullptr};
+		ws::web_socket pull_{"pull", proxy_, ws::default_protocol};
 		ws::server_context ctx_{};
 	};
 };  // namespace movies

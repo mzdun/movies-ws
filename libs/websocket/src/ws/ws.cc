@@ -13,6 +13,14 @@ namespace ws {
 	handler::~handler() = default;
 	base_lws_protocol::~base_lws_protocol() = default;
 
+	static const struct lws_protocol_vhost_options default_proto_opt = {
+	    .name = "default",
+	    .value = "1"};
+
+	static struct lws_protocol_vhost_options default_proto_name = {
+	    .options = &default_proto_opt,
+	    .value = ""};
+
 	static const struct lws_protocol_vhost_options map_mime = {
 	    .name = ".map",
 	    .value = "application/json"};
@@ -56,6 +64,9 @@ namespace ws {
 				    .callback = lws_callback_http_dummy,
 				};
 			}
+			proto_priority priorty() const noexcept override {
+				return normal_protocol;
+			}
 		};
 
 		static_ = path;
@@ -64,11 +75,15 @@ namespace ws {
 
 	bool server_context::build(int port) {
 		data.protocols.reserve(protos_.size() + 1);
-		for (auto& proto : protos_)
+		for (auto& proto : protos_) {
 			data.protocols.push_back(proto->make_protocol());
+			if (proto->priorty() == default_protocol) {
+				default_proto_name.name = data.protocols.back().name;
+			}
+		}
 		data.protocols.push_back(LWS_PROTOCOL_LIST_TERM);
 
-		data.mounts.resize(static_.size());
+		data.mounts.resize(static_.size() + 1);
 		{
 			auto it = data.mounts.begin();
 			for (auto const& [mount, path] : static_) {
@@ -89,6 +104,17 @@ namespace ws {
 				};
 			}
 
+			{
+				auto& app = data.mounts.back();
+				app.mount.assign("/app"sv);
+				app.info = {
+				    .mountpoint = app.mount.c_str(),
+				    .origin_protocol = LWSMPRO_CALLBACK,
+				    .mountpoint_len =
+				        static_cast<unsigned char>(app.mount.size()),
+				};
+			}
+
 			struct lws_http_mount* mount_next = nullptr;
 			for (auto indexPlus1 = data.mounts.size(); indexPlus1 > 0;
 			     --indexPlus1) {
@@ -101,6 +127,7 @@ namespace ws {
 		data.info = {
 		    .protocols = data.protocols.data(),
 		    .headers = &header_csp,
+		    .pvo = default_proto_name.name ? &default_proto_name : nullptr,
 		    .mounts = &data.mounts.front().info,
 		    .port = port,
 		};
@@ -120,8 +147,8 @@ namespace ws {
 
 	web_socket::web_socket(std::string const& name,
 	                       handler* handler,
-	                       bool with_http)
-	    : name_{name}, handler_{handler}, with_http_{with_http} {}
+	                       proto_priority priority)
+	    : name_{name}, handler_{handler}, priority_{priority} {}
 
 	web_socket::~web_socket() = default;
 
