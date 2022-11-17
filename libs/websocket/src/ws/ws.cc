@@ -1,7 +1,11 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
+#include <base/str.hh>
 #include "ws/session.hh"
+
+using namespace std::literals;
+namespace fs = std::filesystem;
 
 namespace ws {
 	service::~service() = default;
@@ -13,12 +17,38 @@ namespace ws {
 	    .name = ".map",
 	    .value = "application/json"};
 
-	static const struct lws_protocol_vhost_options pvo_mime = {
-		.next = &map_mime,
+	static const struct lws_protocol_vhost_options ts_mime = {
+	    .next = &map_mime,
 	    .name = ".ts",
 	    .value = "application/x-typescript"};
 
-	void server_context::static_files(std::filesystem::path const& path) {
+	static const struct lws_protocol_vhost_options pvo_mime = {
+	    .next = &ts_mime,
+	    .name = ".mp4",
+	    .value = "video/mp4"};
+
+	static const struct lws_protocol_vhost_options header_x_frame_options = {
+	    .name = "X-Frame-Options",
+	    .value = "deny"};
+	static const struct lws_protocol_vhost_options header_x_xss_protection = {
+	    .next = &header_x_frame_options,
+	    .name = "X-XSS-Protection",
+	    .value = "1; mode=block"};
+	static const struct lws_protocol_vhost_options
+	    header_x_content_type_options = {.next = &header_x_xss_protection,
+	                                     .name = "X-Content-Type-Options",
+	                                     .value = "nosniff"};
+	static const struct lws_protocol_vhost_options header_csp = {
+	    .next = &header_x_content_type_options,
+	    .name = "Content-Security-Policy",
+	    .value =
+	        "default-src 'none'; img-src 'self' data: ; media-src 'self'; "
+	        "script-src 'self'; font-src 'self'; style-src 'self'; connect-src "
+	        "'self' ws: wss:; frame-ancestors 'none'; base-uri "
+	        "'none';form-action 'self';"};
+
+	void server_context::static_files(
+	    std::map<std::string, fs::path> const& path) {
 		struct http_proto : base_lws_protocol {
 			lws_protocols make_protocol() override {
 				return {
@@ -38,24 +68,41 @@ namespace ws {
 			data.protocols.push_back(proto->make_protocol());
 		data.protocols.push_back(LWS_PROTOCOL_LIST_TERM);
 
-		data.u8path = static_.generic_u8string();
-		auto const u8str = data.u8path.c_str();
+		data.mounts.resize(static_.size());
+		{
+			auto it = data.mounts.begin();
+			for (auto const& [mount, path] : static_) {
+				auto& mount_point = *it++;
+				mount_point.u8path = path.generic_u8string();
+				mount_point.mount = mount;
 
-		data.mount = {
-		    .mountpoint = "/",
-		    .origin = reinterpret_cast<char const*>(u8str),
-		    .def = "index.html",
-		    .extra_mimetypes = &pvo_mime, 
-		    .origin_protocol = LWSMPRO_FILE,
-		    .mountpoint_len = 1,
-		};
+				auto const u8str = mount_point.u8path.c_str();
+
+				mount_point.info = {
+				    .mountpoint = mount_point.mount.c_str(),
+				    .origin = reinterpret_cast<char const*>(u8str),
+				    .def = "index.html",
+				    .extra_mimetypes = &pvo_mime,
+				    .origin_protocol = LWSMPRO_FILE,
+				    .mountpoint_len =
+				        static_cast<unsigned char>(mount_point.mount.size()),
+				};
+			}
+
+			struct lws_http_mount* mount_next = nullptr;
+			for (auto indexPlus1 = data.mounts.size(); indexPlus1 > 0;
+			     --indexPlus1) {
+				auto& mount_point = data.mounts[indexPlus1 - 1];
+				mount_point.info.mount_next = mount_next;
+				mount_next = &mount_point.info;
+			}
+		}
 
 		data.info = {
 		    .protocols = data.protocols.data(),
-		    .mounts = &data.mount,
+		    .headers = &header_csp,
+		    .mounts = &data.mounts.front().info,
 		    .port = port,
-		    .options =
-		        LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE,
 		};
 
 		context_ = create_context(&data.info);
@@ -145,8 +192,6 @@ namespace ws {
 				on_write(wsi);
 				return 0;
 		}
-		if (with_http_)
-			return lws_callback_http_dummy(wsi, reason, user, in, len);
-		return 0;
+		return lws_callback_http_dummy(wsi, reason, user, in, len);
 	}
 }  // namespace ws

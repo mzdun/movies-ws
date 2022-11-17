@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
 	    });
 
 	backend.load(argv[1]);
-	service.init();
+	service.init(argv[1]);
 	lwsl_user("http://localhost:%d\n", service.port());
 	service.run();
 }

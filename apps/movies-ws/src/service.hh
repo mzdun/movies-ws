@@ -12,7 +12,7 @@ namespace movies {
 	public:
 		explicit service(rpc::v1::dispatcher* proxy);
 
-		bool init();
+		bool init(std::filesystem::path const& database);
 		int port() const;
 		void run();
 

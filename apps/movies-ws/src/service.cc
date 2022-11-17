@@ -12,7 +12,7 @@ namespace movies {
 		proxy->attach(this);
 	}
 
-	bool service::init() {
+	bool service::init(std::filesystem::path const& database) {
 		auto const site = [] {
 			std::error_code ec{};
 
@@ -23,7 +23,11 @@ namespace movies {
 			return std::filesystem::path{u8path};
 		}();
 
-		ctx_.static_files(site);
+		ctx_.static_files({
+		    {"/"s, site},
+		    {"/videos"s, database / "videos"sv},
+		    {"/db"s, database / "db"sv},
+		});
 		ctx_.add_protocol(pull_);
 		ctx_.add_protocol(push_);
 		std::cout << "SERVING FROM: "sv << as_sv(site.generic_u8string())

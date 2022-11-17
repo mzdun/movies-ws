@@ -14,6 +14,7 @@ openssl/1.1.1q
 
 [options]
 sqlite3:enable_fts5 = True
+libwebsockets:enable_ranges = True
 
 [generators]
 cmake

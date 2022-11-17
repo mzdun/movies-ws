@@ -4,11 +4,12 @@
 #pragma once
 
 #include <libwebsockets.h>
+#include <filesystem>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <span>
 #include <unordered_map>
-#include <filesystem>
 
 namespace ws {
 	template <typename T>
@@ -70,19 +71,28 @@ namespace ws {
 			    std::make_unique<lws_protocol<DerefedProtocol>>(impl));
 		}
 
-		void static_files(std::filesystem::path const&);
+		void static_files(std::map<std::string, std::filesystem::path> const&);
 		bool build(int port);
 		int def_vhost_port() const;
 		bool service();
 
+		lws_http_mount const* mount_point() const noexcept {
+			if (data.mounts.empty()) return nullptr;
+			return &data.mounts.front().info;
+		}
+
 	private:
+		struct lws_mount_data {
+			std::u8string u8path{};
+			std::string mount{};
+			lws_http_mount info{};
+		};
 		struct lws_data {
 			std::vector<lws_protocols> protocols{};
-			std::u8string u8path{};
-			lws_http_mount mount{};
+			std::vector<lws_mount_data> mounts{};
 			lws_context_creation_info info{};
 		} data;
-		std::filesystem::path static_{};
+		std::map<std::string, std::filesystem::path> static_{};
 		std::vector<std::unique_ptr<base_lws_protocol>> protos_;
 		context context_{};
 	};
@@ -126,7 +136,9 @@ namespace ws {
 
 	class web_socket {
 	public:
-		explicit web_socket(std::string const& name, handler* handler, bool with_http);
+		explicit web_socket(std::string const& name,
+		                    handler* handler,
+		                    bool with_http);
 		~web_socket();
 		std::string const& name() const noexcept { return name_; }
 		int lws_callback(lws* wsi,
