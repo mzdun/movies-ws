@@ -1,6 +1,6 @@
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/version.in" "${CMAKE_CURRENT_BINARY_DIR}/inc/server/version.hh" @ONLY)
 
-set(LANGUAGES pl en)
+set(LANGUAGES pl en-US)
 
 set(SRCS
     inc/base/extended_info.hh
@@ -127,9 +127,11 @@ set(REGIONS_SECONDARY_OUTPUTS
     "${CMAKE_CURRENT_BINARY_DIR}/inc/regions/mapping.hh")
 
 foreach(LANG ${LANGUAGES})
+    string(REPLACE "-" ";" LANG_LIST ${LANG})
+    list(POP_FRONT LANG_LIST SHORT_LANG)
     list(APPEND REGIONS_DEPS
-        "${DATA_DIR}/regions/${LANG}/countries.json"
-        "${DATA_DIR}/regions/${LANG}/world.json"
+        "${DATA_DIR}/regions/${SHORT_LANG}/countries.json"
+        "${DATA_DIR}/regions/${SHORT_LANG}/world.json"
     )
 
     list(APPEND REGIONS_SECONDARY_OUTPUTS

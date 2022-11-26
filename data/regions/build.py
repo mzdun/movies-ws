@@ -7,8 +7,10 @@ __dir__ = os.path.dirname(__file__)
 
 LANGS = [
     "pl",
-    "en",
+    "en-US",
 ]
+
+SHORT = set(lang.split("-", 1)[0] for lang in LANGS)
 
 NAMES_WITH_PREVIOUS_MEANING = ["IN"]
 
@@ -24,7 +26,7 @@ def orig(name: str) -> str:
 definitions = {}
 translations = {}
 
-for LANG in LANGS:
+for LANG in SHORT:
     translations[LANG] = {}
     with open(os.path.join(__dir__, LANG, "countries.json"), encoding="UTF-8") as f:
         for region in json.load(f):
@@ -54,7 +56,7 @@ with open(os.path.join(__dir__, "regions-patch.json"), encoding="UTF-8") as f:
         if alpha2 in NAMES_WITH_PREVIOUS_MEANING:
             alpha2 = f"{alpha2}_"
         for lang in langs:
-            if lang not in LANGS:
+            if lang not in SHORT:
                 continue
             translations[lang][alpha2] = patches[lang]
         try:
@@ -144,8 +146,15 @@ namespace movies::region {
             )
         )
 
-for lang in translations:
-    tr = translations[lang]
+for lang in LANGS:
+    try:
+        tr = translations[lang]
+    except KeyError:
+        try:
+            tr = translations[lang.split("-", 1)[0]]
+        except KeyError:
+            continue
+
     os.makedirs(os.path.join(__dir__, "..", "translations", "regions"), exist_ok=True)
     with open(
         os.path.join(__dir__, "..", "translations", "regions", f"{lang}.po"), "wb"

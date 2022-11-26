@@ -2,3 +2,4 @@ pl polski
 en English
 it italiana
 ja 日本語
+en-US English (United States)
