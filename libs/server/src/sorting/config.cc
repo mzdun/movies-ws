@@ -6,9 +6,9 @@
 #include <fmt/format.h>
 #include <time.h>
 #include <unicode/coll.h>
+#include <base/str.hh>
 #include <concepts>
 #include <sorting/sort.hh>
-#include <base/str.hh>
 
 using namespace std::literals;
 
@@ -211,7 +211,8 @@ namespace movies {
 		struct uint_ranged_header : ranged_header<Range, unsigned> {
 			using ranged_header<Range, unsigned>::ranged_header;
 
-			std::string format_next(unsigned val, app::Strings const& tr) const {
+			std::string format_next(unsigned val,
+			                        app::Strings const& tr) const {
 				return static_cast<Range const*>(this)->format(val + 1, tr);
 			}
 
@@ -241,12 +242,12 @@ namespace movies {
 			}
 		};
 
-#define COMPARATORS(X)                                      \
-	X(title, title, lng::SORT_LABEL_TITLE, true)            \
-	X(arrival, arrival, lng::SORT_LABEL_ARRIVAL, false)     \
-	X(info.year, year, lng::SORT_LABEL_YEAR, false)         \
-	X(info.runtime, runtime, lng::SORT_LABEL_RUNTIME, true) \
-	X(info.rating, rating, lng::SORT_LABEL_RATING, false)
+#define COMPARATORS(X)                                  \
+	X(title_cat, title, lng::SORT_LABEL_TITLE, true)    \
+	X(arrival, arrival, lng::SORT_LABEL_ARRIVAL, false) \
+	X(year, year, lng::SORT_LABEL_YEAR, false)          \
+	X(runtime, runtime, lng::SORT_LABEL_RUNTIME, true)  \
+	X(rating, rating, lng::SORT_LABEL_RATING, false)
 
 #define X_DEFINE_COMPARATOR(FIELD, NAME, LABEL, ASC)         \
 	class NAME##_comp : public crtp_comp<NAME##_comp>,       \
@@ -451,7 +452,7 @@ namespace movies {
 	{                                    \
 	    #NAME##sv,                       \
 	    ASC,                             \
-	    app::LABEL,                           \
+	    app::LABEL,                      \
 	    crtp_comp<NAME##_comp>::factory, \
 	},
 		static constexpr sort_info axis[] = {COMPARATORS(X_INFO)};

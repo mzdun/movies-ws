@@ -28,7 +28,7 @@ namespace movies {
 		bool episodes_have_videos{false};
 		std::string series_id{};
 		dates_info::opt_seconds arrival{};
-		title_category title{};
+		title_category title_cat{};
 
 		struct link {
 			std::string id{};

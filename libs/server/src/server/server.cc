@@ -42,12 +42,12 @@ namespace movies {
 	                          cover_size size) {
 		return {
 		    .id = key,
-		    .title = find_title(data.info.title),
-		    .cover = size == cover_normal ? normal_cover(data.info.image.poster)
-		                                  : small_cover(data.info.image.poster),
+		    .title = find_title(data.title),
+		    .cover = size == cover_normal ? normal_cover(data.image.poster)
+		                                  : small_cover(data.image.poster),
 		    .has_video = !!data.video_file || data.episodes_have_videos,
-		    .tags = data.info.tags,
-		    .age_rating = data.info.age,
+		    .tags = data.tags,
+		    .age_rating = data.age,
 		    .sort_hint = std::move(sort_hint),
 		};
 	}
@@ -86,29 +86,29 @@ namespace movies {
 		auto norm = icu::Normalizer2::getNFCInstance(ec);
 		if (U_FAILURE(ec)) norm = nullptr;
 		for (auto& [key, movie] : movies) {
-			for (auto const& ref : movie.info.refs)
+			for (auto const& ref : movie.refs)
 				ref2id[ref] = key;
 
 			movie.arrival = [&movie] {
-				auto const published = movie.info.dates.published;
-				auto const stream = movie.info.dates.stream;
-				auto const poster = movie.info.dates.poster;
+				auto const published = movie.dates.published;
+				auto const stream = movie.dates.stream;
+				auto const poster = movie.dates.poster;
 				auto const video =
 				    movie.video_file >> file_ref_mtime >> fs2wall;
 				auto const json = movie.info_file >> file_ref_mtime >> fs2wall;
 				return published || stream || video || poster || json;
 			}();
 
-			movie.title.init(movie.info.title, norm);
+			movie.title_cat.init(movie.title, norm);
 		}
 
 		auto const arrival_and_title = steady_clock::now();
 
 		for (auto& [parent, movie] : movies) {
-			if (movie.info.episodes.empty()) continue;
+			if (movie.episodes.empty()) continue;
 
 			decltype(movies)::iterator prev_it{movies.end()};
-			for (auto const& ep : movie.info.episodes) {
+			for (auto const& ep : movie.episodes) {
 				auto id_iter = ref2id.find(ep);
 				if (id_iter == ref2id.end()) continue;
 				auto ep_iter = movies.find(id_iter->second);
@@ -121,14 +121,14 @@ namespace movies {
 					auto& prev_episode = prev_it->second;
 					prev_episode.next.id = ep_iter->first;
 					prev_episode.next.title =
-					    episode.info.title.local || nothing;
+					    episode.title.local || nothing;
 					prev_episode.link_flags =
 					    static_cast<extended_info::link_flags_t>(
 					        prev_episode.link_flags | extended_info::has_next);
 
 					episode.prev.id = prev_it->first;
 					episode.prev.title =
-					    prev_episode.info.title.local || nothing;
+					    prev_episode.title.local || nothing;
 					episode.link_flags =
 					    static_cast<extended_info::link_flags_t>(
 					        episode.link_flags | extended_info::has_prev);

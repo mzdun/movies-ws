@@ -43,7 +43,7 @@ namespace movies {
 			bool include_missing_{};
 		};
 
-#define X_DEFINE_RANGE_FILTER(FIELD, ACCESS, TYPE, LABEL)            \
+#define X_DEFINE_RANGE_FILTER(FIELD, TYPE, LABEL)             \
 	class FIELD##_range_filter : public range_filter<TYPE> {  \
 	public:                                                   \
 		using range_filter<TYPE>::range_filter;               \
@@ -51,11 +51,11 @@ namespace movies {
 	private:                                                  \
 		std::optional<TYPE> access(                           \
 		    extended_info const& data) const noexcept final { \
-			return data ACCESS.FIELD;                         \
+			return data.FIELD;                                \
 		}                                                     \
 	};
 
-#define X_INFO(FIELD, ACCESS, TYPE, LABEL)                        \
+#define X_INFO(FIELD, TYPE, LABEL)                         \
 	{                                                      \
 	    #FIELD##sv,                                        \
 	    range_filter<TYPE>::factory<FIELD##_range_filter>, \

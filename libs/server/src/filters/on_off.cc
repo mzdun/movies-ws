@@ -11,11 +11,11 @@ namespace movies::filters {
 	bool NAME##_filter::access(extended_info const& data) const noexcept
 
 	ON_OFF(available) {
-		return !(!data.video_file && data.info.has_tag(u8"server-archived"sv));
+		return !(!data.video_file && data.has_tag(u8"server-archived"sv));
 	}
 
 	ON_OFF(is_series) {
-		return !data.info.episodes.empty();
+		return !data.episodes.empty();
 	}
 
 	ON_OFF(has_video) {
@@ -28,7 +28,7 @@ namespace movies::filters {
 
 	ON_OFF(has_imdb) {
 		static constexpr auto prefix = u8"imdb:"sv;
-		for (auto const& ref : data.info.refs) {
+		for (auto const& ref : data.refs) {
 			if (ref.starts_with(prefix)) return true;
 		}
 		return false;

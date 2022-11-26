@@ -55,7 +55,7 @@ namespace movies {
 	private:                                                  \
 		std::vector<std::u8string> const& access(             \
 		    extended_info const& data) const noexcept final { \
-			return data.info.FIELD;                           \
+			return data.FIELD;                                \
 		}                                                     \
 	};
 

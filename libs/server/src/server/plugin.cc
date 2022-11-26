@@ -23,7 +23,7 @@ namespace movies {
 	std::vector<link> page_link_plugin_impl::page_links_impl(
 	    extended_info const& data) const {
 		std::vector<link> result{};
-		for (auto const& ref : data.info.refs) {
+		for (auto const& ref : data.refs) {
 			if (ref.length() > prefix_.length() && ref.starts_with(prefix_) &&
 			    ref[prefix_.length()] == ':') {
 				auto id = ref.substr(prefix_.length() + 1);

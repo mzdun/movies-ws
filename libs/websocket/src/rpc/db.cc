@@ -135,7 +135,7 @@ namespace movies::db::v1 {
 		          info::v1::MovieInfo& dst) {
 			dst.set_id(key);
 			dst.set_has_video(!!src.video_file);
-			v1::copy(src.info, dst);
+			v1::copy(src, dst);
 			v1::copy(links, *dst.mutable_links());
 			v1::copy(episodes, *dst.mutable_episodes());
 
@@ -329,7 +329,7 @@ namespace movies::db::v1 {
 	MSG_HANDLER(GetMovieInfo) {
 		lwsl_user("GetMovieInfo(%s)\n", req.key().c_str());
 		auto info = server()->find_movie_copy(req.key());
-		auto const episodes = server()->get_episodes(info.info.episodes);
+		auto const episodes = server()->get_episodes(info.episodes);
 
 		copy(info, req.key(), server()->links_for(info), episodes,
 		     *resp.mutable_info());

@@ -129,7 +129,7 @@ namespace movies::description {
 				bool is_valid() const noexcept { return false; }
 			};
 
-#define X_RANGE_STG(NAME, ACCESS, TYPE, LABEL) range_stats<TYPE> NAME{};
+#define X_RANGE_STG(NAME, TYPE, LABEL) range_stats<TYPE> NAME{};
 #define X_TAGS_STG(NAME, LABEL) string_set NAME{};
 #define X_ON_OFF_STG(NAME, LABEL) bool_stats NAME{0};
 			TRIPLET(STG);
@@ -141,14 +141,14 @@ namespace movies::description {
 
 				std::vector<description::filter> filter_list{};
 
-#define X_RANGE_NAME(NAME, ACCESS, TYPE, LABEL) NAME,
+#define X_RANGE_NAME(NAME, TYPE, LABEL) NAME,
 #define X_TAGS_NAME(NAME, LABEL) NAME,
 #define X_ON_OFF_NAME(NAME, LABEL) NAME,
 				filter_list.reserve(count_of(TRIPLET(NAME) monostate{}));
 
-#define X_RANGE_MAKE_FILTER(NAME, ACCESS, TYPE, LABEL) \
-	if (NAME.is_valid())                               \
-		filter_list.push_back(                         \
+#define X_RANGE_MAKE_FILTER(NAME, TYPE, LABEL) \
+	if (NAME.is_valid())                       \
+		filter_list.push_back(                 \
 		    NAME.make_filter(#NAME##s, app::LABEL, NAME##_steps()));
 #define X_TAGS_MAKE_FILTER(NAME, LABEL) \
 	if (NAME.is_valid())                \
@@ -179,8 +179,8 @@ namespace movies::description {
 
 				return value_of(date::sys_seconds{fortnight});
 			}
-#define X_RANGE_APPLY(NAME, ACCESS, TYPE, LABEL) NAME.apply(movie ACCESS.NAME);
-#define X_TAGS_APPLY(NAME, LABEL) NAME.apply(movie.info.NAME);
+#define X_RANGE_APPLY(NAME, TYPE, LABEL) NAME.apply(movie.NAME);
+#define X_TAGS_APPLY(NAME, LABEL) NAME.apply(movie.NAME);
 #define X_ON_OFF_APPLY(NAME, LABEL) \
 	NAME.apply(filters::NAME##_filter::quick_match(movie));
 			void visit(extended_info const& movie) {

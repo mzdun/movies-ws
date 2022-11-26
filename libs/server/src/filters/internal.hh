@@ -6,10 +6,10 @@
 #include <server/lngs.hh>
 
 #define RANGE_FILTER(X)                                    \
-	X(year, .info, unsigned, lng::FILTER_LABEL_YEAR)       \
-	X(runtime, .info, unsigned, lng::FILTER_LABEL_RUNTIME) \
-	X(rating, .info, unsigned, lng::FILTER_LABEL_RATING)   \
-	X(arrival, , date::sys_seconds, lng::FILTER_LABEL_ARRIVAL)
+	X(year, unsigned, lng::FILTER_LABEL_YEAR)       \
+	X(runtime, unsigned, lng::FILTER_LABEL_RUNTIME) \
+	X(rating, unsigned, lng::FILTER_LABEL_RATING)   \
+	X(arrival, date::sys_seconds, lng::FILTER_LABEL_ARRIVAL)
 
 #define TOKEN_FILTER(X)                       \
 	X(genres, lng::FILTER_LABEL_GENRES)       \

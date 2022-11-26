@@ -120,9 +120,9 @@ namespace movies {
 				std::string tags{};
 
 				for (auto crew : {
-				         &data.info.crew.directors,
-				         &data.info.crew.writers,
-				         &data.info.crew.cast,
+				         &data.crew.directors,
+				         &data.crew.writers,
+				         &data.crew.cast,
 				     }) {
 					for (auto const& person : *crew) {
 						if (person.key == term) return true;
@@ -147,7 +147,7 @@ namespace movies {
 	private:                                                  \
 		std::vector<std::u8string> const& access(             \
 		    extended_info const& data) const noexcept final { \
-			return data.info.ACCESS;                          \
+			return data.ACCESS;                               \
 		}                                                     \
 	};
 
@@ -159,7 +159,7 @@ namespace movies {
 	private:                                                  \
 		std::optional<unsigned> access(                       \
 		    extended_info const& data) const noexcept final { \
-			return data.info.ACCESS;                          \
+			return data.ACCESS;                               \
 		}                                                     \
 	};
 
