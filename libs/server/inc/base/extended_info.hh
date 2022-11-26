@@ -28,11 +28,11 @@ namespace movies {
 		bool episodes_have_videos{false};
 		std::string series_id{};
 		dates_info::opt_seconds arrival{};
-		title_category title_cat{};
+		translatable<title_category> title_cat{};
 
 		struct link {
 			std::string id{};
-			string title{};
+			translatable<string> title{};
 
 			bool operator==(link const&) const noexcept = default;
 		} prev, next;

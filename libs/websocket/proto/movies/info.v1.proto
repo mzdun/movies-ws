@@ -16,15 +16,16 @@ message MovieInfo {
 	repeated string age_rating = 9;
 	repeated string tags = 10;
 	repeated movies.listing.v1.MovieReference episodes = 11;
-	optional string summary = 12;
-	ImageInfo image = 13;
-	optional uint32 year = 14;
-	optional uint32 runtime = 15;
-	optional uint32 rating = 16;
+	optional string tagline = 12;
+	optional string summary = 13;
+	ImageInfo image = 14;
+	optional uint32 year = 15;
+	optional uint32 runtime = 16;
+	optional uint32 rating = 17;
 
-	optional MovieLink prev = 17;
-	optional MovieLink next = 18;
-	optional string parent = 19;
+	optional MovieLink prev = 18;
+	optional MovieLink next = 19;
+	optional string parent = 20;
 };
 
 message MovieLink {

@@ -152,18 +152,11 @@ namespace movies::full_text {
 			++rowid;
 			ids_[rowid] = id;
 
-			auto& title = info.title;
-			if (title.local) {
+			for (auto const& [_, title] : info.title.items) {
 				title_stmt.bind(1, rowid);
-				title_stmt.bind(2, as_sv(*title.local).data());
+				title_stmt.bind(2, as_sv(title.text).data());
 				title_stmt.exec();
 				title_stmt.reset();
-			}
-			if (title.orig) {
-				orig_stmt.bind(1, rowid);
-				orig_stmt.bind(2, as_sv(*title.orig).data());
-				orig_stmt.exec();
-				orig_stmt.reset();
 			}
 
 			std::set<movies::string> names;
@@ -185,9 +178,9 @@ namespace movies::full_text {
 				person_stmt.reset();
 			}
 
-			if (info.summary && info.summary->length()) {
+			for (auto const& [_, summary] : info.summary.items) {
 				summary_stmt.bind(1, rowid);
-				summary_stmt.bind(2, strip_html(*info.summary).data());
+				summary_stmt.bind(2, strip_html(summary).data());
 				summary_stmt.exec();
 				summary_stmt.reset();
 			}

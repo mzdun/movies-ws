@@ -16,6 +16,13 @@ namespace movies::db::v1 {
 			dst.assign(as_sv(src));
 		}
 
+		bool tr_copy(translatable<std::u8string> const& src, std::string& dst, std::string_view lang) {
+			auto it = src.find(lang);
+			if (it == src.end()) return false;
+			dst.assign(as_sv(it->second));
+			return true;
+		}
+
 		void copy(unsigned src, uint32_t& dst) {
 			dst = src;
 		}
@@ -29,6 +36,8 @@ namespace movies::db::v1 {
 #define OPT_SET(FLD) \
 	if (src.FLD) dst.set_##FLD(*src.FLD)
 #define COPY(FLD) v1::copy(src.FLD, *dst.mutable_##FLD())
+#define TR_COPY(FLD) \
+	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), lang)) dst.clear_##FLD()
 #define SET(FLD) dst.set_##FLD(src.FLD)
 
 		void copy(reference const& src, listing::v1::MovieReference& dst) {
@@ -47,9 +56,22 @@ namespace movies::db::v1 {
 			COPY(items);
 		}
 
-		void copy(title_info const& src, info::v1::TitleInfo& dst) {
-			OPT_COPY(local);
-			OPT_COPY(orig);
+		bool tr_copy(translatable<title_info> const& src,
+		             info::v1::TitleInfo& dst,
+		             std::string_view lang) {
+			auto it = src.find(lang);
+			if (it == src.end()) return false;
+
+			v1::copy(it->second.text, *dst.mutable_local());
+
+			for (auto const& [_, title] : src) {
+				if (!title.original) continue;
+				if (it->second.text != title.text)
+					v1::copy(title.text, *dst.mutable_orig());
+				break;
+			}
+
+			return true;
 		}
 
 		void copy(person_info const& src, info::v1::PersonInfo& dst) {
@@ -86,14 +108,15 @@ namespace movies::db::v1 {
 			COPY(gallery);
 		}
 
-		void copy(movie_info const& src, info::v1::MovieInfo& dst) {
-			COPY(title);
+		void copy(movie_info const& src, info::v1::MovieInfo& dst, std::string_view lang) {
+			TR_COPY(title);
 			COPY(crew);
 			COPY(people);
 			COPY(genres);
 			COPY(countries);
 			copy(src.age, *dst.mutable_age_rating());
-			OPT_COPY(summary);
+			TR_COPY(tagline);
+			TR_COPY(summary);
 			COPY(image);
 			OPT_SET(year);
 			OPT_SET(runtime);
@@ -113,9 +136,9 @@ namespace movies::db::v1 {
 			OPT_COPY(rel);
 		}
 
-		void copy(extended_info::link const& src, info::v1::MovieLink& dst) {
+		void copy(extended_info::link const& src, info::v1::MovieLink& dst, std::string_view lang) {
 			COPY(id);
-			COPY(title);
+			TR_COPY(title);
 		}
 
 		template <typename Src, typename Dst>
@@ -132,18 +155,19 @@ namespace movies::db::v1 {
 		          std::string const& key,
 		          std::vector<link> const& links,
 		          std::vector<reference> const& episodes,
-		          info::v1::MovieInfo& dst) {
+		          info::v1::MovieInfo& dst,
+		          std::string_view lang) {
 			dst.set_id(key);
 			dst.set_has_video(!!src.video_file);
-			v1::copy(src, dst);
+			v1::copy(src, dst, lang);
 			v1::copy(links, *dst.mutable_links());
 			v1::copy(episodes, *dst.mutable_episodes());
 
 			if (src.link_flags & extended_info::has_prev)
-				v1::copy(src.prev, *dst.mutable_prev());
+				v1::copy(src.prev, *dst.mutable_prev(), lang);
 
 			if (src.link_flags & extended_info::has_next)
-				v1::copy(src.next, *dst.mutable_next());
+				v1::copy(src.next, *dst.mutable_next(), lang);
 
 			if (src.is_episode) v1::copy(src.series_id, *dst.mutable_parent());
 		}
@@ -332,7 +356,7 @@ namespace movies::db::v1 {
 		auto const episodes = server()->get_episodes(info.episodes);
 
 		copy(info, req.key(), server()->links_for(info), episodes,
-		     *resp.mutable_info());
+		     *resp.mutable_info(), server()->lang_id());
 		if (resp.info().title().has_local())
 			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
 		else

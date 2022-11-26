@@ -9,9 +9,10 @@ namespace movies {
 	sort::~sort() = default;
 
 	int sort::compare(list const& items,
-	                        std::string const& lhs_id,
-	                        std::string const& rhs_id,
-	                        movie_db const& db) noexcept {
+	                  std::string const& lhs_id,
+	                  std::string const& rhs_id,
+	                  movie_db const& db,
+	                  std::string_view langid) noexcept {
 		auto lhs_it = db.find(lhs_id);
 		auto rhs_it = db.find(rhs_id);
 		if (lhs_it == db.end()) {
@@ -23,7 +24,7 @@ namespace movies {
 		auto const& rhs = rhs_it->second;
 
 		for (auto const& item : items) {
-			auto const result = item->compare(lhs, rhs);
+			auto const result = item->compare(lhs, rhs, langid);
 			if (result) return result;
 		}
 

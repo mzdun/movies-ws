@@ -30,6 +30,7 @@ namespace movies {
 		static reference from(std::string const&,
 		                      extended_info const&,
 		                      std::string&& sort_hint,
+		                      std::string_view langid,
 		                      cover_size = cover_normal);
 	};
 

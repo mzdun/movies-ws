@@ -25,10 +25,6 @@ namespace movies {
 		return ref.mtime;
 	}
 
-	string find_title(title_info const& title) {
-		return title.local || title.orig || nothing;
-	}
-
 	std::optional<string> normal_cover(poster_info const& poster) {
 		return poster.normal || poster.large || poster.small;
 	}
@@ -39,10 +35,13 @@ namespace movies {
 	reference reference::from(std::string const& key,
 	                          extended_info const& data,
 	                          std::string&& sort_hint,
+	                          std::string_view langid,
 	                          cover_size size) {
+		auto const title = data.title.find(langid);
 		return {
 		    .id = key,
-		    .title = find_title(data.title),
+		    .title = title != data.title.end() ? title->second.text
+		                                       : std::u8string{},
 		    .cover = size == cover_normal ? normal_cover(data.image.poster)
 		                                  : small_cover(data.image.poster),
 		    .has_video = !!data.video_file || data.episodes_have_videos,
@@ -99,7 +98,9 @@ namespace movies {
 				return published || stream || video || poster || json;
 			}();
 
-			movie.title_cat.init(movie.title, norm);
+			movie.title_cat.items.clear();
+			for (auto const& [langid, title] : movie.title.items)
+				movie.title_cat.items[langid].init(title, norm);
 		}
 
 		auto const arrival_and_title = steady_clock::now();
@@ -120,15 +121,19 @@ namespace movies {
 				if (prev_it != movies.end()) {
 					auto& prev_episode = prev_it->second;
 					prev_episode.next.id = ep_iter->first;
-					prev_episode.next.title =
-					    episode.title.local || nothing;
+					prev_episode.next.title = episode.title.map(
+					    [](auto const& title) -> std::u8string const& {
+						    return title.text;
+					    });
 					prev_episode.link_flags =
 					    static_cast<extended_info::link_flags_t>(
 					        prev_episode.link_flags | extended_info::has_next);
 
 					episode.prev.id = prev_it->first;
-					episode.prev.title =
-					    prev_episode.title.local || nothing;
+					episode.prev.title = prev_episode.title.map(
+					    [](auto const& title) -> std::u8string const& {
+						    return title.text;
+					    });
 					episode.link_flags =
 					    static_cast<extended_info::link_flags_t>(
 					        episode.link_flags | extended_info::has_prev);
@@ -300,7 +305,7 @@ namespace movies {
 				if (movie_it == movies_.end()) continue;
 
 				result.push_back(reference::from(ref_it->second,
-				                                 movie_it->second, {},
+				                                 movie_it->second, {}, lang_id_,
 				                                 reference::cover_small));
 			}
 		}
@@ -350,7 +355,7 @@ namespace movies {
 	void server::sorted_locked(std::vector<std::string>& keys,
 	                           sort::list const& sorter) const {
 		auto const less = [&](std::string const& lhs, std::string const& rhs) {
-			return sort::compare(sorter, lhs, rhs, movies_) < 0;
+			return sort::compare(sorter, lhs, rhs, movies_, lang_id_) < 0;
 		};
 
 		std::sort(keys.begin(), keys.end(), less);
@@ -365,7 +370,7 @@ namespace movies {
 		for (auto const& key : keys) {
 			auto it = movies_.find(key);
 			if (it == movies_.end()) continue;
-			auto [id, title] = grouping.header_for(it->second, tr_);
+			auto [id, title] = grouping.header_for(it->second, tr_, lang_id_);
 			auto group_it = group_pos.lower_bound(id);
 			if (group_it == group_pos.end() || group_it->first != id) {
 				auto const pos = result.size();
@@ -378,7 +383,8 @@ namespace movies {
 				group_it = group_pos.insert(group_it, {id, pos});
 			}
 			result[group_it->second].items.push_back(reference::from(
-			    key, it->second, grouping.sort_hint_for(it->second, tr_)));
+			    key, it->second,
+			    grouping.sort_hint_for(it->second, tr_, lang_id_), lang_id_));
 		}
 
 		return result;
@@ -394,7 +400,7 @@ namespace movies {
 		for (auto const& key : keys) {
 			auto it = movies_.find(key);
 			if (it == movies_.end()) continue;
-			group.push_back(reference::from(key, it->second, {}));
+			group.push_back(reference::from(key, it->second, {}, lang_id_));
 		}
 
 		return result;
