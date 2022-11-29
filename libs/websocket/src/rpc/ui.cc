@@ -171,6 +171,50 @@ namespace movies::ui::v1 {
 		    {"lastchance"sv, tags::lng::TAG_LAST_CHANCE},
 		    {"explicit"sv, tags::lng::TAG_EXPLICIT},
 		};
+
+		bool contains(std::span<std::string const> langs,
+		              std::string_view token) {
+			for (auto const& lang : langs) {
+				if (lang == token) return true;
+			}
+			return false;
+		}
+
+		size_t char_count(std::string_view token, char checked) {
+			size_t counter{};
+			for (auto c : token) {
+				if (c == checked) ++counter;
+			}
+			return counter;
+		}
+
+		size_t char_count(std::span<std::string const> langs, char checked) {
+			size_t counter{};
+			for (auto lang : langs) {
+				counter += char_count(lang, checked);
+			}
+			return counter;
+		}
+
+		std::vector<std::string> expand(std::span<std::string> langs) {
+			std::vector<std::string> result{};
+			result.reserve(langs.size() + char_count(langs, '-'));
+			while (!langs.empty()) {
+				auto view = std::string_view{langs.front()};
+				langs = langs.subspan(1);
+
+				result.push_back({view.data(), view.size()});
+				while (!view.empty()) {
+					auto const pos = view.find('-');
+					if (pos == std::string::npos) break;
+
+					view = view.substr(0, pos);
+					if (contains(result, view) || contains(langs, view)) break;
+					result.push_back({view.data(), view.size()});
+				}
+			}
+			return result;
+		}
 	}  // namespace
 
 	MSG_HANDLER(LangChange) {
@@ -187,8 +231,17 @@ namespace movies::ui::v1 {
 		langs.reserve(lang_ids.size());
 		for (auto const& id : lang_ids)
 			langs.push_back(id);
+		auto full_langs = expand(langs);
+		if (full_langs != langs) {
+			dbg.clear();
+			for (auto const& lng : full_langs) {
+				if (!dbg.empty()) dbg += ", ";
+				dbg.append(lng);
+			}
+			lwsl_user("   => %s\n", dbg.c_str());
+		}
 
-		auto const changed = server()->lang_change(langs);
+		auto const changed = server()->lang_change(full_langs);
 		*resp.mutable_lang_id() = server()->lang_id();
 		lwsl_user("   -> %s [%schanged]\n", server()->lang_id().c_str(),
 		          (changed ? "" : "not "));
