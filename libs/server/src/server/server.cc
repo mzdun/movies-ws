@@ -382,6 +382,22 @@ namespace movies {
 		return it->second;
 	}
 
+	std::optional<std::filesystem::path> server::get_video_path(
+	    std::string_view id) const {
+		std::shared_lock guard{db_access_};
+		auto it = movies_.movies.find(id);
+		if (it == movies_.movies.end()) return {};
+		auto const& movie = it->second;
+		if (!movie.video_file) return {};
+		auto const view = as_sv(movie.video_file->id);
+		for (auto ext : {"mp4"sv, "mkv"sv}) {
+			auto const resource = fmt::format("videos/{}.{}", view, ext);
+			if (std::filesystem::exists(database_ / as_u8v(resource)))
+				return as_u8v(resource);
+		}
+		return {};
+	}
+
 	std::vector<reference> server::get_episodes(
 	    std::vector<string> const& episodes) const {
 		std::vector<reference> result{};

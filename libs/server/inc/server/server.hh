@@ -46,6 +46,8 @@ namespace movies {
 
 		void load(std::filesystem::path const& database);
 		extended_info find_movie_copy(std::string_view id) const;
+		std::optional<std::filesystem::path> get_video_path(
+		    std::string_view id) const;
 		std::vector<reference> get_episodes(
 		    std::vector<string> const& episodes) const;
 		std::vector<link> links_for(extended_info const&) const;

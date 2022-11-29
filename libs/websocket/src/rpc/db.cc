@@ -393,10 +393,10 @@ namespace movies::db::v1 {
 
 	MSG_HANDLER(GetVideoFile) {
 		lwsl_user("GetVideoFile(%s)\n", req.key().c_str());
-		auto info = server()->find_movie_copy(req.key());
-		if (info.video_file) {
-			auto const view = as_sv(info.video_file->id);
-			resp.set_uri(fmt::format("/videos/{}.mp4", view));
+		auto resource = server()->get_video_path(req.key());
+		if (resource) {
+			auto const generic = resource->generic_u8string();
+			resp.set_uri(fmt::format("/{}", as_sv(generic)));
 			lwsl_user("   -> %s\n", resp.uri().c_str());
 		} else {
 			lwsl_user("   -> no video\n");

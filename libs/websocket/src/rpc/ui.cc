@@ -228,11 +228,9 @@ namespace movies::ui::v1 {
 
 	MSG_HANDLER(OpenMovie) {
 		lwsl_user("OpenMovie(%s)\n", req.id().c_str());
-		auto info = server()->find_movie_copy(req.id());
-		if (info.video_file) {
-			auto const path =
-			    fmt::format("videos/{}.mp4", as_sv(info.video_file->id));
-			auto filename = server()->database() / as_u8v(path);
+		auto resource = server()->get_video_path(req.id());
+		if (resource) {
+			auto filename = server()->database() / *resource;
 			filename.make_preferred();
 			open_file(filename);
 			lwsl_user("   -> %s\n", filename.u8string().c_str());
