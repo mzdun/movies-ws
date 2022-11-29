@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: movies-ws latest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 13:09+0100\n"
+"POT-Creation-Date: 2022-11-29 07:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -190,6 +190,16 @@ msgstr ""
 #. Filter label for movies not matching 'has_video'
 msgctxt "FILTER_LABEL_HAS_VIDEO_OPOSITE"
 msgid "Has no video"
+msgstr ""
+
+#. Filter label for titles, which are episodes
+msgctxt "FILTER_LABEL_IS_EPISODE"
+msgid "Is episode"
+msgstr ""
+
+#. Filter label for titles, which are not episodes
+msgctxt "FILTER_LABEL_IS_EPISODE_OPOSITE"
+msgid "Is not an episode"
 msgstr ""
 
 #. Filter label for titles with episodes

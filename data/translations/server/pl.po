@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: movies-ws latest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-06 22:13+0100\n"
-"PO-Revision-Date: 2022-11-06 22:14+0100\n"
+"POT-Creation-Date: 2022-11-29 07:53+0100\n"
+"PO-Revision-Date: 2022-11-29 07:54+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -193,6 +193,16 @@ msgstr "Zawiera wideo"
 msgctxt "FILTER_LABEL_HAS_VIDEO_OPOSITE"
 msgid "Has no video"
 msgstr "Nie zawiera widea"
+
+#. Filter label for titles, which are episodes
+msgctxt "FILTER_LABEL_IS_EPISODE"
+msgid "Is episode"
+msgstr "Jest odcinkiem"
+
+#. Filter label for titles, which are not episodes
+msgctxt "FILTER_LABEL_IS_EPISODE_OPOSITE"
+msgid "Is not an episode"
+msgstr "Nie jest odcinkiem"
 
 #. Filter label for titles with episodes
 msgctxt "FILTER_LABEL_IS_SERIES"

@@ -18,6 +18,10 @@ namespace movies::filters {
 		return !data.episodes.empty();
 	}
 
+	ON_OFF(is_episode) {
+		return data.is_episode;
+	}
+
 	ON_OFF(has_video) {
 		return !!data.video_file;
 	}

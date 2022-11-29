@@ -5,7 +5,7 @@
 #include <date/date.h>
 #include <server/lngs.hh>
 
-#define RANGE_FILTER(X)                                    \
+#define RANGE_FILTER(X)                             \
 	X(year, unsigned, lng::FILTER_LABEL_YEAR)       \
 	X(runtime, unsigned, lng::FILTER_LABEL_RUNTIME) \
 	X(rating, unsigned, lng::FILTER_LABEL_RATING)   \
@@ -17,11 +17,12 @@
 	X(age, lng::FILTER_LABEL_AGE)             \
 	X(tags, lng::FILTER_LABEL_TAGS)
 
-#define ON_OFF_FILTER(X)                      \
-	X(available, lng::FILTER_LABEL_AVAILABLE) \
-	X(is_series, lng::FILTER_LABEL_IS_SERIES) \
-	X(has_video, lng::FILTER_LABEL_HAS_VIDEO) \
-	X(has_info, lng::FILTER_LABEL_HAS_INFO)   \
+#define ON_OFF_FILTER(X)                        \
+	X(available, lng::FILTER_LABEL_AVAILABLE)   \
+	X(is_series, lng::FILTER_LABEL_IS_SERIES)   \
+	X(is_episode, lng::FILTER_LABEL_IS_EPISODE) \
+	X(has_video, lng::FILTER_LABEL_HAS_VIDEO)   \
+	X(has_info, lng::FILTER_LABEL_HAS_INFO)     \
 	X(has_imdb, lng::FILTER_LABEL_HAS_IMDB)
 
 namespace movies {

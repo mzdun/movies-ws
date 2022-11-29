@@ -95,6 +95,8 @@
 	FILTER_LABEL_AVAILABLE = "Available";
 	[help("Filter label for titles with episodes"), id(-1)]
 	FILTER_LABEL_IS_SERIES = "Is series";
+	[help("Filter label for titles, which are episodes"), id(-1)]
+	FILTER_LABEL_IS_EPISODE = "Is episode";
 	[help("Filter label for movies with local content"), id(-1)]
 	FILTER_LABEL_HAS_VIDEO = "Has video";
 	[help("Filter label for movies with detailed descriptionm"), id(-1)]
@@ -105,6 +107,8 @@
 	FILTER_LABEL_AVAILABLE_OPOSITE = "Not available";
 	[help("Filter label for titles without episodes"), id(-1)]
 	FILTER_LABEL_IS_SERIES_OPOSITE = "Is not series";
+	[help("Filter label for titles, which are not episodes"), id(-1)]
+	FILTER_LABEL_IS_EPISODE_OPOSITE = "Is not an episode";
 	[help("Filter label for movies not matching 'has_video'"), id(-1)]
 	FILTER_LABEL_HAS_VIDEO_OPOSITE = "Has no video";
 	[help("Filter label for movies not matching 'has_info'"), id(-1)]
