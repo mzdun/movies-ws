@@ -29,6 +29,7 @@ namespace movies {
 		std::string series_id{};
 		dates_info::opt_seconds arrival{};
 		translatable<title_category> title_cat{};
+		std::vector<std::string> local_people_refs{};
 
 		struct link {
 			std::string id{};
@@ -46,5 +47,16 @@ namespace movies {
 		bool operator==(extended_info const&) const noexcept = default;
 	};
 
-	using movie_db = std::map<std::string, extended_info, std::less<>>;
+	struct movie_info_refs {
+		std::u8string name;
+		std::vector<std::string> refs;
+
+		auto operator<=>(movie_info_refs const&) const noexcept = default;
+	};
+
+	struct movie_db {
+		std::map<std::string, extended_info, std::less<>> movies;
+		std::map<std::string, movie_info_refs> people;
+		bool operator==(movie_db const&) const noexcept = default;
+	};
 }  // namespace movies

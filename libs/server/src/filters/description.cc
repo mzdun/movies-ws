@@ -135,7 +135,7 @@ namespace movies::description {
 			TRIPLET(STG);
 
 			std::vector<filter> visit(movie_db const& db) {
-				for (auto const& [_, movie] : db) {
+				for (auto const& [_, movie] : db.movies) {
 					visit(movie);
 				}
 

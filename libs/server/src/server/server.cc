@@ -63,6 +63,36 @@ namespace movies {
 		db_observer_.observe(*this, database);
 	}
 
+	auto split_refs(std::vector<std::u8string> const& refs) {
+		std::map<std::u8string, std::u8string> split{};
+		for (auto const& ref : refs) {
+			auto const pos = ref.find(u8':');
+			if (pos == std::string::npos) continue;
+			split[ref.substr(0, pos)] = ref.substr(pos + 1);
+		}
+		return split;
+	}
+
+	struct movie_refs {
+		std::string id;
+		std::map<std::u8string, std::u8string> external_ids{};
+		std::vector<std::string> movies{};
+
+		bool compatible_with(std::map<std::u8string, std::u8string>& incoming) {
+			bool compatible = true;
+			for (auto const& [key, value] : incoming) {
+				auto it = external_ids.find(key);
+				if (it != external_ids.end() && it->second != value) {
+					compatible = false;
+					break;
+				}
+			}
+
+			if (compatible) external_ids.merge(incoming);
+			return compatible;
+		}
+	};
+
 	std::string server::loader::load_async(
 	    std::filesystem::path const& database) {
 		using namespace std::chrono;
@@ -76,7 +106,7 @@ namespace movies {
 			    movie.info_file ? movie.info_file->id : movie.video_file->id;
 			std::string key{reinterpret_cast<char const*>(u8key.data()),
 			                u8key.size()};
-			movies[key] = {std::move(movie)};
+			db.movies[key] = {std::move(movie)};
 		}
 
 		auto const copied = steady_clock::now();
@@ -84,7 +114,7 @@ namespace movies {
 		UErrorCode ec{};
 		auto norm = icu::Normalizer2::getNFCInstance(ec);
 		if (U_FAILURE(ec)) norm = nullptr;
-		for (auto& [key, movie] : movies) {
+		for (auto& [key, movie] : db.movies) {
 			for (auto const& ref : movie.refs)
 				ref2id[ref] = key;
 
@@ -105,20 +135,20 @@ namespace movies {
 
 		auto const arrival_and_title = steady_clock::now();
 
-		for (auto& [parent, movie] : movies) {
+		for (auto& [parent, movie] : db.movies) {
 			if (movie.episodes.empty()) continue;
 
-			decltype(movies)::iterator prev_it{movies.end()};
+			decltype(db.movies)::iterator prev_it{db.movies.end()};
 			for (auto const& ep : movie.episodes) {
 				auto id_iter = ref2id.find(ep);
 				if (id_iter == ref2id.end()) continue;
-				auto ep_iter = movies.find(id_iter->second);
-				if (ep_iter == movies.end()) continue;
+				auto ep_iter = db.movies.find(id_iter->second);
+				if (ep_iter == db.movies.end()) continue;
 				auto& episode = ep_iter->second;
 				episode.is_episode = true;
 				episode.series_id = parent;
 
-				if (prev_it != movies.end()) {
+				if (prev_it != db.movies.end()) {
 					auto& prev_episode = prev_it->second;
 					prev_episode.next.id = ep_iter->first;
 					prev_episode.next.title = episode.title.map(
@@ -146,7 +176,66 @@ namespace movies {
 
 		auto const episodes = steady_clock::now();
 
-		current_filters = filter::gather_from_db(movies);
+		{
+			unsigned long long id{};
+			std::map<std::u8string, std::vector<movie_refs>> reverse{};
+			auto const next_id = [&id] { return fmt::format("p{:05}", ++id); };
+			for (auto& [movie_id, movie] : db.movies) {
+				movie.local_people_refs.clear();
+				movie.local_people_refs.reserve(movie.crew.names.size());
+				for (auto const& [name, refs] : movie.crew.names) {
+					auto refmap = split_refs(refs);
+					auto it = reverse.lower_bound(name);
+					if (it == reverse.end() || it->first != name) {
+						auto current_id = next_id();
+						reverse.insert(
+						    it, {
+						            name,
+						            {{
+						                .id = current_id,
+						                .external_ids = std::move(refmap),
+						                .movies = {movie_id},
+						            }},
+						        });
+						movie.local_people_refs.push_back(
+						    std::move(current_id));
+						continue;
+					}
+
+					bool found = false;
+					for (auto& movie_ref : it->second) {
+						if (!movie_ref.compatible_with(refmap)) continue;
+						movie_ref.movies.push_back(movie_id);
+						movie.local_people_refs.push_back(movie_ref.id);
+						found = true;
+					}
+
+					if (!found) {
+						auto current_id = next_id();
+						it->second.push_back({
+						    .id = current_id,
+						    .external_ids = std::move(refmap),
+						    .movies = {movie_id},
+						});
+						movie.local_people_refs.push_back(
+						    std::move(current_id));
+					}
+				}
+			}
+
+			for (auto& [name, refs] : reverse) {
+				for (auto& ref : refs) {
+					db.people[std::move(ref.id)] = {
+					    .name = name,
+					    .refs = std::move(ref.movies),
+					};
+				}
+			}
+		}
+
+		auto const people = steady_clock::now();
+
+		current_filters = filter::gather_from_db(db);
 
 		auto const now = steady_clock::now();
 
@@ -156,12 +245,13 @@ namespace movies {
 		return fmt::format(
 		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
 		    "{episodes}, filters {filters}, total {total})\n",
-		    fmt::arg("count", movies.size()),
-		    fmt::arg("pl", movies.size() == 1 ? "" : "s"),
+		    fmt::arg("count", db.movies.size()),
+		    fmt::arg("pl", db.movies.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
 		    dur_arg("enh", loaded, arrival_and_title),
 		    dur_arg("episodes", arrival_and_title, episodes),
-		    dur_arg("filters", episodes, now), dur_arg("total", then, now));
+		    dur_arg("people table", episodes, people),
+		    dur_arg("filters", people, now), dur_arg("total", then, now));
 #undef dur_arg
 	}
 
@@ -211,7 +301,7 @@ namespace movies {
 			return database_;
 		};
 
-		std::vector dbg{ldr.load_async(database_), std::string{}};
+		std::vector dbg{ldr.load_async(database()), std::string{}};
 		bool changed = false;
 
 		using namespace std::chrono;
@@ -224,13 +314,13 @@ namespace movies {
 			std::lock_guard writing{db_access_};
 			locked = steady_clock::now();
 
-			if (movies_ != ldr.movies || ref2id_ != ldr.ref2id) {
+			if (movies_ != ldr.db || ref2id_ != ldr.ref2id) {
 				changed = true;
 
-				if (movies_.size() != ldr.movies.size())
+				if (movies_.movies.size() != ldr.db.movies.size())
 					dbg.push_back(fmt::format("movies changed ({} -> {})\n",
-					                          movies_.size(),
-					                          ldr.movies.size()));
+					                          movies_.movies.size(),
+					                          ldr.db.movies.size()));
 				else
 					dbg.push_back("movies changed\n");
 			}
@@ -256,7 +346,7 @@ namespace movies {
 
 			printed = steady_clock::now();
 
-			movies_ = std::move(ldr.movies);
+			movies_ = std::move(ldr.db);
 			current_filters_ = std::move(ldr.current_filters);
 			ref2id_ = std::move(ldr.ref2id);
 
@@ -287,8 +377,8 @@ namespace movies {
 
 	extended_info server::find_movie_copy(std::string_view id) const {
 		std::shared_lock guard{db_access_};
-		auto it = movies_.find(id);
-		if (it == movies_.end()) return {};
+		auto it = movies_.movies.find(id);
+		if (it == movies_.movies.end()) return {};
 		return it->second;
 	}
 
@@ -301,8 +391,8 @@ namespace movies {
 			for (auto const& ref : episodes) {
 				auto ref_it = ref2id_.find(ref);
 				if (ref_it == ref2id_.end()) continue;
-				auto movie_it = movies_.find(ref_it->second);
-				if (movie_it == movies_.end()) continue;
+				auto movie_it = movies_.movies.find(ref_it->second);
+				if (movie_it == movies_.movies.end()) continue;
 
 				result.push_back(reference::from(ref_it->second,
 				                                 movie_it->second, {}, lang_id_,
@@ -332,8 +422,8 @@ namespace movies {
 
 			keys.reserve(ids.size());
 			for (auto const& key : ids) {
-				auto it = movies_.find(key);
-				if (it == movies_.end()) continue;
+				auto it = movies_.movies.find(key);
+				if (it == movies_.movies.end()) continue;
 
 				auto const& data = it->second;
 				if (hide_episodes && data.is_episode) continue;
@@ -341,9 +431,9 @@ namespace movies {
 					keys.push_back({key.data(), key.size()});
 			}
 		} else {
-			keys.reserve(movies_.size());
+			keys.reserve(movies_.movies.size());
 
-			for (auto const& [key, data] : movies_) {
+			for (auto const& [key, data] : movies_.movies) {
 				if (hide_episodes && data.is_episode) continue;
 				if (filter::matches_all(filters, data)) keys.push_back(key);
 			}
@@ -368,8 +458,8 @@ namespace movies {
 		std::map<std::string, size_t> group_pos{};
 
 		for (auto const& key : keys) {
-			auto it = movies_.find(key);
-			if (it == movies_.end()) continue;
+			auto it = movies_.movies.find(key);
+			if (it == movies_.movies.end()) continue;
 			auto [id, title] = grouping.header_for(it->second, tr_, lang_id_);
 			auto group_it = group_pos.lower_bound(id);
 			if (group_it == group_pos.end() || group_it->first != id) {
@@ -398,8 +488,8 @@ namespace movies {
 		group.reserve(keys.size());
 
 		for (auto const& key : keys) {
-			auto it = movies_.find(key);
-			if (it == movies_.end()) continue;
+			auto it = movies_.movies.find(key);
+			if (it == movies_.movies.end()) continue;
 			group.push_back(reference::from(key, it->second, {}, lang_id_));
 		}
 

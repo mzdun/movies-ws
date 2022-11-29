@@ -13,12 +13,12 @@ namespace movies {
 	                  std::string const& rhs_id,
 	                  movie_db const& db,
 	                  std::string_view langid) noexcept {
-		auto lhs_it = db.find(lhs_id);
-		auto rhs_it = db.find(rhs_id);
-		if (lhs_it == db.end()) {
-			return rhs_it == db.end() ? 0 : 1;
+		auto lhs_it = db.movies.find(lhs_id);
+		auto rhs_it = db.movies.find(rhs_id);
+		if (lhs_it == db.movies.end()) {
+			return rhs_it == db.movies.end() ? 0 : 1;
 		}
-		if (rhs_it == db.end()) return -1;
+		if (rhs_it == db.movies.end()) return -1;
 
 		auto const& lhs = lhs_it->second;
 		auto const& rhs = rhs_it->second;

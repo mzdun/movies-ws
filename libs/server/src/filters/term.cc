@@ -22,6 +22,10 @@ namespace movies {
 			return std::move(val);
 		}
 
+		std::string move_if_needed(std::string& val) {
+			return std::move(val);
+		}
+
 		template <typename Value>
 		struct conv_term;
 
@@ -49,6 +53,15 @@ namespace movies {
 
 			static std::optional<std::u8string> conv(std::string_view term) {
 				return as_u8s(term);
+			}
+		};
+
+		template <>
+		struct conv_term<std::string> {
+			using arg_t = std::string_view;
+
+			static std::optional<std::string> conv(std::string_view term) {
+				return as_str(term);
 			}
 		};
 
@@ -110,23 +123,15 @@ namespace movies {
 			    extended_info const&) const noexcept = 0;
 		};
 
-		class crew_term_filter : public term_filter<std::u8string> {
+		class crew_term_filter : public term_filter<std::string> {
 		public:
-			using term_filter<std::u8string>::term_filter;
+			using term_filter<std::string>::term_filter;
 
 		private:
 			bool contains(extended_info const& data,
-			              std::u8string_view term) const noexcept final {
-				std::string tags{};
-
-				for (auto crew : {
-				         &data.crew.directors,
-				         &data.crew.writers,
-				         &data.crew.cast,
-				     }) {
-					for (auto const& person : *crew) {
-						if (person.key == term) return true;
-					}
+			              std::string_view term) const noexcept final {
+				for (auto const& ref : data.local_people_refs) {
+					if (ref == term) return true;
 				}
 				return false;
 			}
@@ -137,7 +142,7 @@ namespace movies {
 	X(country, countries, std::u8string)
 #define TERM_VALUE_FILTER(X) X(year, year, unsigned)
 #define TERM_FILTER(X) \
-	TERM_TOKENS_FILTER(X) TERM_VALUE_FILTER(X) X(crew, crew, std::u8string)
+	TERM_TOKENS_FILTER(X) TERM_VALUE_FILTER(X) X(crew, crew, std::string)
 
 #define X_TOKENS_TERM_FILTER(CAT, ACCESS, T)                  \
 	class ACCESS##_term_filter : public tokens_term_filter {  \

@@ -147,12 +147,12 @@ namespace movies::full_text {
 		SQLite::Statement person_stmt{db_, "INSERT INTO person VALUES(?, ?)"};
 		SQLite::Statement summary_stmt{db_, "INSERT INTO summary VALUES(?, ?)"};
 		long long rowid{0};
-		for (auto const& [id, info] : data) {
+		for (auto const& [id, info] : data.movies) {
 			if (!info.info_file && !info.video_file) continue;
 			++rowid;
 			ids_[rowid] = id;
 
-			for (auto const& [_, title] : info.title.items) {
+			for (auto const& [_, title] : info.title) {
 				title_stmt.bind(1, rowid);
 				title_stmt.bind(2, as_sv(title.text).data());
 				title_stmt.exec();
@@ -160,14 +160,7 @@ namespace movies::full_text {
 			}
 
 			std::set<movies::string> names;
-			auto const& people = info.people;
-			auto const& crew = info.crew;
-			for (auto ptr : {&crew.cast, &crew.directors, &crew.writers}) {
-				for (auto const& [key, descr] : *ptr) {
-					if (people.count(key) == 0) names.insert(key);
-				}
-			}
-			for (auto const& [key, name] : people) {
+			for (auto const& [name, _] : info.crew.names) {
 				names.insert(name);
 			}
 

@@ -69,7 +69,7 @@ namespace movies {
 
 	private:
 		struct loader {
-			movie_db movies{};
+			movie_db db{};
 			std::vector<description::filter> current_filters{};
 			std::map<string, std::string> ref2id{};
 			std::string load_async(std::filesystem::path const& database);
