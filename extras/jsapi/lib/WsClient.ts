@@ -27,11 +27,17 @@ export default class WsClient {
 	constructor(
 	    port: number,
 	    onEvent: (ev: movies.rpc.v1.Event) => void,
+	    onConnectionChange: () => void,
 	) {
 		const url = ws_url(port);
 		this._conn = new QueuedSocket(
-		    (ev) => this._handle(ev.data as ArrayBuffer as Uint8Array), url);
+		    (ev) => this._handle(ev.data as ArrayBuffer as Uint8Array),
+		    onConnectionChange, url);
 		this._onEvent = onEvent;
+	}
+
+	get connected() {
+		return this._conn.connected;
 	}
 
 	async send(msg: movies.rpc.v1.IRequest) {

@@ -21,6 +21,8 @@
 
 	[help("Empty listing header"), id(-1)]
 	NO_ITEMS_HEADER = "No items";
+	[help("Hint if data websocket is disconnected"), id(-1)]
+	NO_ITEMS_DISCONNECTED = "There is no connection to database.";
 	[help("Hint if some filters, but no search terms, are applied"), id(-1)]
 	NO_ITEMS_CHANGE_FILTERS = "Maybe different filters would show more results.";
 	[help("Hint if some search terms, but no filters, are applied"), id(-1)]

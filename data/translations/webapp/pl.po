@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: movies-ws latest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-14 11:01+0100\n"
-"PO-Revision-Date: 2022-11-14 11:06+0100\n"
+"POT-Creation-Date: 2022-11-29 12:33+0100\n"
+"PO-Revision-Date: 2022-11-29 12:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -68,6 +68,11 @@ msgstr "Być może inne filtry lub wyszukiwane hasła pokażą więcej wyników.
 msgctxt "NO_ITEMS_CHANGE_SEARCH"
 msgid "Maybe different search terms would show more results."
 msgstr "Być może inne wyszukiwane hasła wyświetlą więcej wyników."
+
+#. Hint if data websocket is disconnected
+msgctxt "NO_ITEMS_DISCONNECTED"
+msgid "There is no connection to database."
+msgstr "Nie ma połączenia z bazą danych."
 
 #. Header for list of currently active filters
 msgctxt "NO_ITEMS_FILTERS_HEADER"

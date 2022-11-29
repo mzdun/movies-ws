@@ -1,7 +1,7 @@
 import {movies} from './proto/bundle';
 type BasicEventType = Exclude<movies.rpc.v1.Event['message'], undefined>;
 type MovieEventType = Exclude<BasicEventType, 'databaseContentsChange'>;
-type EventType = BasicEventType|'languageChange';
+type EventType = BasicEventType|'languageChange'|'connectionChange';
 type IEvent = movies.rpc.v1.IEvent;
 
 export interface MovieEvent extends Event {
@@ -31,6 +31,7 @@ export class MovieEventTarget {
 	}
 
 	addEventListener(type: 'languageChange', callback?: () => any): void;
+	addEventListener(type: 'connectionChange', callback?: () => any): void;
 	addEventListener(type: 'databaseContentsChange', callback?: () => any):
 	    void;
 	addEventListener(type: MovieEventType, callback?: (e: MovieEvent) => any):
@@ -41,6 +42,7 @@ export class MovieEventTarget {
 	}
 
 	removeEventListener(type: 'languageChange', callback?: () => any): void;
+	removeEventListener(type: 'connectionChange', callback?: () => any): void;
 	removeEventListener(type: 'databaseContentsChange', callback?: () => any):
 	    void;
 	removeEventListener(

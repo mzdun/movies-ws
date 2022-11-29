@@ -9,7 +9,9 @@ export class Service extends MovieEventTarget {
 	constructor(port: number) {
 		super();
 
-		this._ws = new WsClient(port, (event) => this.dispatchEvent(event));
+		this._ws = new WsClient(
+		    port, (event) => this.dispatchEvent(event),
+		    () => this._onConnectionChange());
 
 		const self = this;
 		this._onlangs = () => self.updateLangs();
@@ -20,6 +22,10 @@ export class Service extends MovieEventTarget {
 
 	get lang() {
 		return this._lang;
+	}
+
+	get connected() {
+		return this._ws.connected;
 	}
 
 	updateLangs() {
@@ -33,6 +39,12 @@ export class Service extends MovieEventTarget {
 			if (langChanged)
 				this.dispatchEvent({message: 'languageChange'});
 		})();
+	}
+
+	_onConnectionChange() {
+		this.dispatchEvent({message: 'connectionChange'});
+		if (this.connected)
+			this.updateLangs();
 	}
 
 	async getConfig() {
