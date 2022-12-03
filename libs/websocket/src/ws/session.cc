@@ -4,7 +4,7 @@
 #include "ws/session.hh"
 
 namespace ws {
-	session::session(lws* wsi) : wsi_{wsi} {}
+	session::session(lws* wsi, unsigned id) : wsi_{wsi}, id_{id} {}
 
 	void session::send(std::span<unsigned char> payload, bool is_binary) {
 		{

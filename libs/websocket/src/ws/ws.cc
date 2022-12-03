@@ -179,18 +179,33 @@ namespace ws {
 	}
 
 	void web_socket::on_connect(lws* wsi) {
-		lwsl_warn("[%s] CONNECTED\n", lws_protocol_get(wsi)->name);
+		static unsigned id{};
+		auto const next_session = ++id;
+		lwsl_warn("[%s/%u] CONNECTED\n", lws_protocol_get(wsi)->name,
+		          next_session);
 		std::lock_guard lock{m_};
-		sessions_[wsi] = std::make_shared<session>(wsi);
+		auto currrent_session = std::make_shared<session>(wsi, id);
+		handler_->on_connect(*currrent_session);
+		sessions_[wsi] = std::move(currrent_session);
 	}
 
 	void web_socket::on_disconnect(lws* wsi) {
+		std::shared_ptr<session> current{};
 		{
 			std::lock_guard lock{m_};
 			auto const it = sessions_.find(wsi);
-			if (it != sessions_.end()) sessions_.erase(it);
+			if (it != sessions_.end()) {
+				current = it->second;
+				sessions_.erase(it);
+			}
 		}
-		lwsl_warn("[%s] DISCONNECTED\n", lws_protocol_get(wsi)->name);
+		if (current)
+			lwsl_warn("[%s/%u] DISCONNECTED\n", lws_protocol_get(wsi)->name,
+			          current->id());
+		else
+			lwsl_warn("[%s/?] DISCONNECTED\n", lws_protocol_get(wsi)->name);
+
+		if (current) handler_->on_disconnect(*current);
 	}
 
 	std::shared_ptr<session> web_socket::session_for(lws* wsi) {

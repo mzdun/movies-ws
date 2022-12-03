@@ -19,7 +19,7 @@ namespace movies {
 		template <typename Char>
 		int compare(std::basic_string<Char> const& lhs,
 		            std::basic_string<Char> const& rhs,
-		            std::string_view) {
+		            std::span<std::string const> const&) {
 			return lhs.compare(rhs);
 		}
 
@@ -27,17 +27,17 @@ namespace movies {
 			std::unique_ptr<icu::Collator> coll{};
 			std::string lang{};
 
-			void for_lang(std::string_view langid) {
-				if (lang == langid) return;
+			void for_lang(std::span<std::string const> langs) {
+				if (langs.empty() || lang == langs.front()) return;
 
 				UErrorCode ec{};
-				auto result = createInstance(langid, ec);
+				auto result = createInstance(langs.front(), ec);
 				if (U_FAILURE(ec)) result = nullptr;
 				coll.reset();
 				lang.clear();
 				if (result) {
 					coll.reset(result);
-					lang.assign(langid);
+					lang.assign(langs.front());
 				}
 			}
 
@@ -61,9 +61,9 @@ namespace movies {
 
 		int compare(translatable<title_category> const& lhs,
 		            translatable<title_category> const& rhs,
-		            std::string_view langid) {
-			auto const lhs_it = lhs.find(langid);
-			auto const rhs_it = rhs.find(langid);
+		            std::span<std::string const> langs) {
+			auto const lhs_it = lhs.find(langs);
+			auto const rhs_it = rhs.find(langs);
 
 			if (lhs_it == lhs.end()) {
 				if (rhs_it == rhs.end()) {
@@ -76,11 +76,11 @@ namespace movies {
 			}
 
 			static collator coll{};
-			coll.for_lang(langid);
+			coll.for_lang(langs);
 			return coll.compare(lhs_it->second, rhs_it->second);
 		}
 
-		int compare(unsigned lhs, unsigned rhs, std::string_view) {
+		int compare(unsigned lhs, unsigned rhs, std::span<std::string const> const&) {
 			if (lhs < rhs) return -1;
 			return lhs == rhs ? 0 : 1;
 		}
@@ -89,22 +89,22 @@ namespace movies {
 			return (val < 0 ? -1 : val > 0 ? 1 : 0);
 		}
 
-		int compare(sys_seconds lhs, sys_seconds rhs, std::string_view) {
+		int compare(sys_seconds lhs, sys_seconds rhs, std::span<std::string const> const&) {
 			return clip((lhs - rhs).count());
 		}
 
-		int compare(int lhs, int rhs, std::string_view) {
+		int compare(int lhs, int rhs, std::span<std::string const> const&) {
 			return lhs - rhs;
 		}
 
 		template <typename Value>
 		int compare(std::optional<Value> const& lhs,
 		            std::optional<Value> const& rhs,
-		            std::string_view langid) {
+		            std::span<std::string const> langs) {
 			if (!lhs) return rhs ? 1 : 0;
 			if (!rhs) return -1;
 
-			return compare(*lhs, *rhs, langid);
+			return compare(*lhs, *rhs, langs);
 		}
 
 		template <typename Final>
@@ -114,26 +114,26 @@ namespace movies {
 
 			int compare(extended_info const& lhs,
 			            extended_info const& rhs,
-			            std::string_view langid) const noexcept final {
+			            std::span<std::string const> langs) const noexcept final {
 				auto const self = static_cast<Final const*>(this);
 				auto const result =
-				    movies::compare(self->get(lhs), self->get(rhs), langid);
+				    movies::compare(self->get(lhs), self->get(rhs), langs);
 				if (!asc_) return -result;
 				return result;
 			}
 
 			group_header header_for(extended_info const& data,
 			                        app::Strings const& tr,
-			                        std::string_view langid) const final {
+			                        std::span<std::string const> langs) const final {
 				auto const self = static_cast<Final const*>(this);
-				return self->field_header(self->get(data), tr, langid);
+				return self->field_header(self->get(data), tr, langs);
 			}
 
 			std::string sort_hint_for(extended_info const& data,
 			                          app::Strings const& tr,
-			                          std::string_view langid) const final {
+			                          std::span<std::string const> langs) const final {
 				auto const self = static_cast<Final const*>(this);
-				return self->field_sort_hint(self->get(data), tr, langid);
+				return self->field_sort_hint(self->get(data), tr, langs);
 			}
 
 			static ptr factory(bool ascending) {
@@ -193,23 +193,23 @@ namespace movies {
 			    : ranges_{std::move(ranges)} {}
 			group_header field_header(std::optional<Value> const& value,
 			                          app::Strings const& tr,
-			                          std::string_view) const {
+			                          std::span<std::string const> const&) const {
 				return value ? this->find_range(*value, tr) : group_header{};
 			}
 			group_header field_header(Value const& value,
 			                          app::Strings const& tr,
-			                          std::string_view) const {
+			                          std::span<std::string const> const&) const {
 				return this->find_range(value, tr);
 			}
 			std::string field_sort_hint(std::optional<Value> const& value,
 			                            app::Strings const& tr,
-			                            std::string_view) const {
+			                            std::span<std::string const> const&) const {
 				auto const self = static_cast<Range const*>(this);
 				return value ? self->format(*value, tr) : std::string{};
 			}
 			std::string field_sort_hint(Value const& value,
 			                            app::Strings const& tr,
-			                            std::string_view) const {
+			                            std::span<std::string const> const&) const {
 				auto const self = static_cast<Range const*>(this);
 				return self->format(value, tr);
 			}
@@ -285,16 +285,16 @@ namespace movies {
 			template <typename Arg>
 			group_header field_header(Arg&& value,
 			                          app::Strings const& tr,
-			                          std::string_view langid) const {
-				return instance().field_header(std::forward<Arg>(value), tr, langid);
+			                          std::span<std::string const> langs) const {
+				return instance().field_header(std::forward<Arg>(value), tr, langs);
 			}
 
 			template <typename Arg>
 			std::string field_sort_hint(Arg&& value,
 			                            app::Strings const& tr,
-			                            std::string_view langid) const {
+			                            std::span<std::string const> langs) const {
 				return instance().field_sort_hint(std::forward<Arg>(value), tr,
-				                                  langid);
+				                                  langs);
 			}
 		};
 
@@ -320,8 +320,8 @@ namespace movies {
 
 			group_header field_header(translatable<title_category> const& value,
 			                          app::Strings const&,
-			                          std::string_view langid) const {
-				auto it = value.find(langid);
+			                          std::span<std::string const> langs) const {
+				auto it = value.find(langs);
 				if (it != value.end()) {
 					auto const& value = it->second;
 					switch (value.grouping) {
@@ -342,9 +342,9 @@ namespace movies {
 			std::string field_sort_hint(
 			    translatable<title_category> const& value,
 			    app::Strings const&,
-			    std::string_view langid) const {
+			    std::span<std::string const> langs) const {
 				std::string utf8;
-				auto it = value.find(langid);
+				auto it = value.find(langs);
 				if (it == value.end()) return utf8;
 				it->second.sortable.toUTF8String(utf8);
 				return utf8;
@@ -374,12 +374,12 @@ namespace movies {
 		struct rating_header {
 			group_header field_header(std::optional<unsigned> const& value,
 			                          app::Strings const& tr,
-			                          std::string_view langid) const {
-				return field_header(value.value_or(0), tr, langid);
+			                          std::span<std::string const> langs) const {
+				return field_header(value.value_or(0), tr, langs);
 			}
 			group_header field_header(unsigned value,
 			                          app::Strings const&,
-			                          std::string_view) const {
+			                          std::span<std::string const> const&) const {
 				auto const stars = (value + 5) / 10;
 				return {
 				    .id = fmt::format("{}-stars", stars),
@@ -389,12 +389,12 @@ namespace movies {
 
 			std::string field_sort_hint(std::optional<unsigned> const& value,
 			                            app::Strings const& tr,
-			                            std::string_view langid) const {
-				return field_sort_hint(value.value_or(0), tr, langid);
+			                            std::span<std::string const> langs) const {
+				return field_sort_hint(value.value_or(0), tr, langs);
 			}
 			std::string field_sort_hint(unsigned value,
 			                            app::Strings const&,
-			                            std::string_view) const {
+			                            std::span<std::string const> const&) const {
 				return fmt::format("{}.{} / 10", value / 10, value % 10);
 			}
 		};
@@ -445,13 +445,13 @@ namespace movies {
 
 			group_header field_header(std::optional<sys_seconds> const& value,
 			                          app::Strings const& tr,
-			                          std::string_view langid) const {
-				return value ? field_header(*value, tr, langid) : group_header{};
+			                          std::span<std::string const> langs) const {
+				return value ? field_header(*value, tr, langs) : group_header{};
 			}
 
 			group_header field_header(sys_seconds const& value,
 			                          app::Strings const& tr,
-			                          std::string_view langid) const {
+			                          std::span<std::string const> langs) const {
 				if (value >= dates_.tomorrow) {
 					return {
 					    .id = "future",
@@ -496,14 +496,14 @@ namespace movies {
 
 			std::string field_sort_hint(std::optional<sys_seconds> const& value,
 			                            app::Strings const& tr,
-			                            std::string_view langid) const {
-				return value ? field_sort_hint(*value, tr, langid)
+			                            std::span<std::string const> langs) const {
+				return value ? field_sort_hint(*value, tr, langs)
 				             : std::string{};
 			}
 
 			std::string field_sort_hint(sys_seconds const& value,
 			                            app::Strings const&,
-			                            std::string_view) const {
+			                            std::span<std::string const> const&) const {
 				return fmt::format(
 				    "{}",
 				    std::chrono::time_point_cast<std::chrono::minutes>(value));

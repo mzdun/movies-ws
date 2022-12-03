@@ -48,8 +48,8 @@ namespace movies::rpc::v1 {
 
 		// Overridables
 		void handle_message(handled_request const& req,
-		                    handled_response& resp) {
-		}
+		                    handled_response& resp,
+		                    ws::session& session) {}
 
 		movies::server* server() noexcept { return server_; }
 		movies::server const* server() const noexcept { return server_; }
@@ -62,7 +62,8 @@ namespace movies::rpc::v1 {
 			try {
 				auto& resp = msg_traits::resp(answer);
 				static_cast<Final*>(this)->handle_message(
-				    msg_traits::req(query.req()), resp);
+				    msg_traits::req(query.req()), resp,
+				    *query.conn()->get_session());
 			} catch (std::exception& ex) {
 				answer.set_error(ex.what());
 			}
@@ -93,11 +94,13 @@ namespace movies::rpc::v1 {
 		using ::movies::rpc::v1::                                              \
 		    base_handler<MESSAGE##Handler, MESSAGE##Request>::handle_message;  \
 		void handle_message(handled_request const& req,                        \
-		                    handled_response& resp);                           \
+		                    handled_response& resp,                            \
+		                    ws::session& session);                             \
 	}
 
 #define X_MSG_HANDLER_DECL(NS, NAME, VAR) MSG_HANDLER_DECL(NAME);
 
 #define MSG_HANDLER(MESSAGE)                                          \
 	void MESSAGE##Handler::handle_message(handled_request const& req, \
-	                                      handled_response& resp)
+	                                      handled_response& resp,     \
+	                                      ws::session& session)

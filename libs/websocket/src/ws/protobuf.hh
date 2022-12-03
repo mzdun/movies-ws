@@ -44,6 +44,7 @@ namespace ws::protobuf {
 			return req_.ParseFromArray(payload.data(), ws::isize(payload));
 		}
 		request const& req() const noexcept { return req_; }
+		connection* conn() const noexcept { return conn_; }
 
 		bool send_response(response const& resp) {
 			std::vector<unsigned char> buffer;

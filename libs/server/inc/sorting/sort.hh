@@ -27,13 +27,13 @@ namespace movies {
 		virtual ~sort();
 		virtual int compare(extended_info const&,
 		                    extended_info const&,
-		                    std::string_view langid) const noexcept = 0;
+		                    std::span<std::string const> langs) const noexcept = 0;
 		virtual group_header header_for(extended_info const&,
 		                                app::Strings const&,
-		                                std::string_view langid) const = 0;
+		                                std::span<std::string const> langs) const = 0;
 		virtual std::string sort_hint_for(extended_info const&,
 		                                  app::Strings const&,
-		                                  std::string_view langid) const = 0;
+		                                  std::span<std::string const> langs) const = 0;
 
 		static ptr make(std::string const& term);
 		static std::vector<sort_types> get_config(app::Strings const&);
@@ -42,6 +42,6 @@ namespace movies {
 		                   std::string const&,
 		                   std::string const&,
 		                   movie_db const&,
-		                   std::string_view langid) noexcept;
+		                   std::span<std::string const> langs) noexcept;
 	};
 }  // namespace movies

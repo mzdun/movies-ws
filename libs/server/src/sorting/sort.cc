@@ -12,7 +12,7 @@ namespace movies {
 	                  std::string const& lhs_id,
 	                  std::string const& rhs_id,
 	                  movie_db const& db,
-	                  std::string_view langid) noexcept {
+	                  std::span<std::string const> langs) noexcept {
 		auto lhs_it = db.movies.find(lhs_id);
 		auto rhs_it = db.movies.find(rhs_id);
 		if (lhs_it == db.movies.end()) {
@@ -24,7 +24,7 @@ namespace movies {
 		auto const& rhs = rhs_it->second;
 
 		for (auto const& item : items) {
-			auto const result = item->compare(lhs, rhs, langid);
+			auto const result = item->compare(lhs, rhs, langs);
 			if (result) return result;
 		}
 

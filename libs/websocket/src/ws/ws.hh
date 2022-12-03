@@ -42,9 +42,12 @@ namespace ws {
 		                       bool is_binary) = 0;
 	};
 
+	class session;
+
 	struct connection {
 		virtual ~connection();
 		virtual void send(std::span<unsigned char> payload, bool is_binary) = 0;
+		virtual session* get_session() = 0;
 	};
 
 	struct handler {
@@ -52,6 +55,8 @@ namespace ws {
 		virtual void handle(std::span<unsigned char> payload,
 		                    bool is_binary,
 		                    connection* conn) = 0;
+		virtual void on_connect(session&) = 0;
+		virtual void on_disconnect(session&) = 0;
 	};
 
 	enum proto_priority { default_protocol = true, normal_protocol = false };
@@ -143,8 +148,6 @@ namespace ws {
 
 		ProtocolImpl* impl{};
 	};
-
-	class session;
 
 	class web_socket {
 	public:

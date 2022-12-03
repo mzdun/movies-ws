@@ -35,9 +35,9 @@ namespace movies {
 	reference reference::from(std::string const& key,
 	                          extended_info const& data,
 	                          std::string&& sort_hint,
-	                          std::string_view langid,
+	                          std::span<std::string const> langs,
 	                          cover_size size) {
-		auto const title = data.title.find(langid);
+		auto const title = data.title.find(langs);
 		return {
 		    .id = key,
 		    .title = title != data.title.end() ? title->second.text
@@ -51,9 +51,72 @@ namespace movies {
 		};
 	}
 
-	server::server(std::filesystem::path const& base) {
+		bool contains(std::span<std::string const> langs, std::string_view token) {
+		for (auto const& lang : langs) {
+			if (lang == token) return true;
+		}
+		return false;
+	}
+
+	size_t char_count(std::string_view token, char checked) {
+		size_t counter{};
+		for (auto c : token) {
+			if (c == checked) ++counter;
+		}
+		return counter;
+	}
+
+	size_t char_count(std::span<std::string const> langs, char checked) {
+		size_t counter{};
+		for (auto lang : langs) {
+			counter += char_count(lang, checked);
+		}
+		return counter;
+	}
+
+	std::vector<std::string> session_info::expand(
+	    std::span<std::string> langs) {
+		std::vector<std::string> result{};
+		result.reserve(langs.size() + char_count(langs, '-'));
+		while (!langs.empty()) {
+			auto view = std::string_view{langs.front()};
+			langs = langs.subspan(1);
+
+			result.push_back({view.data(), view.size()});
+			while (!view.empty()) {
+				auto const pos = view.find('-');
+				if (pos == std::string::npos) break;
+
+				view = view.substr(0, pos);
+				if (contains(result, view) || contains(langs, view)) break;
+				result.push_back({view.data(), view.size()});
+			}
+		}
+		return result;
+	}
+
+	session_info::session_info(std::filesystem::path const& base) {
 		tr_.init(base);
 		lang_change(lngs::system_locales());
+	}
+
+	bool session_info::lang_change(std::vector<std::string> const& langs) {
+		std::lock_guard guard{tr_access_};
+		auto next_id = tr_.open_one_of(langs);
+
+		auto changed = false;
+		if (langs != langs_) {
+			langs_ = langs;
+			changed = true;
+		}
+
+		if (next_id) {
+			changed |= *next_id != lang_id_;
+			lang_id_ = std::move(*next_id);
+			return changed;
+		}
+
+		return false;
 	}
 
 	void server::load(std::filesystem::path const& database) {
@@ -244,13 +307,13 @@ namespace movies {
 
 		return fmt::format(
 		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
-		    "{episodes}, filters {filters}, total {total})\n",
+		    "{episodes}, people table {people}, filters {filters}, total {total})\n",
 		    fmt::arg("count", db.movies.size()),
 		    fmt::arg("pl", db.movies.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
 		    dur_arg("enh", loaded, arrival_and_title),
 		    dur_arg("episodes", arrival_and_title, episodes),
-		    dur_arg("people table", episodes, people),
+		    dur_arg("people", episodes, people),
 		    dur_arg("filters", people, now), dur_arg("total", then, now));
 #undef dur_arg
 	}
@@ -399,7 +462,8 @@ namespace movies {
 	}
 
 	std::vector<reference> server::get_episodes(
-	    std::vector<string> const& episodes) const {
+	    std::vector<string> const& episodes,
+	    std::span<std::string const> langs) const {
 		std::vector<reference> result{};
 		result.reserve(episodes.size());
 		{
@@ -411,14 +475,15 @@ namespace movies {
 				if (movie_it == movies_.movies.end()) continue;
 
 				result.push_back(reference::from(ref_it->second,
-				                                 movie_it->second, {}, lang_id_,
+				                                 movie_it->second, {}, langs,
 				                                 reference::cover_small));
 			}
 		}
 		return result;
 	}
 
-	std::vector<link> server::links_for(extended_info const& data) const {
+	std::vector<link> server::links_for(extended_info const& data,
+	                                    Strings const& tr) const {
 		std::shared_lock guard{db_access_};
 		return plugin::page_links(plugins_, data);
 	}
@@ -459,9 +524,10 @@ namespace movies {
 	}
 
 	void server::sorted_locked(std::vector<std::string>& keys,
-	                           sort::list const& sorter) const {
+	                           sort::list const& sorter,
+	                           std::span<std::string const> langs) const {
 		auto const less = [&](std::string const& lhs, std::string const& rhs) {
-			return sort::compare(sorter, lhs, rhs, movies_, lang_id_) < 0;
+			return sort::compare(sorter, lhs, rhs, movies_, langs) < 0;
 		};
 
 		std::sort(keys.begin(), keys.end(), less);
@@ -469,14 +535,16 @@ namespace movies {
 
 	std::vector<group> server::inflate_locked(
 	    std::vector<std::string> const& keys,
-	    sort const& grouping) const {
+	    sort const& grouping,
+	    Strings const& tr,
+	    std::span<std::string const> langs) const {
 		std::vector<group> result{};
 		std::map<std::string, size_t> group_pos{};
 
 		for (auto const& key : keys) {
 			auto it = movies_.movies.find(key);
 			if (it == movies_.movies.end()) continue;
-			auto [id, title] = grouping.header_for(it->second, tr_, lang_id_);
+			auto [id, title] = grouping.header_for(it->second, tr, langs);
 			auto group_it = group_pos.lower_bound(id);
 			if (group_it == group_pos.end() || group_it->first != id) {
 				auto const pos = result.size();
@@ -489,15 +557,16 @@ namespace movies {
 				group_it = group_pos.insert(group_it, {id, pos});
 			}
 			result[group_it->second].items.push_back(reference::from(
-			    key, it->second,
-			    grouping.sort_hint_for(it->second, tr_, lang_id_), lang_id_));
+			    key, it->second, grouping.sort_hint_for(it->second, tr, langs),
+			    langs));
 		}
 
 		return result;
 	}
 
 	std::vector<group> server::quick_inflate_locked(
-	    std::vector<std::string> const& keys) const {
+	    std::vector<std::string> const& keys,
+	    std::span<std::string const> langs) const {
 		std::vector<group> result{};
 		result.push_back({});
 		auto& group = result.front().items;
@@ -506,35 +575,26 @@ namespace movies {
 		for (auto const& key : keys) {
 			auto it = movies_.movies.find(key);
 			if (it == movies_.movies.end()) continue;
-			group.push_back(reference::from(key, it->second, {}, lang_id_));
+			group.push_back(reference::from(key, it->second, {}, langs));
 		}
 
 		return result;
 	}
 
-	std::vector<group> server::listing(std::string const& search,
-	                                   filter::list const& filters,
-	                                   sort::list const& sort,
-	                                   bool group_items,
-	                                   bool hide_episodes) const {
+	std::vector<group> server::listing(
+	    std::string const& search,
+	    filter::list const& filters,
+	    sort::list const& sort,
+	    bool group_items,
+	    bool hide_episodes,
+	    Strings const& tr,
+	    std::span<std::string const> langs) const {
 		std::shared_lock guard{db_access_};
 		auto keys = filtered_locked(search, filters, hide_episodes);
-		sorted_locked(keys, sort);
+		sorted_locked(keys, sort, langs);
 		return sort.empty() || !group_items
-		           ? quick_inflate_locked(keys)
-		           : inflate_locked(keys, *sort.front());
-	}
-
-	bool server::lang_change(std::vector<std::string> const& langs) {
-		std::shared_lock guard{db_access_};
-		auto next_id = tr_.open_one_of(langs);
-		if (next_id) {
-			auto const changed = *next_id != lang_id_;
-			lang_id_ = std::move(*next_id);
-			return changed;
-		}
-
-		return false;
+		           ? quick_inflate_locked(keys, langs)
+		           : inflate_locked(keys, *sort.front(), tr, langs);
 	}
 
 	void server::set_on_db_update(

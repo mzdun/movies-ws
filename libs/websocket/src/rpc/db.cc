@@ -3,6 +3,7 @@
 
 #include <base/str.hh>
 #include <rpc/db.hh>
+#include <rpc/session.hh>
 
 namespace movies::db::v1 {
 	namespace {
@@ -18,8 +19,8 @@ namespace movies::db::v1 {
 
 		bool tr_copy(translatable<std::u8string> const& src,
 		             std::string& dst,
-		             std::string_view lang) {
-			auto it = src.find(lang);
+		             std::span<std::string const> langs) {
+			auto it = src.find(langs);
 			if (it == src.end()) return false;
 			dst.assign(as_sv(it->second));
 			return true;
@@ -40,7 +41,7 @@ namespace movies::db::v1 {
 	if (src.FLD) dst.set_##FLD(*src.FLD)
 #define COPY(FLD, ...) v1::copy(src.FLD, *dst.mutable_##FLD(), __VA_ARGS__)
 #define TR_COPY(FLD) \
-	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), lang)) dst.clear_##FLD()
+	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), langs)) dst.clear_##FLD()
 #define SET(FLD) dst.set_##FLD(src.FLD)
 
 		void copy(reference const& src, listing::v1::MovieReference& dst) {
@@ -61,8 +62,8 @@ namespace movies::db::v1 {
 
 		bool tr_copy(translatable<title_info> const& src,
 		             info::v1::TitleInfo& dst,
-		             std::string_view lang) {
-			auto it = src.find(lang);
+		             std::span<std::string const> langs) {
+			auto it = src.find(langs);
 			if (it == src.end()) return false;
 
 			v1::copy(it->second.text, *dst.mutable_local());
@@ -132,7 +133,7 @@ namespace movies::db::v1 {
 
 		void copy(movie_info const& src,
 		          info::v1::MovieInfo& dst,
-		          std::string_view lang,
+		          std::span<std::string const> langs,
 		          std::vector<std::string> const& local_people_refs) {
 			TR_COPY(title);
 			COPY(crew, local_people_refs);
@@ -162,7 +163,7 @@ namespace movies::db::v1 {
 
 		void copy(extended_info::link const& src,
 		          info::v1::MovieLink& dst,
-		          std::string_view lang) {
+		          std::span<std::string const> langs) {
 			COPY(id);
 			TR_COPY(title);
 		}
@@ -184,18 +185,18 @@ namespace movies::db::v1 {
 		          std::vector<link> const& links,
 		          std::vector<reference> const& episodes,
 		          info::v1::MovieInfo& dst,
-		          std::string_view lang) {
+		          std::span<std::string const> langs) {
 			dst.set_id(key);
 			dst.set_has_video(!!src.video_file);
-			v1::copy(src, dst, lang, src.local_people_refs);
+			v1::copy(src, dst, langs, src.local_people_refs);
 			v1::copy(links, *dst.mutable_links());
 			v1::copy(episodes, *dst.mutable_episodes());
 
 			if (src.link_flags & extended_info::has_prev)
-				v1::copy(src.prev, *dst.mutable_prev(), lang);
+				v1::copy(src.prev, *dst.mutable_prev(), langs);
 
 			if (src.link_flags & extended_info::has_next)
-				v1::copy(src.next, *dst.mutable_next(), lang);
+				v1::copy(src.next, *dst.mutable_next(), langs);
 
 			if (src.is_episode) v1::copy(src.series_id, *dst.mutable_parent());
 		}
@@ -337,8 +338,11 @@ namespace movies::db::v1 {
 		std::string const* search = nullptr;
 		if (req.has_search()) search = &req.search();
 
-		auto const result = server()->listing(search ? *search : std::string{},
-		                                      filters, sort, true, true);
+		movies::session data{session};
+
+		auto const result =
+		    server()->listing(search ? *search : std::string{}, filters, sort,
+		                      true, true, data.tr(), data.langs());
 		size_t groups = 0, refs = 0;
 		for (auto const& grp : result) {
 			++groups;
@@ -357,6 +361,8 @@ namespace movies::db::v1 {
 	MSG_HANDLER(GetFilterListing) {
 		lwsl_user("GetFilterListing(%s)\n", debug_str(req).c_str());
 
+		movies::session data{session};
+
 		auto const filters =
 		    from_req(req.filters(),
 		             movies::filter::make_term(req.category(), req.term()));
@@ -367,7 +373,8 @@ namespace movies::db::v1 {
 		std::vector<reference> result;
 		{
 			auto group = server()->listing(search ? *search : std::string{},
-			                               filters, sort, false, false);
+			                               filters, sort, false, false,
+			                               data.tr(), data.langs());
 			if (!group.empty()) result = std::move(group.front().items);
 		}
 
@@ -380,11 +387,14 @@ namespace movies::db::v1 {
 
 	MSG_HANDLER(GetMovieInfo) {
 		lwsl_user("GetMovieInfo(%s)\n", req.key().c_str());
-		auto info = server()->find_movie_copy(req.key());
-		auto const episodes = server()->get_episodes(info.episodes);
+		movies::session data{session};
 
-		copy(info, req.key(), server()->links_for(info), episodes,
-		     *resp.mutable_info(), server()->lang_id());
+		auto info = server()->find_movie_copy(req.key());
+		auto const episodes =
+		    server()->get_episodes(info.episodes, data.langs());
+
+		copy(info, req.key(), server()->links_for(info, data.tr()), episodes,
+		     *resp.mutable_info(), data.langs());
 		if (resp.info().title().has_local())
 			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
 		else
