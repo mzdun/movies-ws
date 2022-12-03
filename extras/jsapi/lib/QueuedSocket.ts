@@ -1,23 +1,26 @@
 export class QueuedSocket {
 	private _handler: (ev: MessageEvent) => void;
 	private _connChanged: () => void;
-	private _url: string;
-	private _ws: WebSocket;
+	private _url?: string = undefined;
+	private _ws?: WebSocket = undefined;
 	private _connected = false;
 	private _connecting = true;
-	private _restarting?: number;
+	private _restarting?: number = undefined;
 	private _retries = 0;
 	private _queue: Array<Uint8Array> = [];
 
 	constructor(
 	    handler: (ev: MessageEvent) => void, connChanged: () => void,
-	    url: string) {
+	    url: Promise<string>) {
 		this._handler = handler;
 		this._connChanged = connChanged;
-		this._url = url;
 		this._restarting = undefined;
-		this._ws = new WebSocket(this._url);
-		this._setupConnection();
+
+		url.then(value => {
+			this._url = value;
+			this._ws = new WebSocket(this._url);
+			this._setupConnection();
+		});
 	}
 
 	get url() {
@@ -35,14 +38,14 @@ export class QueuedSocket {
 				this._reconnect();
 			return;
 		}
-		this._ws.send(payload);
+		this._ws!.send(payload);
 	}
 
 	private _setupConnection() {
-		this._ws.binaryType = 'arraybuffer';
-		this._ws.onopen = () => this._onopen();
-		this._ws.onclose = () => this._onclose();
-		this._ws.onmessage = (ev: MessageEvent) => this._handler(ev);
+		this._ws!.binaryType = 'arraybuffer';
+		this._ws!.onopen = () => this._onopen();
+		this._ws!.onclose = () => this._onclose();
+		this._ws!.onmessage = (ev: MessageEvent) => this._handler(ev);
 	}
 
 	private _onopen() {
@@ -58,7 +61,7 @@ export class QueuedSocket {
 
 		const queue = this._queue;
 		this._queue = [];
-		queue.forEach((payload) => this._ws.send(payload));
+		queue.forEach((payload) => this._ws!.send(payload));
 		this._connChanged();
 	}
 
@@ -84,7 +87,7 @@ export class QueuedSocket {
 
 	private _reconnect() {
 		this._connecting = true;
-		this._ws = new WebSocket(this._url);
+		this._ws = new WebSocket(this._url!);
 		this._setupConnection();
 	}
 };

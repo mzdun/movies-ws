@@ -1,12 +1,14 @@
 import {movies} from './proto/bundle';
 import {QueuedSocket} from './QueuedSocket';
 
-function ws_url(port: number) {
+function ws_url(host: string|undefined, port: number) {
 	const url = new URL(document.URL);
-	if (url.protocol === 'https')
-		url.protocol = 'wss';
+	if (url.protocol === 'https:')
+		url.protocol = 'wss:';
 	else
-		url.protocol = 'ws';
+		url.protocol = 'ws:';
+	if (host)
+		url.host = host;
 	url.port = `${port}`
 	url.pathname = '/app';
 	return `${url}`;
@@ -25,11 +27,16 @@ export default class WsClient {
 	private _awaiting: Map<number, Future> = new Map();
 
 	constructor(
+	    host: Promise<string>,
 	    port: number,
 	    onEvent: (ev: movies.rpc.v1.Event) => void,
 	    onConnectionChange: () => void,
 	) {
-		const url = ws_url(port);
+		const url = (async () => {
+			const hostValue = await host;
+			return ws_url(hostValue, port);
+		})();
+
 		this._conn = new QueuedSocket(
 		    (ev) => this._handle(ev.data as ArrayBuffer as Uint8Array),
 		    onConnectionChange, url);
