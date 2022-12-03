@@ -6,7 +6,9 @@
 namespace ws {
 	session::session(lws* wsi, unsigned id) : wsi_{wsi}, id_{id} {}
 
-	void session::send(std::span<unsigned char> payload, bool is_binary) {
+	void session::send(std::span<unsigned char> payload,
+	                   bool is_binary,
+	                   ws::conn_stats const& stats) {
 		{
 			std::lock_guard lock{m_};
 			outbound_.emplace_back();
@@ -16,8 +18,9 @@ namespace ws {
 			std::memcpy(out.payload.data() + LWS_PRE, payload.data(),
 			            payload.size());
 		}
-		lwsl_warn("[%s] send %zu byte%s\n", lws_protocol_get(wsi_)->name,
-		          payload.size(), payload.size() == 1 ? "" : "s");
+		lwsl_warn("[%s/%u] send %zu byte%s%s\n", lws_protocol_get(wsi_)->name,
+		          id_, payload.size(), payload.size() == 1 ? "" : "s",
+		          stats.msg().c_str());
 		lws_callback_on_writable(wsi_);
 	}
 

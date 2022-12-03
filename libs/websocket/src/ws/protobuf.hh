@@ -41,21 +41,28 @@ namespace ws::protobuf {
 		query(connection* conn) : conn_{conn} {}
 
 		bool parse(std::span<unsigned char> const& payload) {
-			return req_.ParseFromArray(payload.data(), ws::isize(payload));
+			auto const result =
+			    req_.ParseFromArray(payload.data(), ws::isize(payload));
+			stats_.parsed();
+			return result;
 		}
+		void found() { stats_.found(); }
 		request const& req() const noexcept { return req_; }
 		connection* conn() const noexcept { return conn_; }
 
 		bool send_response(response const& resp) {
+			stats_.handled();
 			std::vector<unsigned char> buffer;
 			if (serialize(resp, buffer)) {
-				conn_->send(buffer, true);
+				stats_.packed();
+				conn_->send(buffer, true, stats_);
 				return true;
 			}
 			return false;
 		}
 
 	private:
+		conn_stats stats_{};
 		connection* conn_{};
 		request req_{};
 	};
@@ -96,6 +103,7 @@ namespace ws::protobuf {
 		void handle(std::span<unsigned char> payload,
 		            bool /*is_binary*/,
 		            connection* conn) override {
+			using namespace std::chrono;
 			dispatcher::query query{conn};
 
 			if (!query.parse(payload)) {
@@ -122,9 +130,12 @@ namespace ws::protobuf {
 #endif
 				return;
 			}
+			query.found();
 
 			auto& handler = *it->second;
 			handler.handle(query);
+
+			auto const then = steady_clock::now();
 		}
 
 		std::map<message_id, std::unique_ptr<handler>> handlers_{};

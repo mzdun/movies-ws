@@ -11,7 +11,7 @@ namespace ws {
 	                private std::enable_shared_from_this<session> {
 	public:
 		explicit session(lws* wsi, unsigned id);
-		void send(std::span<unsigned char> payload, bool is_binary) override;
+		void send(std::span<unsigned char> payload, bool is_binary, ws::conn_stats const&) override;
 		session* get_session() override { return this; }
 
 		unsigned id() const noexcept { return id_; }

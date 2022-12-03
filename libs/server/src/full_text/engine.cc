@@ -130,8 +130,8 @@ namespace movies::full_text {
 		db_.exec("DROP TABLE IF EXISTS summary"s);
 		db_.exec("DROP TABLE IF EXISTS person"s);
 		db_.exec("DROP TABLE IF EXISTS title"s);
-		db_.exec("DROP TABLE IF EXISTS orig_title"s);
-		db_.exec("CREATE VIRTUAL TABLE orig_title USING fts5(id, text)"s);
+		db_.exec("DROP TABLE IF EXISTS tags"s);
+		db_.exec("CREATE VIRTUAL TABLE tags USING fts5(id, text)"s);
 		db_.exec("CREATE VIRTUAL TABLE title USING fts5(id, text)"s);
 		db_.exec("CREATE VIRTUAL TABLE person USING fts5(id, text)"s);
 		db_.exec("CREATE VIRTUAL TABLE summary USING fts5(id, text)"s);
@@ -143,7 +143,7 @@ namespace movies::full_text {
 
 		SQLite::Transaction tr{db_};
 		SQLite::Statement title_stmt{db_, "INSERT INTO title VALUES(?, ?)"};
-		SQLite::Statement orig_stmt{db_, "INSERT INTO orig_title VALUES(?, ?)"};
+		SQLite::Statement tags_stmt{db_, "INSERT INTO tags VALUES(?, ?)"};
 		SQLite::Statement person_stmt{db_, "INSERT INTO person VALUES(?, ?)"};
 		SQLite::Statement summary_stmt{db_, "INSERT INTO summary VALUES(?, ?)"};
 		long long rowid{0};
@@ -155,6 +155,13 @@ namespace movies::full_text {
 			for (auto const& [_, title] : info.title) {
 				title_stmt.bind(1, rowid);
 				title_stmt.bind(2, as_sv(title.text).data());
+				title_stmt.exec();
+				title_stmt.reset();
+			}
+
+			for (auto const& tag : info.tags) {
+				title_stmt.bind(1, rowid);
+				title_stmt.bind(2, as_sv(tag).data());
 				title_stmt.exec();
 				title_stmt.reset();
 			}
@@ -186,7 +193,7 @@ namespace movies::full_text {
 		std::vector<lookup_result> results{};
 		for (auto [table, source] :
 		     {std::pair{"title"sv, lookup_result::src::title},
-		      std::pair{"orig_title"sv, lookup_result::src::orig},
+		      std::pair{"tags"sv, lookup_result::src::orig},
 		      std::pair{"person"sv, lookup_result::src::person},
 		      std::pair{"summary"sv, lookup_result::src::summary}}) {
 			SQLite::Statement stmt{db_, snippet::make_statement(table)};

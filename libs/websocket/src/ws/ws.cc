@@ -50,9 +50,9 @@ namespace ws {
 	    .next = &header_x_content_type_options,
 	    .name = "Content-Security-Policy",
 	    .value =
-	        "default-src 'none'; img-src 'self' data: ; media-src 'self'; "
-	        "script-src 'self'; font-src 'self'; style-src 'self'; connect-src "
-	        "'self' ws: wss:; frame-ancestors 'none'; base-uri "
+	        "default-src 'none'; img-src 'self' data: http:; media-src 'self' "
+	        "http:; script-src 'self'; font-src 'self'; style-src 'self'; "
+	        "connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri "
 	        "'none';form-action 'self';"};
 
 	void server_context::static_files(
@@ -164,7 +164,7 @@ namespace ws {
 		}
 
 		for (auto& session : sessions)
-			session->send(payload, is_binary);
+			session->send(payload, is_binary, {});
 	}
 
 	void web_socket::on_write(lws* wsi) {

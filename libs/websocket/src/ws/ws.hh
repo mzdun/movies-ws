@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <fmt/chrono.h>
+#include <fmt/format.h>
 #include <libwebsockets.h>
 #include <filesystem>
 #include <map>
@@ -44,9 +46,41 @@ namespace ws {
 
 	class session;
 
+	struct conn_stats {
+		using clock = std::chrono::steady_clock;
+		using time_point = clock::time_point;
+
+		void parsed() { parsed_ = clock::now(); }
+		void found() { found_ = clock::now(); }
+		void handled() { handled_ = clock::now(); }
+		void packed() {
+			packed_ = clock::now();
+			active_ = true;
+		}
+
+#define dur_arg(name, start, stop) \
+	fmt::arg(name, duration_cast<milliseconds>(stop - start))
+		std::string msg() const {
+			using namespace std::chrono;
+			if (!active_) return {};
+			return fmt::format(
+			    " (handled: {handled}, packed: {packed}, total: {total})",
+			    dur_arg("handled", found_, handled_),
+			    dur_arg("packed", handled_, packed_),
+			    dur_arg("total", start_, packed_));
+		}
+#undef dur_arg
+
+		bool active_{false};
+		time_point start_{clock::now()}, parsed_{}, found_{}, handled_{},
+		    packed_{};
+	};
+
 	struct connection {
 		virtual ~connection();
-		virtual void send(std::span<unsigned char> payload, bool is_binary) = 0;
+		virtual void send(std::span<unsigned char> payload,
+		                  bool is_binary,
+		                  conn_stats const& stats) = 0;
 		virtual session* get_session() = 0;
 	};
 

@@ -30,7 +30,7 @@ namespace movies::filters {
 	class NAME##_filter : public on_off_filter<NAME##_filter> { \
 	public:                                                     \
 		using on_off_filter<NAME##_filter>::on_off_filter;      \
-		bool access(extended_info const& data) const;           \
+		bool access(extended_info const& data) const noexcept;  \
 	};
 	ON_OFF_FILTER(X_ON_OFF);
 #undef X_ON_OFF
