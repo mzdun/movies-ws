@@ -34,4 +34,11 @@
 
 	[help("Header for listing views waiting for items"), id(-1)]
 	LOADING_HEADER = "Loading...";
+
+	[help("Header for exiting the app on systems with confired exit"), id(-1)]
+	EXIT_MESSAGE = "Do you want to close the application?";
+	[help("Actionable button on exit dialog"), id(-1)]
+	EXIT_OK = "Exit";
+	[help("Escaping button on exit dialog"), id(-1)]
+	EXIT_CANCEL = "Cancel";
 }
