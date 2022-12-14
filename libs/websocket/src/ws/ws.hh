@@ -114,7 +114,7 @@ namespace ws {
 		}
 
 		void static_files(std::map<std::string, std::filesystem::path> const&);
-		bool build(int port);
+		bool build(int port, std::string const& prefix);
 		int def_vhost_port() const;
 		bool service();
 

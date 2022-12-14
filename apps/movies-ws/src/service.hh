@@ -8,11 +8,16 @@
 #include <rpc/ui.hh>
 
 namespace movies {
+	struct service_cfg {
+		std::filesystem::path database;
+		std::string prefix;
+		int port;
+	};
 	class service : public ws::service {
 	public:
 		explicit service(rpc::v1::dispatcher* proxy);
 
-		bool init(std::filesystem::path const& database);
+		bool init(service_cfg const& cfg);
 		int port() const;
 		void run();
 

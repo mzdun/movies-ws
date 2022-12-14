@@ -1,6 +1,8 @@
 #define NOMINMAX
 #include <libwebsockets.h>
 
+#include <base/str.hh>
+#include <io/file.hpp>
 #include <server/lngs.hh>
 #include <service.hh>
 #include <ws/session.hh>
@@ -54,15 +56,53 @@ struct per_session_dispatcher : movies::rpc::dispatcher {
 	void on_disconnect(ws::session&) override {}
 };
 
+static constexpr auto error_message = R"(usage: movies-ws <db-config>
+
+config: {
+	port: unsigned short,
+	path: rel | abs,
+	mount?: string = "/",
+	title?: string = "",
+	adult?: bool | "mixed" = false,
+}
+)";
+
+movies::service_cfg load(fs::path const& json_filename) {
+	auto const data = io::contents(json_filename);
+	auto node = json::read_json({data.data(), data.size()});
+	auto json_port = cast<long long>(node, u8"port"s);
+	auto json_prefix = cast<json::string>(node, u8"mount"s);
+	auto json_path = cast<json::string>(node, u8"path"s);
+
+	if (!json_port || !json_path || *json_port < 0 ||
+	    static_cast<unsigned long long>(*json_port) >
+	        std::numeric_limits<unsigned short>::max()) {
+		std::fprintf(stderr, error_message);
+		std::exit(1);
+	}
+
+	movies::service_cfg result{};
+	result.database = fs::canonical(json_filename.parent_path() / *json_path);
+	result.port = static_cast<int>(*json_port);
+	if (json_prefix) result.prefix.assign(movies::as_sv(*json_prefix));
+	if (result.prefix.empty() || result.prefix.front() != '/')
+		result.prefix.insert(result.prefix.begin(), '/');
+	if (result.prefix.back() == '/') result.prefix.pop_back();
+
+	return result;
+}
+
 int main(int argc, char** argv) {
 #ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
 #endif
 
 	if (argc < 2) {
-		std::fprintf(stderr, "usage: movies-ws <db-dir>\n");
+		std::fprintf(stderr, error_message);
 		return 1;
 	}
+
+	auto const cfg = load(argv[1]);
 
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, NULL);
 
@@ -83,8 +123,9 @@ int main(int argc, char** argv) {
 		    }
 	    });
 
-	backend.load(argv[1]);
-	service.init(argv[1]);
-	lwsl_user("http://localhost:%d\n", service.port());
+	backend.load(cfg.database);
+	service.init(cfg);
+	lwsl_user("http://localhost:%d%s/ %s\n", service.port(), cfg.prefix.c_str(),
+	          cfg.database.generic_u8string().c_str());
 	service.run();
 }

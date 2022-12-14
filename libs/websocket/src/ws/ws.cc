@@ -73,7 +73,7 @@ namespace ws {
 		protos_.push_back(std::make_unique<http_proto>());
 	}
 
-	bool server_context::build(int port) {
+	bool server_context::build(int port, std::string const& prefix) {
 		data.protocols.reserve(protos_.size() + 1);
 		for (auto& proto : protos_) {
 			data.protocols.push_back(proto->make_protocol());
@@ -106,7 +106,8 @@ namespace ws {
 
 			{
 				auto& app = data.mounts.back();
-				app.mount.assign("/app"sv);
+				app.mount.assign(prefix);
+				app.mount.append("/app"sv);
 				app.info = {
 				    .mountpoint = app.mount.c_str(),
 				    .origin_protocol = LWSMPRO_CALLBACK,

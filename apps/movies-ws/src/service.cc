@@ -12,7 +12,7 @@ namespace movies {
 		proxy->attach(this);
 	}
 
-	bool service::init(std::filesystem::path const& database) {
+	bool service::init(service_cfg const& cfg) {
 		auto const site = [] {
 			std::error_code ec{};
 
@@ -24,15 +24,15 @@ namespace movies {
 		}();
 
 		ctx_.static_files({
-		    {"/"s, site},
-		    {"/videos"s, database / "videos"sv},
-		    {"/db"s, database / "db"sv},
+		    {cfg.prefix + "/"s, site},
+		    {cfg.prefix + "/videos"s, cfg.database / "videos"sv},
+		    {cfg.prefix + "/db"s, cfg.database / "db"sv},
 		});
 		ctx_.add_protocol(conn_);
 		std::cout << "SERVING FROM: "sv << as_sv(site.generic_u8string())
 		          << '\n';
 
-		return ctx_.build(7681);
+		return ctx_.build(cfg.port, cfg.prefix); // 7681
 	}
 
 	int service::port() const {

@@ -6,11 +6,11 @@ export class Service extends MovieEventTarget {
 	_ws: WsClient;
 	_lang: string = navigator.language;
 	_onlangs: () => void;
-	constructor(host: Promise<string>, port: number) {
+	constructor(host: Promise<string>) {
 		super();
 
 		this._ws = new WsClient(
-		    host, port, (event) => this.dispatchEvent(event),
+		    host, (event) => this.dispatchEvent(event),
 		    () => this._onConnectionChange());
 
 		const self = this;
