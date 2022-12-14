@@ -88,14 +88,22 @@ if (WITH_JSAPI)
   )
 endif()
 
-add_library(websocket STATIC ${SRCS} ${PROTO_SRCS} ${GEN_SRCS})
+add_library(proto STATIC ${PROTO_SRCS})
+target_include_directories(proto
+    PUBLIC
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_link_libraries(proto PUBLIC protobuf::libprotobuf)
+protobuf_generate(TARGET proto)
+
+add_library(websocket STATIC ${SRCS} ${GEN_SRCS})
 target_include_directories(websocket
     PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(websocket PUBLIC protobuf::libprotobuf Libwebsockets::websockets server)
-protobuf_generate(TARGET websocket)
+target_link_libraries(websocket PUBLIC proto Libwebsockets::websockets server)
 target_compile_options(websocket PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (UNIX AND NOT APPLE)

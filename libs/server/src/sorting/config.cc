@@ -338,15 +338,15 @@ namespace movies {
 			    std::span<std::string const> langs) const {
 				auto it = value.find(langs);
 				if (it != value.end()) {
-					auto const& value = it->second;
-					switch (value.grouping) {
+					auto const& val = it->second;
+					switch (val.grouping) {
 						case char_class::other:
 							break;
 						case char_class::digit:
 							return {.id = "123", .label = "#"};
 						case char_class::letter: {
 							std::string utf8;
-							icu::UnicodeString{value.upper}.toUTF8String(utf8);
+							icu::UnicodeString{val.upper}.toUTF8String(utf8);
 							return {.id = utf8, .label = utf8};
 						}
 					}

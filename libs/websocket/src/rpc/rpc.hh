@@ -3,7 +3,18 @@
 
 #pragma once
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+// 4946: reinterpret_cast used between related classes: '???' and 'MessageLite'
+#pragma warning(disable : 4946)
+#endif
+
 #include <proto/movies/rpc.v1.pb.h>
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #include <server/server.hh>
 #include <ws/protobuf.hh>
 
@@ -100,7 +111,8 @@ namespace movies::rpc::v1 {
 
 #define X_MSG_HANDLER_DECL(NS, NAME, VAR) MSG_HANDLER_DECL(NAME);
 
-#define MSG_HANDLER(MESSAGE)                                          \
-	void MESSAGE##Handler::handle_message(handled_request const& req, \
-	                                      handled_response& resp,     \
-	                                      ws::session& session)
+#define MSG_HANDLER(MESSAGE)                         \
+	void MESSAGE##Handler::handle_message(           \
+	    [[maybe_unused]] handled_request const& req, \
+	    [[maybe_unused]] handled_response& resp,     \
+	    [[maybe_unused]] ws::session& session)

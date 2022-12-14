@@ -344,8 +344,7 @@ namespace movies::db::v1 {
 		size_t groups = 0, refs = 0;
 		for (auto const& grp : result) {
 			++groups;
-			for (auto const& item : grp.items)
-				++refs;
+			refs += grp.items.size();
 		}
 
 		copy(result, *resp.mutable_groups());
