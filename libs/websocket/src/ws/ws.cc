@@ -141,9 +141,7 @@ namespace ws {
 		return lws_get_vhost_port(vhost);
 	}
 
-	bool server_context::service() {
-		return context_.service();
-	}
+	bool server_context::service() { return context_.service(); }
 
 	web_socket::web_socket(std::string const& name,
 	                       handler* handler,
@@ -181,7 +179,7 @@ namespace ws {
 	void web_socket::on_connect(lws* wsi) {
 		static unsigned id{};
 		auto const next_session = ++id;
-		lwsl_warn("[%s/%u] CONNECTED\n", lws_protocol_get(wsi)->name,
+		lwsl_warn("[%s/%u] CONNECTED\n", lws_get_protocol(wsi)->name,
 		          next_session);
 		std::lock_guard lock{m_};
 		auto currrent_session = std::make_shared<session>(wsi, id);
@@ -200,10 +198,10 @@ namespace ws {
 			}
 		}
 		if (current)
-			lwsl_warn("[%s/%u] DISCONNECTED\n", lws_protocol_get(wsi)->name,
+			lwsl_warn("[%s/%u] DISCONNECTED\n", lws_get_protocol(wsi)->name,
 			          current->id());
 		else
-			lwsl_warn("[%s/?] DISCONNECTED\n", lws_protocol_get(wsi)->name);
+			lwsl_warn("[%s/?] DISCONNECTED\n", lws_get_protocol(wsi)->name);
 
 		if (current) handler_->on_disconnect(*current);
 	}
@@ -233,6 +231,8 @@ namespace ws {
 			case LWS_CALLBACK_SERVER_WRITEABLE:
 				on_write(wsi);
 				return 0;
+			default:
+				break;
 		}
 		return lws_callback_http_dummy(wsi, reason, user, in, len);
 	}

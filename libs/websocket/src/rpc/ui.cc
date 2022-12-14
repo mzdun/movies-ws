@@ -13,6 +13,8 @@
 #ifdef _WIN32
 #include <shellapi.h>
 #pragma comment(lib, "shell32.lib")
+#else
+#include <sys/wait.h>
 #endif
 
 #define OPT_COPY(FLD) \
@@ -29,13 +31,9 @@ namespace movies::ui::v1 {
 		using google::protobuf::RepeatedField;
 		using google::protobuf::RepeatedPtrField;
 
-		void copy(std::string_view src, std::string& dst) {
-			dst.assign(src);
-		}
+		void copy(std::string_view src, std::string& dst) { dst.assign(src); }
 
-		void copy(unsigned src, uint32_t& dst) {
-			dst = src;
-		}
+		void copy(unsigned src, uint32_t& dst) { dst = src; }
 
 		void copy(std::vector<std::string> const& src,
 		          RepeatedPtrField<std::string>& dst) {
@@ -158,6 +156,33 @@ namespace movies::ui::v1 {
 		void open_file(std::filesystem::path const& file) {
 			ShellExecuteW(nullptr, nullptr, file.c_str(), nullptr,
 			              file.parent_path().c_str(), SW_SHOW);
+		}
+#else
+		void open_file(std::filesystem::path const& file) {
+			auto path = file.generic_string();
+			char executable[] = "xdg-open";
+			char* argv[] = {executable, path.data(), nullptr};
+
+			auto const pid = fork();
+			if (pid == 0) {
+				auto inner = fork();
+				if (inner > 0) {
+					printf("xdg-open inner: %d\n", inner);
+					_exit(0);
+				} else if (inner < 0) {
+					printf("xdg-open inner error: %d\n", inner);
+					_exit(1);
+				} else {
+					execv(executable, argv);
+					_exit(1);
+				}
+			} else if (pid < 0) {
+				printf("xdg-open error: %d\n", pid);
+			} else if (pid > 0) {
+				int status;
+				waitpid(pid, &status, 0);
+				printf("xdg-open: %d\n", status);
+			}
 		}
 #endif
 

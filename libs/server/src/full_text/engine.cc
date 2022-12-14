@@ -146,7 +146,7 @@ namespace movies::full_text {
 		SQLite::Statement tags_stmt{db_, "INSERT INTO tags VALUES(?, ?)"};
 		SQLite::Statement person_stmt{db_, "INSERT INTO person VALUES(?, ?)"};
 		SQLite::Statement summary_stmt{db_, "INSERT INTO summary VALUES(?, ?)"};
-		long long rowid{0};
+		int64_t rowid{0};
 		for (auto const& [id, info] : data.movies) {
 			if (!info.info_file && !info.video_file) continue;
 			++rowid;

@@ -15,15 +15,29 @@
 using namespace std::literals;
 
 namespace movies {
-	inline auto fs2wall(std::filesystem::file_time_type const& fs) {
-		auto const wall =
-		    std::chrono::clock_cast<std::chrono::system_clock>(fs);
-		return std::chrono::floor<std::chrono::seconds>(wall);
+	template <typename TimePoint>
+	auto pre_20_file_time_type(TimePoint const& fs) {
+		using namespace std::chrono;
+		if constexpr (std::same_as<TimePoint, system_clock::time_point>) {
+			return floor<seconds>(fs);
+		} else {
+			auto wall = time_point_cast<system_clock::duration>(
+			    fs - TimePoint::clock::now() + system_clock::now());
+			return floor<seconds>(wall);
+		}
 	}
 
-	inline auto file_ref_mtime(file_ref const& ref) {
-		return ref.mtime;
+	inline auto fs2wall(std::filesystem::file_time_type const& fs) {
+#if __cpp_lib_chrono > 201907L
+		using namespace std::chrono;
+		auto const wall = clock_cast<system_clock>(fs);
+		return floor<seconds>(wall);
+#else
+		return pre_20_file_time_type(fs);
+#endif
 	}
+
+	inline auto file_ref_mtime(file_ref const& ref) { return ref.mtime; }
 
 	std::optional<string> normal_cover(poster_info const& poster) {
 		return poster.normal || poster.large || poster.small;
@@ -51,7 +65,7 @@ namespace movies {
 		};
 	}
 
-		bool contains(std::span<std::string const> langs, std::string_view token) {
+	bool contains(std::span<std::string const> langs, std::string_view token) {
 		for (auto const& lang : langs) {
 			if (lang == token) return true;
 		}
@@ -171,8 +185,6 @@ namespace movies {
 			                u8key.size()};
 			db.movies[key] = {std::move(movie)};
 		}
-
-		auto const copied = steady_clock::now();
 
 		UErrorCode ec{};
 		auto norm = icu::Normalizer2::getNFCInstance(ec);
@@ -307,7 +319,8 @@ namespace movies {
 
 		return fmt::format(
 		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
-		    "{episodes}, people table {people}, filters {filters}, total {total})\n",
+		    "{episodes}, people table {people}, filters {filters}, total "
+		    "{total})\n",
 		    fmt::arg("count", db.movies.size()),
 		    fmt::arg("pl", db.movies.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
@@ -483,7 +496,7 @@ namespace movies {
 	}
 
 	std::vector<link> server::links_for(extended_info const& data,
-	                                    Strings const& tr) const {
+	                                    Strings const&) const {
 		std::shared_lock guard{db_access_};
 		return plugin::page_links(plugins_, data);
 	}
@@ -603,7 +616,5 @@ namespace movies {
 		on_db_update_ = cb;
 	}
 
-	void server::on_files_changed() {
-		load_async(true);
-	}
+	void server::on_files_changed() { load_async(true); }
 }  // namespace movies

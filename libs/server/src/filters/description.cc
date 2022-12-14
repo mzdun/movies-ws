@@ -132,7 +132,7 @@ namespace movies::description {
 #define X_RANGE_STG(NAME, TYPE, LABEL) range_stats<TYPE> NAME{};
 #define X_TAGS_STG(NAME, LABEL) string_set NAME{};
 #define X_ON_OFF_STG(NAME, LABEL) bool_stats NAME{0};
-			TRIPLET(STG);
+			TRIPLET(STG)
 
 			std::vector<filter> visit(movie_db const& db) {
 				for (auto const& [_, movie] : db.movies) {
@@ -163,15 +163,9 @@ namespace movies::description {
 			}
 
 		private:
-			static inline unsigned year_steps() noexcept {
-				return 1;
-			}
-			static inline unsigned runtime_steps() noexcept {
-				return 10;
-			}
-			static inline unsigned rating_steps() noexcept {
-				return 10;
-			}
+			static inline unsigned year_steps() noexcept { return 1; }
+			static inline unsigned runtime_steps() noexcept { return 10; }
+			static inline unsigned rating_steps() noexcept { return 10; }
 			static inline unsigned arrival_steps() noexcept {
 				static constexpr auto day = 24h;
 				static constexpr auto week = 7 * day;
@@ -183,17 +177,13 @@ namespace movies::description {
 #define X_TAGS_APPLY(NAME, LABEL) NAME.apply(movie.NAME);
 #define X_ON_OFF_APPLY(NAME, LABEL) \
 	NAME.apply(filters::NAME##_filter::quick_match(movie));
-			void visit(extended_info const& movie) {
-				TRIPLET(APPLY);
-			}
+			void visit(extended_info const& movie) { TRIPLET(APPLY); }
 
 			static bool is_valid(bool_stats const& stats) {
 				return stats.has_false && stats.has_true;
 			}
 
-			static bool is_valid(std::monostate) {
-				return false;
-			}
+			static bool is_valid(std::monostate) { return false; }
 
 			template <typename... Filters>
 			static size_t count_of(Filters const&... filter) {

@@ -9,9 +9,7 @@ namespace movies::db::v1 {
 	namespace {
 		using google::protobuf::RepeatedPtrField;
 
-		void copy(std::string_view src, std::string& dst) {
-			dst.assign(src);
-		}
+		void copy(std::string_view src, std::string& dst) { dst.assign(src); }
 
 		void copy(std::u8string_view src, std::string& dst) {
 			dst.assign(as_sv(src));
@@ -26,9 +24,7 @@ namespace movies::db::v1 {
 			return true;
 		}
 
-		void copy(unsigned src, uint32_t& dst) {
-			dst = src;
-		}
+		void copy(unsigned src, uint32_t& dst) { dst = src; }
 
 		template <typename Src, typename Dst, typename... Additional>
 		inline void copy(std::vector<Src> const& src,
@@ -39,7 +35,7 @@ namespace movies::db::v1 {
 	if (src.FLD) v1::copy(*src.FLD, *dst.mutable_##FLD())
 #define OPT_SET(FLD) \
 	if (src.FLD) dst.set_##FLD(*src.FLD)
-#define COPY(FLD, ...) v1::copy(src.FLD, *dst.mutable_##FLD(), __VA_ARGS__)
+#define COPY(FLD, ...) v1::copy(src.FLD, *dst.mutable_##FLD(), ##__VA_ARGS__)
 #define TR_COPY(FLD) \
 	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), langs)) dst.clear_##FLD()
 #define SET(FLD) dst.set_##FLD(src.FLD)
@@ -239,6 +235,8 @@ namespace movies::db::v1 {
 						    fmt::format("{}={}", on_off.field(), on_off.on());
 						break;
 					}
+					case movies::filters::v1::Filter::KIND_NOT_SET:
+						break;
 				}
 			}
 			std::string dbg_sort2;
@@ -372,9 +370,9 @@ namespace movies::db::v1 {
 
 		std::vector<reference> result;
 		{
-			auto group = server()->listing(search ? *search : std::string{},
-			                               filters, sort, false, false,
-			                               data.tr(), data.langs());
+			auto group =
+			    server()->listing(search ? *search : std::string{}, filters,
+			                      sort, false, false, data.tr(), data.langs());
 			if (!group.empty()) result = std::move(group.front().items);
 		}
 

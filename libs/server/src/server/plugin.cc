@@ -17,6 +17,8 @@ namespace movies {
 		return result;
 	}
 
+	page_link_plugin_impl::~page_link_plugin_impl() = default;
+
 	page_link_plugin_impl::page_link_plugin_impl(string const& prefix)
 	    : prefix_{prefix} {}
 

@@ -37,6 +37,7 @@ namespace movies {
 	};
 
 	struct page_link_plugin_impl {
+		virtual ~page_link_plugin_impl();
 		page_link_plugin_impl(string const& prefix);
 
 		std::vector<link> page_links_impl(extended_info const&) const;

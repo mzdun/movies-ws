@@ -2,6 +2,8 @@ include(appstr.cmake)
 set(JSAPI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../extras/jsapi")
 file(GLOB JSAPI_FILES ${JSAPI_DIR}/lib/*.ts ${JSAPI_DIR}/lib/proto/bundle.*)
 
+option(WITH_JSAPI "Should building the server also build jsapi")
+
 set(PROTO_SRCS
     proto/movies/appstr.v1.proto
     proto/movies/rpc.v1.proto
@@ -30,7 +32,6 @@ set(SRCS
 set(GEN_SRCS
     ${CMAKE_CURRENT_BINARY_DIR}/src/rpc/appstr.cc
     ${JSAPI_DIR}/lib/appstr.ts
-    ${JSAPI_DIR}/dist/index.d.ts
 )
 
 set(_PROTO_GEN)
@@ -50,37 +51,42 @@ add_idl_mustache("${CMAKE_CURRENT_BINARY_DIR}/src/rpc/appstr.cc" cxx_rpc)
 add_idl_mustache("${CMAKE_CURRENT_SOURCE_DIR}/proto/movies/appstr.v1.proto" proto3)
 add_idl_mustache("${JSAPI_DIR}/lib/appstr.ts" typescript)
 
-add_custom_command(
-  OUTPUT ${JSAPI_DIR}/node_modules/.yarn-integrity
-  DEPENDS
-    ${JSAPI_DIR}/yarn.lock
-    ${JSAPI_DIR}/package.json
-  COMMAND ${Python3_EXECUTABLE}
-  ARGS ${JSAPI_DIR}/scripts/yarn.py --frozen-lockfile
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMENT "Installing node_modules"
-)
+if (WITH_JSAPI)
+  list(APPEND GEN_SRCS
+      ${JSAPI_DIR}/dist/index.d.ts
+  )
 
-add_custom_command(
-  OUTPUT ${JSAPI_DIR}/lib/proto/bundle.d.ts
-  DEPENDS
-    ${PROTO_SRCS}
-    ${JSAPI_DIR}/node_modules/.yarn-integrity
-  COMMAND ${Python3_EXECUTABLE}
-  ARGS ${JSAPI_DIR}/scripts/yarn.py build:proto
-  WORKING_DIRECTORY ${JSAPI_DIR}
-  COMMENT "Generating lib/proto/bundle.*"
-)
+  add_custom_command(
+    OUTPUT ${JSAPI_DIR}/node_modules/.yarn-integrity
+    DEPENDS
+      ${JSAPI_DIR}/yarn.lock
+      ${JSAPI_DIR}/package.json
+    COMMAND ${Python3_EXECUTABLE}
+    ARGS ${JSAPI_DIR}/scripts/yarn.py --frozen-lockfile
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Installing node_modules"
+  )
 
-add_custom_command(
-  OUTPUT ${JSAPI_DIR}/dist/index.d.ts
-  DEPENDS ${JSAPI_FILES}
-  COMMAND ${Python3_EXECUTABLE}
-  ARGS ${JSAPI_DIR}/scripts/yarn.py build:lib
-  WORKING_DIRECTORY ${JSAPI_DIR}
-  COMMENT "Generating dist/"
-)
+  add_custom_command(
+    OUTPUT ${JSAPI_DIR}/lib/proto/bundle.d.ts
+    DEPENDS
+      ${PROTO_SRCS}
+      ${JSAPI_DIR}/node_modules/.yarn-integrity
+    COMMAND ${Python3_EXECUTABLE}
+    ARGS ${JSAPI_DIR}/scripts/yarn.py build:proto
+    WORKING_DIRECTORY ${JSAPI_DIR}
+    COMMENT "Generating lib/proto/bundle.*"
+  )
 
+  add_custom_command(
+    OUTPUT ${JSAPI_DIR}/dist/index.d.ts
+    DEPENDS ${JSAPI_FILES} ${JSAPI_DIR}/lib/proto/bundle.d.ts
+    COMMAND ${Python3_EXECUTABLE}
+    ARGS ${JSAPI_DIR}/scripts/yarn.py build:lib
+    WORKING_DIRECTORY ${JSAPI_DIR}
+    COMMENT "Generating dist/"
+  )
+endif()
 
 add_library(websocket STATIC ${SRCS} ${PROTO_SRCS} ${GEN_SRCS})
 target_include_directories(websocket
@@ -90,3 +96,8 @@ target_include_directories(websocket
 )
 target_link_libraries(websocket PUBLIC protobuf::libprotobuf Libwebsockets::websockets server)
 protobuf_generate(TARGET websocket)
+target_compile_options(websocket PRIVATE ${ADDITIONAL_WALL_FLAGS})
+
+if (UNIX AND NOT APPLE)
+  target_link_libraries(websocket PUBLIC cap)
+endif()

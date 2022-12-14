@@ -25,7 +25,7 @@ namespace movies {
 	struct Named : Base {
 		void init(std::filesystem::path const& base) {
 			this->init_builtin();
-			this->path_manager<lngs::manager::ExtensionPath>(
+			this->template path_manager<lngs::manager::ExtensionPath>(
 			    base, strings_traits<Base>::filename());
 		}
 

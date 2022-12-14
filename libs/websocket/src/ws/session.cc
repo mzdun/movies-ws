@@ -18,7 +18,7 @@ namespace ws {
 			std::memcpy(out.payload.data() + LWS_PRE, payload.data(),
 			            payload.size());
 		}
-		lwsl_warn("[%s/%u] send %zu byte%s%s\n", lws_protocol_get(wsi_)->name,
+		lwsl_warn("[%s/%u] send %zu byte%s%s\n", lws_get_protocol(wsi_)->name,
 		          id_, payload.size(), payload.size() == 1 ? "" : "s",
 		          stats.msg().c_str());
 		lws_callback_on_writable(wsi_);
@@ -27,11 +27,9 @@ namespace ws {
 	void session::on_write() {
 		message buffer;
 		bool repeat{false};
-		size_t size{};
 		{
 			std::lock_guard lock{m_};
 			if (outbound_.empty()) return;
-			size = outbound_.size();
 			buffer = std::move(outbound_.front());
 			outbound_.pop_front();
 			repeat = !outbound_.empty();
@@ -88,6 +86,6 @@ namespace ws {
 		auto const written = lws_write(
 		    wsi, payload.data() + LWS_PRE, payload.size() - 2 * LWS_PRE,
 		    is_binary ? LWS_WRITE_BINARY : LWS_WRITE_TEXT);
-		return written == payload.size();
+		return written > 0 && static_cast<size_t>(written) == payload.size();
 	}
 }  // namespace ws

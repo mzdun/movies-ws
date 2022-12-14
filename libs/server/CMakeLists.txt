@@ -34,6 +34,10 @@ if (WIN32)
     list(APPEND SRCS
         src/server/fs_observer_win32.cc
     )
+else()
+    list(APPEND SRCS
+        src/server/fs_observer_posix.cc
+    )
 endif()
 
 set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../data")
@@ -154,3 +158,4 @@ target_include_directories(server
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 target_link_libraries(server PUBLIC ICU::data ICU::uc ICU::i18n SQLiteCpp::SQLiteCpp mbits-lngs::lngs browser movies)
+target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
