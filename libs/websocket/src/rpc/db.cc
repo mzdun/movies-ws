@@ -9,6 +9,14 @@ namespace movies::db::v1 {
 	namespace {
 		using google::protobuf::RepeatedPtrField;
 
+		inline size_t as_size(int size) {
+			return size < 0 ? 0 : static_cast<size_t>(size);
+		}
+
+		inline unsigned as_uint(int size) {
+			return size < 0 ? 0 : static_cast<unsigned>(size);
+		}
+
 		void copy(std::string_view src, std::string& dst) { dst.assign(src); }
 
 		void copy(std::u8string_view src, std::string& dst) {
@@ -23,8 +31,6 @@ namespace movies::db::v1 {
 			dst.assign(as_sv(it->second));
 			return true;
 		}
-
-		void copy(unsigned src, uint32_t& dst) { dst = src; }
 
 		template <typename Src, typename Dst, typename... Additional>
 		inline void copy(std::vector<Src> const& src,
@@ -78,8 +84,10 @@ namespace movies::db::v1 {
 		                    long long index) {
 			if (index < 0) return list.end();
 			auto const uindex = static_cast<size_t>(index);
-			return uindex >= list.size() ? list.end()
-			                             : std::next(list.begin(), uindex);
+			return uindex >= list.size()
+			           ? list.end()
+			           : std::next(list.begin(),
+			                       static_cast<ptrdiff_t>(uindex));
 		}
 
 		void copy(role_info const& src,
@@ -270,14 +278,15 @@ namespace movies::db::v1 {
 		}
 
 		filter::ptr filter_from(filters::v1::RangeFilter const& rng) {
-			return movies::filter::make_range(
-			    rng.field(), rng.low(), rng.high(), rng.include_missing());
+			return movies::filter::make_range(rng.field(), as_uint(rng.low()),
+			                                  as_uint(rng.high()),
+			                                  rng.include_missing());
 		}
 
 		filter::ptr filter_from(filters::v1::TokensFilter const& tokens) {
 			std::vector<std::string> dst{};
 			auto const& src = tokens.token();
-			dst.reserve(src.size());
+			dst.reserve(as_size(src.size()));
 			for (auto const& item : src)
 				dst.push_back(item);
 
@@ -296,6 +305,8 @@ namespace movies::db::v1 {
 					return filter_from(filter.tokens());
 				case filters::v1::Filter::kOnOff:
 					return filter_from(filter.on_off());
+				case filters::v1::Filter::KIND_NOT_SET:
+					break;
 			}
 			return {};
 		}
@@ -304,7 +315,7 @@ namespace movies::db::v1 {
 		    RepeatedPtrField<filters::v1::Filter> const& filters,
 		    filter::ptr prefix = {}) {
 			filter::list result{};
-			result.reserve(filters.size() + (prefix ? 1 : 0));
+			result.reserve(as_size(filters.size()) + (prefix ? 1u : 0u));
 			if (prefix) result.push_back(std::move(prefix));
 
 			for (auto const& filter : filters) {
@@ -317,7 +328,7 @@ namespace movies::db::v1 {
 
 		sort::list from_req(RepeatedPtrField<std::string> const& sort) {
 			sort::list result{};
-			result.reserve(sort.size());
+			result.reserve(as_size(sort.size()));
 
 			for (auto const& term : sort) {
 				auto cmp = sort::make(term);

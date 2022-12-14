@@ -25,15 +25,18 @@
 #define COPY_TR(FLD) v1::copy(src.FLD, *dst.mutable_##FLD(), tr)
 #define COPY_LANG(FLD) v1::copy(tr(src.FLD), *dst.mutable_##FLD())
 #define SET(FLD) dst.set_##FLD(src.FLD)
+#define SET_AS(FLD, TYPE) dst.set_##FLD(static_cast<TYPE>(src.FLD))
 
 namespace movies::ui::v1 {
 	namespace {
 		using google::protobuf::RepeatedField;
 		using google::protobuf::RepeatedPtrField;
 
-		void copy(std::string_view src, std::string& dst) { dst.assign(src); }
+		inline size_t as_size(int size) {
+			return size < 0 ? 0 : static_cast<size_t>(size);
+		}
 
-		void copy(unsigned src, uint32_t& dst) { dst = src; }
+		void copy(std::string_view src, std::string& dst) { dst.assign(src); }
 
 		void copy(std::vector<std::string> const& src,
 		          RepeatedPtrField<std::string>& dst) {
@@ -57,7 +60,7 @@ namespace movies::ui::v1 {
 			dst.Reserve(ws::isize(src));
 
 			for (auto const& val : src)
-				dst.Add(val);
+				dst.Add(static_cast<int32_t>(val));
 		}
 
 #define COPY_ID() copy_id(src, *dst.mutable_id(), tr)
@@ -96,11 +99,13 @@ namespace movies::ui::v1 {
 
 		void copy(description::range_filter const& src,
 		          filters::v1::RangeFilterDescription& dst) {
-			SET(low);
-			SET(high);
+			SET_AS(low, int32_t);
+			SET_AS(high, int32_t);
 			SET(is_optional);
 			std::visit(overload{
-			               [&](unsigned step) { dst.set_step(step); },
+			               [&](unsigned step) {
+				               dst.set_step(static_cast<int32_t>(step));
+			               },
 			               [&](std::vector<unsigned> const& steps) {
 				               copy(steps, *dst.mutable_steps());
 			               },
@@ -209,7 +214,7 @@ namespace movies::ui::v1 {
 
 		auto const& lang_ids = req.lang_id();
 		std::vector<std::string> langs{};
-		langs.reserve(lang_ids.size());
+		langs.reserve(as_size(lang_ids.size()));
 		for (auto const& id : lang_ids)
 			langs.push_back(id);
 
@@ -271,7 +276,8 @@ namespace movies::ui::v1 {
 			auto filename = server()->database() / *resource;
 			filename.make_preferred();
 			open_file(filename);
-			lwsl_user("   -> %s\n", filename.u8string().c_str());
+			lwsl_user("   -> %s\n", reinterpret_cast<char const*>(
+			                            filename.u8string().c_str()));
 		} else {
 			lwsl_user("   -> no video\n");
 		}

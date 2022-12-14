@@ -134,8 +134,6 @@ namespace ws::protobuf {
 
 			auto& handler = *it->second;
 			handler.handle(query);
-
-			auto const then = steady_clock::now();
 		}
 
 		std::map<message_id, std::unique_ptr<handler>> handlers_{};

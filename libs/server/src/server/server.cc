@@ -341,11 +341,13 @@ namespace movies {
 					    time_point_cast<days>(sys_seconds{seconds{flt.low}})};
 					auto const ymd_high = date::year_month_day{
 					    time_point_cast<days>(sys_seconds{seconds{flt.high}})};
-					return fmt::format(
-					    "{}-{}-{} - {}-{}-{}", (int)ymd_low.year(),
-					    (unsigned)ymd_low.month(), (unsigned)ymd_low.day(),
-					    (int)ymd_high.year(), (unsigned)ymd_high.month(),
-					    (unsigned)ymd_high.day());
+					return fmt::format("{}-{}-{} - {}-{}-{}",
+					                   static_cast<int>(ymd_low.year()),
+					                   static_cast<unsigned>(ymd_low.month()),
+					                   static_cast<unsigned>(ymd_low.day()),
+					                   static_cast<int>(ymd_high.year()),
+					                   static_cast<unsigned>(ymd_high.month()),
+					                   static_cast<unsigned>(ymd_high.day()));
 				} else if (flt.field == "rating"sv) {
 					return fmt::format("{} - {}", flt.low / 20.0,
 					                   flt.high / 20.0);

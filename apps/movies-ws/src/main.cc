@@ -125,7 +125,8 @@ int main(int argc, char** argv) {
 
 	backend.load(cfg.database);
 	service.init(cfg);
-	lwsl_user("http://localhost:%d%s/ %s\n", service.port(), cfg.prefix.c_str(),
-	          cfg.database.generic_u8string().c_str());
+	lwsl_user(
+	    "http://localhost:%d%s/ %s\n", service.port(), cfg.prefix.c_str(),
+	    reinterpret_cast<char const*>(cfg.database.generic_u8string().c_str()));
 	service.run();
 }

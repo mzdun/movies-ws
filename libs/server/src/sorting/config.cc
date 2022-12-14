@@ -23,6 +23,8 @@ namespace movies {
 			return lhs.compare(rhs);
 		}
 
+		int as_int(int value) { return value; }
+
 		struct collator {
 			std::unique_ptr<icu::Collator> coll{};
 			std::string lang{};
@@ -42,8 +44,8 @@ namespace movies {
 			}
 
 			int compare(title_category const& lhs, title_category const& rhs) {
-				return coll ? coll->compare(lhs.sortable, rhs.sortable)
-				            : lhs.sortable.compare(rhs.sortable);
+				return coll ? as_int(coll->compare(lhs.sortable, rhs.sortable))
+				            : as_int(lhs.sortable.compare(rhs.sortable));
 			}
 
 		private:
