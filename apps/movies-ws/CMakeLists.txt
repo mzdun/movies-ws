@@ -42,17 +42,17 @@ set(PROJECT_SOURCES
 
 if (WIN32)
     list(APPEND PROJECT_SOURCES
-        win32/${PROJECT_NAME}.rc
-        win32/${PROJECT_NAME}.ico
+        win32/movies-ws.rc
+        win32/movies-ws.ico
         )
 endif()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_BINARY_DIR} FILES "${CMAKE_CURRENT_BINARY_DIR}/src/plugin_load_plugins.cc")
 list(APPEND PROJECT_SOURCES ${QM_FILES})
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/src/plugin_load_plugins.cc")
+add_executable(movies-ws ${PROJECT_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/src/plugin_load_plugins.cc")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE websocket server ${MODS})
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_compile_options(${PROJECT_NAME} PRIVATE ${ADDITIONAL_WALL_FLAGS})
-install(TARGETS ${PROJECT_NAME})
+target_link_libraries(movies-ws PRIVATE websocket server ${MODS})
+target_include_directories(movies-ws PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_compile_options(movies-ws PRIVATE ${ADDITIONAL_WALL_FLAGS})
+install(TARGETS movies-ws)

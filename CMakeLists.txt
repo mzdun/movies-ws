@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project (movies-ws
+project (movies
   DESCRIPTION "WebSocket server for movies library"
   VERSION 0.2.0
   LANGUAGES CXX
@@ -96,6 +96,4 @@ add_subdirectory(libs)
 add_subdirectory(extras)
 add_subdirectory(apps)
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+include(prepare_pack)
