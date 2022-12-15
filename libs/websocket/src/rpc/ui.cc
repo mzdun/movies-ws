@@ -14,7 +14,9 @@
 #include <shellapi.h>
 #pragma comment(lib, "shell32.lib")
 #else
+#include <stdio.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 #define OPT_COPY(FLD) \
@@ -163,30 +165,45 @@ namespace movies::ui::v1 {
 			              file.parent_path().c_str(), SW_SHOW);
 		}
 #else
+		std::string which(std::string_view exec) {
+			std::string result{};
+			auto pathvar = std::string_view{getenv("PATH")};
+			auto pos = std::string::npos;
+
+			do {
+				pos = pathvar.find(':');
+				auto const dirname =
+				    pos == std::string::npos ? pathvar : pathvar.substr(0, pos);
+				pathvar = pos == std::string::npos ? std::string_view{}
+				                                   : pathvar.substr(pos + 1);
+				result.reserve(dirname.length() + exec.length());
+				result.assign(dirname);
+				result.push_back('/');
+				result.append(exec);
+
+				if (!access(result.c_str(), X_OK)) return result;
+			} while (pos != std::string::npos);
+
+			return {};
+		}
+
 		void open_file(std::filesystem::path const& file) {
 			auto path = file.generic_string();
-			char executable[] = "xdg-open";
-			char* argv[] = {executable, path.data(), nullptr};
+			auto executable = which("xdg-open"sv);
+			if (executable.empty()) return;
+			char* argv[] = {executable.data(), path.data(), nullptr};
 
 			auto const pid = fork();
 			if (pid == 0) {
-				auto inner = fork();
-				if (inner > 0) {
-					printf("xdg-open inner: %d\n", inner);
-					_exit(0);
-				} else if (inner < 0) {
-					printf("xdg-open inner error: %d\n", inner);
-					_exit(1);
-				} else {
-					execv(executable, argv);
-					_exit(1);
-				}
+				execv(executable.c_str(), argv);
+				_exit(1);
 			} else if (pid < 0) {
-				printf("xdg-open error: %d\n", pid);
+				printf("%s error: %d\n", executable.c_str(), pid);
 			} else if (pid > 0) {
 				int status;
 				waitpid(pid, &status, 0);
-				printf("xdg-open: %d\n", status);
+				if (status)
+					printf("%s returned: %d\n", executable.c_str(), status);
 			}
 		}
 #endif
