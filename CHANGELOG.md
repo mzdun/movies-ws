@@ -1,4 +1,29 @@
 
+## [0.3.0](https://github.com/mzdun/movies-ws/compare/v0.2.0...v0.3.0) (2022-12-15)
+
+### New Features
+
+- observe directories on Linux ([5d0135c](https://github.com/mzdun/movies-ws/commit/5d0135c4931aaccdedf304d11ead92bdaefac0e0))
+- prefixable service ([a5e9b4f](https://github.com/mzdun/movies-ws/commit/a5e9b4f0b45ce06b4706ac18df80876860156be2))
+- build on Ubuntu ([d69474f](https://github.com/mzdun/movies-ws/commit/d69474fa53c5353f2aa9e525d7fe08dbfc319dd4))
+- add TMDb link ([267744c](https://github.com/mzdun/movies-ws/commit/267744cae58a900cadbc50c3f0374bc759fb0d32))
+- **jsapi**: defer socket connection ([74c5218](https://github.com/mzdun/movies-ws/commit/74c5218cb03f85881da65319720e3c4afc3fbad8))
+- print handling stats ([f9d53ba](https://github.com/mzdun/movies-ws/commit/f9d53bae69e3811c2c64ae66935f7f05cccb0e34))
+- attach translations to sessions ([237ffbc](https://github.com/mzdun/movies-ws/commit/237ffbc84023b516cb9b357cbde7b730c97a5518))
+- expand langs to fallback languages ([8332aea](https://github.com/mzdun/movies-ws/commit/8332aea6d1cb7af3273e836e7fe1f92b07a90b07))
+- support MKV files ([4e58344](https://github.com/mzdun/movies-ws/commit/4e583449ec22fb0645795a46d8e7469521d4be39))
+- reconnect on request ([8f79260](https://github.com/mzdun/movies-ws/commit/8f79260c8982ff8d443dbb9279ef9a59354094b9))
+- expose is_episode as an on-of ([5c54014](https://github.com/mzdun/movies-ws/commit/5c5401422375436a34250a165ea6948b7b524b69))
+- update to latest movies/json libs ([e01f883](https://github.com/mzdun/movies-ws/commit/e01f8838320a428749241ea19d94157577c34551))
+- update to movies w/translatable strings ([baea0e4](https://github.com/mzdun/movies-ws/commit/baea0e438cc2432f1d00be1d8361bbdb3428e0bd))
+
+### Bug Fixes
+
+- locate xdg-open on $PATH ([d02544b](https://github.com/mzdun/movies-ws/commit/d02544b0e627e170ea395cc3174e456805f14f2f))
+- phase 2 of code cleanup ([f1e8cee](https://github.com/mzdun/movies-ws/commit/f1e8ceec5ca7d43c6ba949a0a924824feb989e6b))
+- clean compilation on Windows ([62f7a19](https://github.com/mzdun/movies-ws/commit/62f7a19e0467094f2b953a2274f075f0bf0730a5))
+- update to flatter movie_data ([28d5073](https://github.com/mzdun/movies-ws/commit/28d50739a7a6b952050faf00fee9ccadffe4e3b2))
+
 ## [0.2.0](https://github.com/mzdun/movies-ws/compare/v0.1.0...v0.2.0) (2022-11-17)
 
 ### New Features
