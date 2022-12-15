@@ -52,7 +52,7 @@ list(APPEND PROJECT_SOURCES ${QM_FILES})
 
 add_executable(movies-ws ${PROJECT_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/src/plugin_load_plugins.cc")
 
-target_link_libraries(movies-ws PRIVATE websocket server ${MODS})
+target_link_libraries(movies-ws PRIVATE mbits::args websocket server ${MODS})
 target_include_directories(movies-ws PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_options(movies-ws PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(TARGETS movies-ws)

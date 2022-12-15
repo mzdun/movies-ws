@@ -1,6 +1,8 @@
 #define NOMINMAX
 #include <libwebsockets.h>
 
+#include <fmt/format.h>
+#include <args/parser.hpp>
 #include <base/str.hh>
 #include <io/file.hpp>
 #include <server/lngs.hh>
@@ -56,38 +58,25 @@ struct per_session_dispatcher : movies::rpc::dispatcher {
 	void on_disconnect(ws::session&) override {}
 };
 
-static constexpr auto error_message = R"(usage: movies-ws <db-config>
-
-config: {
-	port: unsigned short,
-	path: rel | abs,
-	mount?: string = "/",
-	title?: string = "",
-	adult?: bool | "mixed" = false,
-}
-)";
-
 movies::service_cfg load(fs::path const& json_filename) {
 	auto const data = io::contents(json_filename);
 	auto node = json::read_json({data.data(), data.size()});
-	auto json_port = cast<long long>(node, u8"port"s);
 	auto json_prefix = cast<json::string>(node, u8"mount"s);
 	auto json_path = cast<json::string>(node, u8"path"s);
-
-	if (!json_port || !json_path || *json_port < 0 ||
-	    static_cast<unsigned long long>(*json_port) >
-	        std::numeric_limits<unsigned short>::max()) {
-		std::fprintf(stderr, error_message);
-		std::exit(1);
-	}
+	auto json_title = cast<json::string>(node, u8"title"s);
 
 	movies::service_cfg result{};
-	result.database = fs::canonical(json_filename.parent_path() / *json_path);
-	result.port = static_cast<int>(*json_port);
+	result.database = fs::weakly_canonical(
+	    json_path ? json_filename.parent_path() / *json_path
+	              : json_filename.parent_path());
 	if (json_prefix) result.prefix.assign(movies::as_sv(*json_prefix));
 	if (result.prefix.empty() || result.prefix.front() != '/')
 		result.prefix.insert(result.prefix.begin(), '/');
 	if (result.prefix.back() == '/') result.prefix.pop_back();
+	if (json_title)
+		result.title.assign(movies::as_sv(*json_title));
+	else
+		result.title.assign(movies::as_sv(json_filename.stem().u8string()));
 
 	return result;
 }
@@ -97,14 +86,32 @@ int main(int argc, char** argv) {
 	SetConsoleOutputCP(CP_UTF8);
 #endif
 
-	if (argc < 2) {
-		std::fprintf(stderr, error_message);
-		return 1;
+	unsigned short port{9876};
+	movies::service_cfg cfg{};
+
+	{
+		std::filesystem::path cfg_path{};
+
+		args::null_translator tr{};
+		args::parser parser{"WebSocket server for movies library",
+		                    args::from_main(argc, argv), &tr};
+		parser.arg(port, "port")
+		    .meta("<number>")
+		    .help(fmt::format("select port to run on; defaults to {}", port))
+		    .opt();
+		parser.arg(cfg_path, "config")
+		    .meta("<json>")
+		    .help("describe the repository");
+		parser.parse();
+
+		if (cfg_path.is_relative())
+			cfg_path = std::filesystem::weakly_canonical(cfg_path);
+
+		cfg = load(cfg_path);
 	}
 
-	auto const cfg = load(argv[1]);
-
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, NULL);
+	lwsl_user("movies-ws version %s\n", version::string_ui);
 
 	movies::server backend{};
 	per_session_dispatcher handler{};
@@ -124,9 +131,10 @@ int main(int argc, char** argv) {
 	    });
 
 	backend.load(cfg.database);
-	service.init(cfg);
-	lwsl_user(
-	    "http://localhost:%d%s/ %s\n", service.port(), cfg.prefix.c_str(),
-	    reinterpret_cast<char const*>(cfg.database.generic_u8string().c_str()));
+	service.init(port, cfg);
+	lwsl_user("%s\n", cfg.title.c_str());
+	lwsl_user("%s\n", reinterpret_cast<char const*>(
+	                      cfg.database.generic_u8string().c_str()));
+	lwsl_user("http://localhost:%d%s/\n", service.port(), cfg.prefix.c_str());
 	service.run();
 }

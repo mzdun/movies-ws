@@ -11,13 +11,14 @@ namespace movies {
 	struct service_cfg {
 		std::filesystem::path database;
 		std::string prefix;
-		int port;
+		std::string title;
 	};
+
 	class service : public ws::service {
 	public:
 		explicit service(rpc::v1::dispatcher* proxy);
 
-		bool init(service_cfg const& cfg);
+		bool init(unsigned short port, service_cfg const& cfg);
 		int port() const;
 		void run();
 

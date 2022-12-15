@@ -12,7 +12,7 @@ namespace movies {
 		proxy->attach(this);
 	}
 
-	bool service::init(service_cfg const& cfg) {
+	bool service::init(unsigned short port, service_cfg const& cfg) {
 		auto const site = [] {
 			std::error_code ec{};
 
@@ -29,15 +29,13 @@ namespace movies {
 		    {cfg.prefix + "/db"s, cfg.database / "db"sv},
 		});
 		ctx_.add_protocol(conn_);
-		std::cout << "SERVING FROM: "sv << as_sv(site.generic_u8string())
+		std::cerr << "SERVING FROM: "sv << as_sv(site.generic_u8string())
 		          << '\n';
 
-		return ctx_.build(cfg.port, cfg.prefix); // 7681
+		return ctx_.build(port, cfg.prefix);
 	}
 
-	int service::port() const {
-		return ctx_.def_vhost_port();
-	}
+	int service::port() const { return ctx_.def_vhost_port(); }
 
 	void service::broadcast(std::span<unsigned char> payload, bool is_binary) {
 		conn_.broadcast(payload, is_binary);

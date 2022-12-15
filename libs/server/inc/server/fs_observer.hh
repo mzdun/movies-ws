@@ -50,7 +50,8 @@ namespace movies {
 
 	private:
 		template <typename WatchHandle>
-		void observe_impl(observer_callback& cb, std::filesystem::path const& path) {
+		void observe_impl(observer_callback& cb,
+		                  std::filesystem::path const& path) {
 			th_ = std::jthread{observe_directory<WatchHandle>, &cb, path};
 		}
 
