@@ -36,7 +36,7 @@ if (WIN32)
     )
 else()
     list(APPEND SRCS
-        src/server/fs_observer_posix.cc
+        src/server/fs_observer_inotify.cc
     )
 endif()
 
