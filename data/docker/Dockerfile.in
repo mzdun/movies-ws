@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+FROM ubuntu:20.04
+RUN apt-get update -y && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
+    apt-get install -y libcap-dev libstdc++-11-dev
+
+COPY start.sh /tmp
+COPY @TAR_GZ_PACKAGE_FILE_NAME@ /tmp
+RUN mkdir -p /app && \
+    tar -xf /tmp/@TAR_GZ_PACKAGE_FILE_NAME@ --strip-components=1 -C /app && \
+    cp /tmp/start.sh /app/bin && \
+    chmod +x /app/bin/start.sh
+RUN rm /tmp/start.sh && rm /tmp/@TAR_GZ_PACKAGE_FILE_NAME@
+
+ENV PATH=/app/bin:$PATH
+EXPOSE 9000
+ENTRYPOINT ["start.sh"]

@@ -98,3 +98,5 @@ add_subdirectory(extras)
 add_subdirectory(apps)
 
 include(prepare_pack)
+configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)
+file(COPY_FILE data/docker/start.sh ${PROJECT_BINARY_DIR}/packages/start.sh)
