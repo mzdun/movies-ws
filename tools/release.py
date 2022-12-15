@@ -22,7 +22,7 @@ COMMIT_SEP = "--{}".format(
     "".join(secrets.choice(string.ascii_letters + string.digits) for i in range(20))
 )
 
-CMAKE_PROJECT = GITHUB_PROJ
+CMAKE_PROJECT = "movies"
 
 LEVEL_BENIGN = 0
 LEVEL_PATCH = 1
