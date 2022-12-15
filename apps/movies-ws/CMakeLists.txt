@@ -55,3 +55,4 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/s
 target_link_libraries(${PROJECT_NAME} PRIVATE websocket server ${MODS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_options(${PROJECT_NAME} PRIVATE ${ADDITIONAL_WALL_FLAGS})
+install(TARGETS ${PROJECT_NAME})
