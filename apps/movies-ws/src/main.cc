@@ -6,6 +6,7 @@
 #include <base/str.hh>
 #include <io/file.hpp>
 #include <server/lngs.hh>
+#include <server/version.hh>
 #include <service.hh>
 #include <ws/session.hh>
 
@@ -17,7 +18,31 @@ std::filesystem::path exec_path() {
 	GetModuleFileNameW(nullptr, modpath, sizeof(modpath) / sizeof(modpath[0]));
 	return modpath;
 }
+
+static movies::service* ptr;
+
+BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
+	switch (fdwCtrlType) {
+		case CTRL_C_EVENT:
+		case CTRL_CLOSE_EVENT:
+		case CTRL_BREAK_EVENT:
+			lwsl_warn("signal intercepted\n");
+			ptr->stop();
+			return TRUE;
+		default:
+			break;
+	}
+	return FALSE;
+}
+
+void setup_breaks(movies::service& service) {
+	ptr = &service;
+	SetConsoleCtrlHandler(CtrlHandler, TRUE);
+}
+
 #else
+#include <signal.h>
+
 std::filesystem::path exec_path() {
 	using namespace std::literals;
 	std::error_code ec;
@@ -33,6 +58,26 @@ std::filesystem::path exec_path() {
 	}
 	[[unlikely]];  // GCOV_EXCL_LINE[POSIX]
 	return {};     // GCOV_EXCL_LINE[POSIX]
+}
+
+static movies::service* ptr;
+
+void install(int sig, void signal_handler(int)) {
+	struct sigaction handler;
+	memset(&handler, 0, sizeof(handler));
+	handler.sa_handler = signal_handler;
+	sigfillset(&handler.sa_mask);
+	::sigaction(sig, &handler, 0);
+}
+
+void setup_breaks(movies::service& service) {
+	ptr = &service;
+	auto const handler = +[](int) {
+		lwsl_warn("signal intercepted\n");
+		ptr->stop();
+	};
+	install(SIGINT, handler);
+	install(SIGTERM, handler);
 }
 
 #endif
@@ -119,6 +164,7 @@ int main(int argc, char** argv) {
 	UI_HANDLERS(X_CREATE_HANDLER);
 
 	movies::service service{&handler};
+	setup_breaks(service);
 	backend.set_on_db_update(
 	    [&](bool notify, std::span<std::string> const& lines) {
 		    for (auto const& line : lines) {
@@ -137,4 +183,5 @@ int main(int argc, char** argv) {
 	                      cfg.database.generic_u8string().c_str()));
 	lwsl_user("http://localhost:%d%s/\n", service.port(), cfg.prefix.c_str());
 	service.run();
+	lwsl_user("goodbye!\n");
 }

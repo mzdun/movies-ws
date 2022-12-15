@@ -21,6 +21,7 @@ namespace movies {
 		bool init(unsigned short port, service_cfg const& cfg);
 		int port() const;
 		void run();
+		void stop();
 
 		// service
 		void broadcast(std::span<unsigned char> payload,
@@ -44,5 +45,6 @@ namespace movies {
 		ws::handler* proxy_;
 		ws::web_socket conn_{"data"s, proxy_, ws::default_protocol};
 		ws::server_context ctx_{};
+		std::atomic_bool interrupted{};
 	};
 };  // namespace movies

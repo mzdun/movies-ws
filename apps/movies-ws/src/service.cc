@@ -42,8 +42,10 @@ namespace movies {
 	}
 
 	void service::run() {
-		bool interrupted = false;
+		interrupted = false;
 		while (!interrupted)
 			if (ctx_.service()) interrupted = true;
 	}
+
+	void service::stop() { interrupted = true; }
 }  // namespace movies
