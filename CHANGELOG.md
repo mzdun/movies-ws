@@ -1,4 +1,11 @@
 
+## [0.4.0](https://github.com/mzdun/movies-ws/compare/v0.3.0...v0.4.0) (2022-12-16)
+
+### New Features
+
+- shutdown on SIGTERM ([aa34512](https://github.com/mzdun/movies-ws/commit/aa34512245dcc99b9445f11127b3396c38bc3440))
+- setup proper arguments ([fa8a9a3](https://github.com/mzdun/movies-ws/commit/fa8a9a324d642906c0f7413418dc4848fae53273))
+
 ## [0.3.0](https://github.com/mzdun/movies-ws/compare/v0.2.0...v0.3.0) (2022-12-15)
 
 ### New Features
