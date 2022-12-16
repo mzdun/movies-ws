@@ -25,15 +25,18 @@ namespace movies {
 		using list = std::vector<ptr>;
 
 		virtual ~sort();
-		virtual int compare(extended_info const&,
-		                    extended_info const&,
-		                    std::span<std::string const> langs) const noexcept = 0;
-		virtual group_header header_for(extended_info const&,
-		                                app::Strings const&,
-		                                std::span<std::string const> langs) const = 0;
-		virtual std::string sort_hint_for(extended_info const&,
-		                                  app::Strings const&,
-		                                  std::span<std::string const> langs) const = 0;
+		virtual int compare(
+		    extended_info const&,
+		    extended_info const&,
+		    std::span<std::string const> langs) const noexcept = 0;
+		virtual group_header header_for(
+		    extended_info const&,
+		    app::Strings const&,
+		    std::span<std::string const> langs) const = 0;
+		virtual std::string sort_hint_for(
+		    extended_info const&,
+		    app::Strings const&,
+		    std::span<std::string const> langs) const = 0;
 
 		static ptr make(std::string const& term);
 		static std::vector<sort_types> get_config(app::Strings const&);

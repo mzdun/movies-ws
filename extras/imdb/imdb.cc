@@ -23,7 +23,5 @@ namespace movies {
 		return {};
 	}
 
-	plugin::ptr plugin_imdb() {
-		return std::make_unique<imdb_plugin>();
-	}
+	plugin::ptr plugin_imdb() { return std::make_unique<imdb_plugin>(); }
 }  // namespace movies

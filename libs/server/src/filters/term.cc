@@ -14,17 +14,13 @@ using namespace std::literals;
 
 namespace movies {
 	namespace {
-		unsigned move_if_needed(unsigned val) {
-			return val;
-		}
+		unsigned move_if_needed(unsigned val) { return val; }
 
 		std::u8string move_if_needed(std::u8string& val) {
 			return std::move(val);
 		}
 
-		std::string move_if_needed(std::string& val) {
-			return std::move(val);
-		}
+		std::string move_if_needed(std::string& val) { return std::move(val); }
 
 		template <typename Value>
 		struct conv_term;

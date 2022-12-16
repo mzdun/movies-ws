@@ -11,4 +11,4 @@ namespace movies {
 
 		link current_url(string const& id) const;
 	};
-}
+}  // namespace movies

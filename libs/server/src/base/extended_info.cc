@@ -10,8 +10,8 @@
 namespace movies {
 	void title_category::init(title_info const& title,
 	                          icu::Normalizer2 const* norm) {
-		sortable = icu::UnicodeString::fromUTF8(
-		    as_sv(title.sort || title.text));
+		sortable =
+		    icu::UnicodeString::fromUTF8(as_sv(title.sort || title.text));
 
 		if (norm) {
 			UErrorCode ec{};

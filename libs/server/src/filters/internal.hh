@@ -26,9 +26,7 @@
 	X(has_imdb, lng::FILTER_LABEL_HAS_IMDB)
 
 namespace movies {
-	inline unsigned value_of(unsigned v) noexcept {
-		return v;
-	}
+	inline unsigned value_of(unsigned v) noexcept { return v; }
 
 	inline unsigned value_of(date::sys_seconds v) noexcept {
 		auto const with_sign = v.time_since_epoch().count();
@@ -39,9 +37,7 @@ namespace movies {
 	template <typename Value>
 	struct tag {};
 
-	inline unsigned copy_value(unsigned v, tag<unsigned>) noexcept {
-		return v;
-	}
+	inline unsigned copy_value(unsigned v, tag<unsigned>) noexcept { return v; }
 
 	inline date::sys_seconds copy_value(unsigned v,
 	                                    tag<date::sys_seconds>) noexcept {

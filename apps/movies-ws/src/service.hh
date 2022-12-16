@@ -6,6 +6,8 @@
 #include <rpc/db.hh>
 #include <rpc/rpc.hh>
 #include <rpc/ui.hh>
+#include <string>
+#include <vector>
 
 namespace movies {
 	struct service_cfg {

@@ -14,21 +14,13 @@ namespace movies::filters {
 		return !(!data.video_file && data.has_tag(u8"server-archived"sv));
 	}
 
-	ON_OFF(is_series) {
-		return !data.episodes.empty();
-	}
+	ON_OFF(is_series) { return !data.episodes.empty(); }
 
-	ON_OFF(is_episode) {
-		return data.is_episode;
-	}
+	ON_OFF(is_episode) { return data.is_episode; }
 
-	ON_OFF(has_video) {
-		return !!data.video_file;
-	}
+	ON_OFF(has_video) { return !!data.video_file; }
 
-	ON_OFF(has_info) {
-		return !!data.info_file;
-	}
+	ON_OFF(has_info) { return !!data.info_file; }
 
 	ON_OFF(has_imdb) {
 		static constexpr auto prefix = u8"imdb:"sv;

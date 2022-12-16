@@ -17,7 +17,5 @@ namespace movies {
 		};
 	}
 
-	plugin::ptr plugin_tmdb() {
-		return std::make_unique<tmdb_plugin>();
-	}
+	plugin::ptr plugin_tmdb() { return std::make_unique<tmdb_plugin>(); }
 }  // namespace movies
