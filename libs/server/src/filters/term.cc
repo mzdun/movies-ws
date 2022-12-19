@@ -78,8 +78,9 @@ namespace movies {
 			}
 
 		private:
-			virtual bool contains(extended_info const&,
-			                      conv_term<Value>::arg_t) const noexcept = 0;
+			virtual bool contains(
+			    extended_info const&,
+			    typename conv_term<Value>::arg_t) const noexcept = 0;
 
 			Value term_{};
 		};

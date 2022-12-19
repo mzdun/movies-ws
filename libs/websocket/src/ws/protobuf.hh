@@ -35,8 +35,8 @@ namespace ws::protobuf {
 	class query {
 	public:
 		using dispatcher = Dispatcher;
-		using request = dispatcher::request;
-		using response = dispatcher::response;
+		using request = typename dispatcher::request;
+		using response = typename dispatcher::response;
 
 		query(connection* conn) : conn_{conn} {}
 
@@ -70,8 +70,8 @@ namespace ws::protobuf {
 	template <typename Dispatcher>
 	struct handler {
 		using dispatcher = Dispatcher;
-		using request = dispatcher::request;
-		using response = dispatcher::response;
+		using request = typename dispatcher::request;
+		using response = typename dispatcher::response;
 		using query = ws::protobuf::query<dispatcher>;
 
 		virtual ~handler() = default;
@@ -84,8 +84,8 @@ namespace ws::protobuf {
 		using request = Request;
 		using response = Response;
 		using handler = ws::protobuf::handler<dispatcher>;
-		using query = handler::query;
-		using message_id = request::MessageCase;
+		using query = typename handler::query;
+		using message_id = typename request::MessageCase;
 
 		void attach(service* svc) { svc_ = svc; }
 

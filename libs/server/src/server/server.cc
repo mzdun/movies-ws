@@ -193,15 +193,16 @@ namespace movies {
 			for (auto const& ref : movie.refs)
 				ref2id[ref] = key;
 
-			movie.arrival = [&movie] {
-				auto const published = movie.dates.published;
-				auto const stream = movie.dates.stream;
-				auto const poster = movie.dates.poster;
+			movie.arrival = [](extended_info& binding_movie) {
+				auto const published = binding_movie.dates.published;
+				auto const stream = binding_movie.dates.stream;
+				auto const poster = binding_movie.dates.poster;
 				auto const video =
-				    movie.video_file >> file_ref_mtime >> fs2wall;
-				auto const json = movie.info_file >> file_ref_mtime >> fs2wall;
+				    binding_movie.video_file >> file_ref_mtime >> fs2wall;
+				auto const json =
+				    binding_movie.info_file >> file_ref_mtime >> fs2wall;
 				return published || stream || video || poster || json;
-			}();
+			}(movie);
 
 			movie.title_cat.items.clear();
 			for (auto const& [langid, title] : movie.title.items)

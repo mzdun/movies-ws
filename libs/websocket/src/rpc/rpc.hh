@@ -51,8 +51,8 @@ namespace movies::rpc::v1 {
 	public:
 		using msg_traits = movies::rpc::msg_traits<HandledRequest>;
 
-		using handled_response = msg_traits::handled_response;
-		using handled_request = msg_traits::handled_request;
+		using handled_response = typename msg_traits::handled_response;
+		using handled_request = typename msg_traits::handled_request;
 		static constexpr auto message_id = msg_traits::message_id;
 
 		base_handler(movies::server* server) : server_{server} {}
