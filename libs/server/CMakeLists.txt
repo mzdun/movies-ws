@@ -12,7 +12,6 @@ set(SRCS
     inc/server/plugin.hh
     inc/server/server.hh
     inc/sorting/sort.hh
-    inc/utf/utf.hh
     src/base/extended_info.cc
     src/filters/base.cc
     src/filters/description.cc
@@ -27,7 +26,6 @@ set(SRCS
     src/server/server.cc
     src/sorting/config.cc
     src/sorting/sort.cc
-    src/utf/utf.cc
 )
 
 if (WIN32)
@@ -157,6 +155,10 @@ target_include_directories(server
     ${CMAKE_CURRENT_BINARY_DIR}/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
-target_link_libraries(server PUBLIC ICU::data ICU::uc ICU::i18n SQLiteCpp::SQLiteCpp mbits-lngs::lngs browser movies)
+target_link_libraries(server PUBLIC
+    ICU::data ICU::uc ICU::i18n
+    SQLiteCpp::SQLiteCpp
+    mbits-lngs::lngs mbits::utfconv
+    browser movies)
 target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(DIRECTORY "${BIN_DIR}/lngs" TYPE BIN)

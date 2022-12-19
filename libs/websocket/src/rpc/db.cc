@@ -80,8 +80,7 @@ namespace movies::db::v1 {
 			return true;
 		}
 
-		static auto find_in(std::vector<std::string> const& list,
-		                    long long index) {
+		auto find_in(std::vector<std::string> const& list, long long index) {
 			if (index < 0) return list.end();
 			auto const uindex = static_cast<size_t>(index);
 			return uindex >= list.size()
@@ -315,7 +314,7 @@ namespace movies::db::v1 {
 		    RepeatedPtrField<filters::v1::Filter> const& filters,
 		    filter::ptr prefix = {}) {
 			filter::list result{};
-			result.reserve(as_size(filters.size()) + (prefix ? 1u : 0u));
+			result.reserve(as_size(filters.size()) + (prefix ? 1U : 0U));
 			if (prefix) result.push_back(std::move(prefix));
 
 			for (auto const& filter : filters) {
@@ -352,7 +351,8 @@ namespace movies::db::v1 {
 		auto const result =
 		    server()->listing(search ? *search : std::string{}, filters, sort,
 		                      true, true, data.tr(), data.langs());
-		size_t groups = 0, refs = 0;
+		size_t groups = 0;
+		size_t refs = 0;
 		for (auto const& grp : result) {
 			++groups;
 			refs += grp.items.size();

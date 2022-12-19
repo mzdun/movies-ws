@@ -17,7 +17,7 @@ namespace ws {
 	    .name = "default",
 	    .value = "1"};
 
-	static struct lws_protocol_vhost_options default_proto_name = {
+	static struct lws_protocol_vhost_options default_proto_name = {  // NOLINT
 	    .options = &default_proto_opt,
 	    .value = ""};
 
@@ -64,7 +64,7 @@ namespace ws {
 				    .callback = lws_callback_http_dummy,
 				};
 			}
-			proto_priority priorty() const noexcept override {
+			[[nodiscard]] proto_priority priorty() const noexcept override {
 				return normal_protocol;
 			}
 		};
@@ -144,10 +144,10 @@ namespace ws {
 
 	bool server_context::service() { return context_.service(); }
 
-	web_socket::web_socket(std::string const& name,
+	web_socket::web_socket(std::string&& name,
 	                       handler* handler,
 	                       proto_priority priority)
-	    : name_{name}, handler_{handler}, priority_{priority} {}
+	    : name_{std::move(name)}, handler_{handler}, priority_{priority} {}
 
 	web_socket::~web_socket() = default;
 

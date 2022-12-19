@@ -82,7 +82,7 @@ namespace movies {
 
 	size_t char_count(std::span<std::string const> langs, char checked) {
 		size_t counter{};
-		for (auto lang : langs) {
+		for (auto const& lang : langs) {
 			counter += char_count(lang, checked);
 		}
 		return counter;
@@ -96,14 +96,14 @@ namespace movies {
 			auto view = std::string_view{langs.front()};
 			langs = langs.subspan(1);
 
-			result.push_back({view.data(), view.size()});
+			result.emplace_back(view.data(), view.size());
 			while (!view.empty()) {
 				auto const pos = view.find('-');
 				if (pos == std::string::npos) break;
 
 				view = view.substr(0, pos);
 				if (contains(result, view) || contains(langs, view)) break;
-				result.push_back({view.data(), view.size()});
+				result.emplace_back(view.data(), view.size());
 			}
 		}
 		return result;
@@ -316,7 +316,7 @@ namespace movies {
 		auto const now = steady_clock::now();
 
 #define dur_arg(name, start, stop) \
-	fmt::arg(name, duration_cast<milliseconds>(stop - start))
+	fmt::arg((name), duration_cast<milliseconds>((stop) - (start)))
 
 		return fmt::format(
 		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
@@ -335,6 +335,7 @@ namespace movies {
 	struct filter_formatter {
 		std::string operator()(description::range_filter const& flt) {
 			using namespace std::chrono;
+			static constexpr auto hundred_to_five = 20.0;
 
 			auto const range = [&] {
 				if (flt.field == "arrival"sv) {
@@ -349,13 +350,11 @@ namespace movies {
 					                   static_cast<int>(ymd_high.year()),
 					                   static_cast<unsigned>(ymd_high.month()),
 					                   static_cast<unsigned>(ymd_high.day()));
-				} else if (flt.field == "rating"sv) {
-					return fmt::format("{} - {}", flt.low / 20.0,
-					                   flt.high / 20.0);
-				} else {
-					return fmt::format("{} - {}", flt.low, flt.high);
 				}
-				return std::string{};
+				if (flt.field == "rating"sv)
+					return fmt::format("{} - {}", flt.low / hundred_to_five,
+					                   flt.high / hundred_to_five);
+				return fmt::format("{} - {}", flt.low, flt.high);
 			}();
 			return fmt::format("<rng> [{}] {}\n", flt.field, range);
 		}
@@ -386,7 +385,9 @@ namespace movies {
 		using namespace std::chrono;
 
 		auto const then = steady_clock::now();
-		steady_clock::time_point locked{}, printed{}, sqlite{};
+		steady_clock::time_point locked{};
+		steady_clock::time_point printed{};
+		steady_clock::time_point sqlite{};
 
 		std::function<void(bool, std::span<std::string> const&)> on_db_update{};
 		{
@@ -397,11 +398,11 @@ namespace movies {
 				changed = true;
 
 				if (movies_.movies.size() != ldr.db.movies.size())
-					dbg.push_back(fmt::format("movies changed ({} -> {})\n",
-					                          movies_.movies.size(),
-					                          ldr.db.movies.size()));
+					dbg.emplace_back(fmt::format("movies changed ({} -> {})\n",
+					                             movies_.movies.size(),
+					                             ldr.db.movies.size()));
 				else
-					dbg.push_back("movies changed\n");
+					dbg.emplace_back("movies changed\n");
 			}
 
 			if (current_filters_ != ldr.current_filters) {
@@ -437,7 +438,7 @@ namespace movies {
 		auto const now = steady_clock::now();
 
 #define dur_arg(name, start, stop) \
-	fmt::arg(name, duration_cast<milliseconds>(stop - start))
+	fmt::arg((name), duration_cast<milliseconds>((stop) - (start)))
 
 		dbg[1] = fmt::format(
 		    "Installed in {total} (waiting for {waiting}, moving in "
@@ -525,14 +526,14 @@ namespace movies {
 				auto const& data = it->second;
 				if (hide_episodes && data.is_episode) continue;
 				if (filter::matches_all(filters, data))
-					keys.push_back({key.data(), key.size()});
+					keys.emplace_back(key.data(), key.size());
 			}
 		} else {
 			keys.reserve(movies_.movies.size());
 
 			for (auto const& [key, data] : movies_.movies) {
 				if (hide_episodes && data.is_episode) continue;
-				if (filter::matches_all(filters, data)) keys.push_back(key);
+				if (filter::matches_all(filters, data)) keys.emplace_back(key);
 			}
 		}
 

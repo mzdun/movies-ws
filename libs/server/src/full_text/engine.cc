@@ -8,31 +8,32 @@
 #include <set>
 #include <tangle/browser/html_split.hpp>
 #include <tangle/str.hpp>
-#include <utf/utf.hh>
+#include <utf/utf.hpp>
 
 namespace movies::full_text {
 	namespace {
 		bool isspace(char32_t c) {
-			if (c < 127 && std::isspace(static_cast<unsigned char>(c)))
+			if (c < 127  // NOLINT(readability-magic-numbers)
+			    && std::isspace(static_cast<unsigned char>(c)))
 				return true;
 			switch (c) {
-				case 0x00A0:
-				case 0x1680:
-				case 0x2000:
-				case 0x2001:
-				case 0x2002:
-				case 0x2003:
-				case 0x2004:
-				case 0x2005:
-				case 0x2006:
-				case 0x2007:
-				case 0x2008:
-				case 0x2009:
-				case 0x200A:
-				case 0x200B:
-				case 0x202F:
-				case 0x205F:
-				case 0x3000:
+				case 0x00A0:  // NOLINT(readability-magic-numbers)
+				case 0x1680:  // NOLINT(readability-magic-numbers)
+				case 0x2000:  // NOLINT(readability-magic-numbers)
+				case 0x2001:  // NOLINT(readability-magic-numbers)
+				case 0x2002:  // NOLINT(readability-magic-numbers)
+				case 0x2003:  // NOLINT(readability-magic-numbers)
+				case 0x2004:  // NOLINT(readability-magic-numbers)
+				case 0x2005:  // NOLINT(readability-magic-numbers)
+				case 0x2006:  // NOLINT(readability-magic-numbers)
+				case 0x2007:  // NOLINT(readability-magic-numbers)
+				case 0x2008:  // NOLINT(readability-magic-numbers)
+				case 0x2009:  // NOLINT(readability-magic-numbers)
+				case 0x200A:  // NOLINT(readability-magic-numbers)
+				case 0x200B:  // NOLINT(readability-magic-numbers)
+				case 0x202F:  // NOLINT(readability-magic-numbers)
+				case 0x205F:  // NOLINT(readability-magic-numbers)
+				case 0x3000:  // NOLINT(readability-magic-numbers)
 					return true;
 			}
 			return false;

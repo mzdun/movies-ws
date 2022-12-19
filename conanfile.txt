@@ -1,5 +1,4 @@
 [requires]
-mbits-args/0.12.3
 fmt/8.1.1
 date/3.0.1
 gtest/cci.20210126
@@ -7,6 +6,8 @@ protobuf/3.21.4
 libwebsockets/4.3.2
 icu/71.1
 sqlitecpp/3.2.0
+mbits-args/0.12.3
+mbits-utfconv/1.0.3
 mbits-lngs/0.7.2
 
 libcurl/7.85.0

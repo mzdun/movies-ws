@@ -14,9 +14,9 @@
 #include <shellapi.h>
 #pragma comment(lib, "shell32.lib")
 #else
-#include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <cstdio>
 #endif
 
 #define OPT_COPY(FLD) \
@@ -167,7 +167,8 @@ namespace movies::ui::v1 {
 #else
 		std::string which(std::string_view exec) {
 			std::string result{};
-			auto pathvar = std::string_view{getenv("PATH")};
+			auto pathvar = std::string_view{
+			    getenv("PATH")};  // NOLINT(concurrency-mt-unsafe)
 			auto pos = std::string::npos;
 
 			do {
@@ -200,7 +201,7 @@ namespace movies::ui::v1 {
 			} else if (pid < 0) {
 				printf("%s error: %d\n", executable.c_str(), pid);
 			} else if (pid > 0) {
-				int status;
+				int status{};
 				waitpid(pid, &status, 0);
 				if (status)
 					printf("%s returned: %d\n", executable.c_str(), status);

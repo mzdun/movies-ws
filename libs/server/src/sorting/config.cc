@@ -4,10 +4,10 @@
 #include <date/date.h>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <time.h>
 #include <unicode/coll.h>
 #include <base/str.hh>
 #include <concepts>
+#include <ctime>
 #include <sorting/sort.hh>
 
 using namespace std::literals;
@@ -43,14 +43,15 @@ namespace movies {
 				}
 			}
 
-			int compare(title_category const& lhs, title_category const& rhs) {
+			[[nodiscard]] int compare(title_category const& lhs,
+			                          title_category const& rhs) const {
 				return coll ? as_int(coll->compare(lhs.sortable, rhs.sortable))
 				            : as_int(lhs.sortable.compare(rhs.sortable));
 			}
 
 		private:
-			icu::Collator* createInstance(std::string_view langid,
-			                              UErrorCode& ec) {
+			static icu::Collator* createInstance(std::string_view langid,
+			                                     UErrorCode& ec) {
 				if (langid.empty()) return icu::Collator::createInstance(ec);
 				std::string copy{};
 				copy.assign(langid);
@@ -114,7 +115,7 @@ namespace movies {
 		public:
 			crtp_comp(bool ascending) : asc_{ascending} {}
 
-			int compare(
+			[[nodiscard]] int compare(
 			    extended_info const& lhs,
 			    extended_info const& rhs,
 			    std::span<std::string const> langs) const noexcept final {
@@ -125,7 +126,7 @@ namespace movies {
 				return result;
 			}
 
-			group_header header_for(
+			[[nodiscard]] group_header header_for(
 			    extended_info const& data,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const final {
@@ -133,7 +134,7 @@ namespace movies {
 				return self->field_header(self->get(data), tr, langs);
 			}
 
-			std::string sort_hint_for(
+			[[nodiscard]] std::string sort_hint_for(
 			    extended_info const& data,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const final {
@@ -173,17 +174,20 @@ namespace movies {
 		std::vector<value_range<unsigned>> years_spread() {
 			using namespace std::chrono;
 
-			auto result = spread<unsigned>({1980, 1990, 2000, 2005, 2010});
+			auto result = spread<unsigned>(
+			    {1980, 1990, 2000, 2005,  // NOLINT(readability-magic-numbers)
+			     2010});                  // NOLINT(readability-magic-numbers)
 
 			auto const final_year = [] {
 				auto const now = system_clock::to_time_t(system_clock::now());
-#ifdef _MSC_VER
 				struct tm tm {};
+#ifdef _MSC_VER
 				localtime_s(&tm, &now);
 #else
-				struct tm tm = *localtime(&now);
+				localtime_r(&now, &tm);
 #endif
-				return static_cast<unsigned>(tm.tm_year + 1900);
+				return static_cast<unsigned>(
+				    tm.tm_year + 1900);  // NOLINT(readability-magic-numbers)
 			}() + 1;
 
 			auto prev = result.back().top + 1;
@@ -200,26 +204,26 @@ namespace movies {
 			    : ranges_{ranges} {}
 			ranged_header(std::vector<value_range<Value>>&& ranges)
 			    : ranges_{std::move(ranges)} {}
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    std::optional<Value> const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> const&) const {
 				return value ? this->find_range(*value, tr) : group_header{};
 			}
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    Value const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> const&) const {
 				return this->find_range(value, tr);
 			}
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    std::optional<Value> const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> const&) const {
 				auto const self = static_cast<Range const*>(this);
 				return value ? self->format(*value, tr) : std::string{};
 			}
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    Value const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> const&) const {
@@ -227,8 +231,9 @@ namespace movies {
 				return self->format(value, tr);
 			}
 
-			group_header find_range(Value const& value,
-			                        app::Strings const& tr) const {
+			[[nodiscard]] group_header find_range(
+			    Value const& value,
+			    app::Strings const& tr) const {
 				auto const self = static_cast<Range const*>(this);
 				for (auto const& [bottom, top] : ranges_) {
 					if (value < bottom || value > top) continue;
@@ -277,12 +282,14 @@ namespace movies {
 		struct uint_ranged_header : ranged_header<Range, unsigned> {
 			using ranged_header<Range, unsigned>::ranged_header;
 
-			std::string format_next(unsigned val,
-			                        app::Strings const& tr) const {
+			[[nodiscard]] std::string format_next(
+			    unsigned val,
+			    app::Strings const& tr) const {
 				return static_cast<Range const*>(this)->format(val + 1, tr);
 			}
 
-			std::string format(unsigned val, app::Strings const&) const {
+			[[nodiscard]] std::string format(unsigned val,
+			                                 app::Strings const&) const {
 				return fmt::format("{}", val);
 			}
 		};
@@ -296,7 +303,7 @@ namespace movies {
 			}
 
 			template <typename Arg>
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    Arg&& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const {
@@ -305,7 +312,7 @@ namespace movies {
 			}
 
 			template <typename Arg>
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    Arg&& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const {
@@ -332,9 +339,9 @@ namespace movies {
 	};
 
 		struct title_header {
-			title_header() {}
+			title_header() = default;
 
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    translatable<title_category> const& value,
 			    app::Strings const&,
 			    std::span<std::string const> langs) const {
@@ -356,7 +363,7 @@ namespace movies {
 				return {.id = "symbols", .label = "?"};
 			}
 
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    translatable<title_category> const& value,
 			    app::Strings const&,
 			    std::span<std::string const> langs) const {
@@ -374,11 +381,15 @@ namespace movies {
 
 		struct runtime_header : uint_ranged_header<runtime_header> {
 			runtime_header()
-			    : uint_ranged_header<runtime_header>{
-			          spread<unsigned>({10, 20, 30, 40, 60, 90, 120, 150, 180,
-			                            210, 240, 270, 300, 330, 360})} {}
+			    : uint_ranged_header<runtime_header>{spread<unsigned>({
+			          10, 20, 30, 40, 60,  // NOLINT(readability-magic-numbers)
+			          90, 120, 150, 180,   // NOLINT(readability-magic-numbers)
+			          210, 240, 270, 300,  // NOLINT(readability-magic-numbers)
+			          330, 360             // NOLINT(readability-magic-numbers)
+			      })} {}
 
-			std::string format(unsigned val, app::Strings const&) const {
+			[[nodiscard]] std::string format(unsigned val,
+			                                 app::Strings const&) const {
 				auto const minutes = val % 60;
 				auto const hours = (val - minutes) / 60;
 
@@ -389,13 +400,13 @@ namespace movies {
 		};
 
 		struct rating_header {
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    std::optional<unsigned> const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const {
 				return field_header(value.value_or(0), tr, langs);
 			}
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    unsigned value,
 			    app::Strings const&,
 			    std::span<std::string const> const&) const {
@@ -406,17 +417,20 @@ namespace movies {
 				};
 			}
 
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    std::optional<unsigned> const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const {
 				return field_sort_hint(value.value_or(0), tr, langs);
 			}
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    unsigned value,
 			    app::Strings const&,
 			    std::span<std::string const> const&) const {
-				return fmt::format("{}.{} / 10", value / 10, value % 10);
+				return fmt::format(
+				    "{}.{} / 10",
+				    value / 10,   // NOLINT(readability-magic-numbers)
+				    value % 10);  // NOLINT(readability-magic-numbers)
 			}
 		};
 
@@ -464,16 +478,17 @@ namespace movies {
 
 			arrival_header() : dates_{spread_dates()} {}
 
-			group_header field_header(
+			[[nodiscard]] group_header field_header(
 			    std::optional<sys_seconds> const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const {
 				return value ? field_header(*value, tr, langs) : group_header{};
 			}
 
-			group_header field_header(sys_seconds const& value,
-			                          app::Strings const& tr,
-			                          std::span<std::string const>) const {
+			[[nodiscard]] group_header field_header(
+			    sys_seconds const& value,
+			    app::Strings const& tr,
+			    std::span<std::string const>) const {
 				if (value >= dates_.tomorrow) {
 					return {
 					    .id = "future",
@@ -516,7 +531,7 @@ namespace movies {
 				};
 			}
 
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    std::optional<sys_seconds> const& value,
 			    app::Strings const& tr,
 			    std::span<std::string const> langs) const {
@@ -524,7 +539,7 @@ namespace movies {
 				             : std::string{};
 			}
 
-			std::string field_sort_hint(
+			[[nodiscard]] std::string field_sort_hint(
 			    sys_seconds const& value,
 			    app::Strings const&,
 			    std::span<std::string const> const&) const {
@@ -553,7 +568,7 @@ namespace movies {
 	    app::LABEL,                      \
 	    crtp_comp<NAME##_comp>::factory, \
 	},
-		static constexpr sort_info axis[] = {COMPARATORS(X_INFO)};
+		constexpr sort_info axis[] = {COMPARATORS(X_INFO)};
 	}  // namespace
 
 	sort::ptr sort::make(std::string const& term) {
@@ -567,7 +582,7 @@ namespace movies {
 			asc = false;
 		}
 		if (view.empty()) return {};
-		for (auto const& [name, _, __, factory] : axis) {
+		for (auto const& [name, _, _2, factory] : axis) {
 			if (view == name) {
 				return factory(asc);
 			}
@@ -583,7 +598,7 @@ namespace movies {
 			result.push_back({
 			    .field{name.data(), name.size()},
 			    .label{label_view.data(), label_view.size()},
-			    .ascByDefault{asc},
+			    .ascByDefault = asc,
 			});
 		}
 		return result;

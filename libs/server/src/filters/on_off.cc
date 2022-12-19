@@ -37,7 +37,7 @@ namespace movies::filters {
 		};
 
 #define X_ON_OFF_FACTORY(NAME, LABEL) {#NAME##sv, NAME##_filter::factory},
-		static constexpr on_off_filter_info on_off_filters[] = {
+		constexpr on_off_filter_info on_off_filters[] = {
 		    ON_OFF_FILTER(X_ON_OFF_FACTORY)};
 	}  // namespace
 }  // namespace movies::filters

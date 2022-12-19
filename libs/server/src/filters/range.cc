@@ -20,11 +20,13 @@ namespace movies {
 			    , high_{copy_value(high, tag<Value>{})}
 			    , include_missing_{include_missing} {}
 
-			bool matches(extended_info const& data) const noexcept final {
+			[[nodiscard]] bool matches(  // NOLINT(bugprone-exception-escape)
+			    extended_info const& data) const noexcept final {
 				auto const opt = access(data);
 				if (!opt) return include_missing_;
 
-				auto const value = opt.value();
+				auto const value = opt.value();  // only throws, if empty, but
+				                                 // empty returns above
 				return (low_ <= value) && (high_ >= value);
 			}
 
@@ -36,7 +38,7 @@ namespace movies {
 			}
 
 		private:
-			virtual std::optional<Value> access(
+			[[nodiscard]] virtual std::optional<Value> access(
 			    extended_info const&) const noexcept = 0;
 			Value low_{};
 			Value high_{};
@@ -70,8 +72,7 @@ namespace movies {
 			                    bool include_missing);
 		};
 
-		static constexpr range_filter_info range_filters[] = {
-		    RANGE_FILTER(X_INFO)};
+		constexpr range_filter_info range_filters[] = {RANGE_FILTER(X_INFO)};
 	}  // namespace
 
 	filter::ptr filter::make_range(std::string_view field,

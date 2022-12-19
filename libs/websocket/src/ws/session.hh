@@ -37,7 +37,7 @@ namespace ws {
 			std::vector<unsigned char> payload{};
 			bool is_binary{true};
 
-			void store(std::span<unsigned char> payload, bool is_binary);
+			void store(std::span<unsigned char> data, bool is_binary);
 			bool write(lws* wsi);
 		};
 

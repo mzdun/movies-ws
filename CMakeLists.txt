@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 project (movies
   DESCRIPTION "WebSocket server for movies library"
   VERSION 0.4.0
@@ -26,6 +26,7 @@ find_package(Libwebsockets CONFIG REQUIRED)
 find_package(ICU CONFIG REQUIRED)
 find_package(SQLiteCpp CONFIG REQUIRED)
 find_package(mbits-lngs CONFIG REQUIRED)
+find_package(mbits-utfconv CONFIG REQUIRED)
 find_package(args REQUIRED)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
@@ -93,9 +94,56 @@ enable_testing()
 
 set(PLUGINS)
 
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy" "clang-tidy-12")
+message(STATUS "clan-tidy: ${CLANG_TIDY_EXE}")
+
+set(CLANG_TIDY_OMIT
+  abseil-*
+  altera-*
+  android-*
+  boost-*
+  darwin-*
+  fuchsia-*
+  google-*
+  hicpp-*
+  linuxkernel-*
+  llvm-*
+  llvmlibc-*
+  mpi-*
+  objc-*
+  zircon-*
+
+  clang-diagnostic-gnu-zero-variadic-macro-arguments
+  misc-non-private-member-variables-in-classes
+  readability-braces-around-statements
+  readability-implicit-bool-conversion
+  readability-named-parameter
+  readability-use-anyofallof
+  readability-convert-member-functions-to-static
+  readability-qualified-auto
+  readability-function-cognitive-complexity
+  cppcoreguidelines-macro-usage
+  cppcoreguidelines-avoid-magic-numbers
+  cppcoreguidelines-avoid-c-arrays
+  cppcoreguidelines-pro-*
+  modernize-use-trailing-return-type
+  modernize-avoid-c-arrays
+  modernize-use-nullptr
+
+  clang-analyzer-*
+)
+string(REPLACE ";" ",-" CLANG_TIDY_OMIT "${CLANG_TIDY_OMIT}")
+set(CLANG_TIDY_COMMAND
+  ${CLANG_TIDY_EXE}
+  -extra-arg=-std=c++2b
+  --use-color
+  -checks=*,-${CLANG_TIDY_OMIT})
+
 add_subdirectory(libs)
 add_subdirectory(extras)
 add_subdirectory(apps)
+
+set_target_properties(server movies-ws websocket PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 
 include(prepare_pack)
 configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)

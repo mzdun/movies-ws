@@ -185,7 +185,7 @@ namespace ws {
 
 	class web_socket {
 	public:
-		explicit web_socket(std::string const& name,
+		explicit web_socket(std::string&& name,
 		                    handler* handler,
 		                    proto_priority priority = normal_protocol);
 		~web_socket();

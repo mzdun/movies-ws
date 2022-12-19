@@ -38,7 +38,7 @@ namespace movies {
 
 	struct page_link_plugin_impl {
 		virtual ~page_link_plugin_impl();
-		page_link_plugin_impl(string const& prefix);
+		page_link_plugin_impl(string&& prefix);
 
 		std::vector<link> page_links_impl(extended_info const&) const;
 		virtual link current_url(string const& id) const = 0;
@@ -50,8 +50,8 @@ namespace movies {
 	template <typename Base = plugin>
 	struct page_link_plugin : page_link_plugin_impl, Base {
 		template <typename... Args>
-		page_link_plugin(string const& prefix, Args&&... args)
-		    : page_link_plugin_impl{prefix}
+		page_link_plugin(string&& prefix, Args&&... args)
+		    : page_link_plugin_impl{std::move(prefix)}
 		    , Base{std::forward<Args>(args)...} {}
 
 		std::vector<link> page_links(extended_info const& data) const override {

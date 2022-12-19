@@ -32,6 +32,10 @@ namespace movies {
 				}
 				fcntl(fd_, F_SETFD, FD_CLOEXEC);
 			}
+			InotifyHandle(InotifyHandle const&) = delete;
+			InotifyHandle(InotifyHandle&&) = delete;
+			void operator=(InotifyHandle const&) = delete;
+			void operator=(InotifyHandle&&) = delete;
 
 			~InotifyHandle() {
 				if (fd_ >= 0) ::close(fd_);
@@ -49,12 +53,13 @@ namespace movies {
 				auto const sec = floor<seconds>(ms);
 				microseconds us{ms - sec};
 
-				struct timeval read_timeout;
+				struct  // NOLINT(cppcoreguidelines-pro-type-member-init)
+				    timeval read_timeout;
 				read_timeout.tv_sec = sec.count();
 				read_timeout.tv_usec = us.count();
 				fd_set read_fds{};
 
-				FD_ZERO(&read_fds);
+				FD_ZERO(&read_fds);  // NOLINT(readability-isolate-declaration)
 				FD_SET(fd_, &read_fds);
 				auto rc =
 				    select(fd_ + 1, &read_fds, nullptr, nullptr, &read_timeout);
@@ -88,12 +93,10 @@ namespace movies {
 						break;
 					interpreted += sizeof(inotify_event) + event.len;
 
-					if ((event.mask & (IN_CREATE | IN_ISDIR)) ==
-					    (IN_CREATE | IN_ISDIR)) {
-						add_directory(event.wd, {event.name, event.len});
-						idle = false;
-					} else if ((event.mask & (IN_MOVED_TO | IN_ISDIR)) ==
-					           (IN_MOVED_TO | IN_ISDIR)) {
+					if (((event.mask & (IN_CREATE | IN_ISDIR)) ==
+					     (IN_CREATE | IN_ISDIR)) ||
+					    ((event.mask & (IN_MOVED_TO | IN_ISDIR)) ==
+					     (IN_MOVED_TO | IN_ISDIR))) {
 						add_directory(event.wd, {event.name, event.len});
 						idle = false;
 					} else if ((event.mask & (IN_MOVED_FROM | IN_ISDIR)) ==

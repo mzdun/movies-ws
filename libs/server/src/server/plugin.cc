@@ -19,8 +19,8 @@ namespace movies {
 
 	page_link_plugin_impl::~page_link_plugin_impl() = default;
 
-	page_link_plugin_impl::page_link_plugin_impl(string const& prefix)
-	    : prefix_{prefix} {}
+	page_link_plugin_impl::page_link_plugin_impl(string&& prefix)
+	    : prefix_{std::move(prefix)} {}
 
 	std::vector<link> page_link_plugin_impl::page_links_impl(
 	    extended_info const& data) const {

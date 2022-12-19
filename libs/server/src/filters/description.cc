@@ -22,7 +22,9 @@ namespace movies::description {
 			struct string_set {
 				std::set<std::string, std::less<>> items;
 
-				bool is_valid() const noexcept { return !items.empty(); }
+				[[nodiscard]] bool is_valid() const noexcept {
+					return !items.empty();
+				}
 
 				void apply(std::vector<string> const& src) {
 					for (auto const& item : src) {
@@ -34,8 +36,8 @@ namespace movies::description {
 					}
 				}
 
-				filter make_filter(std::string const& field,
-				                   app::lng label) const {
+				[[nodiscard]] filter make_filter(std::string const& field,
+				                                 app::lng label) const {
 					return tokens_filter{
 					    .field = field,
 					    .label = label,
@@ -48,13 +50,15 @@ namespace movies::description {
 			struct range_stats {
 				struct range {
 					Value lowest, highest;
-					bool is_valid() const noexcept { return lowest != highest; }
+					[[nodiscard]] bool is_valid() const noexcept {
+						return lowest != highest;
+					}
 				};
 
 				std::optional<range> value;
 				bool is_optional{false};
 
-				bool is_valid() const noexcept {
+				[[nodiscard]] bool is_valid() const noexcept {
 					return value && value->is_valid();
 				}
 
@@ -78,9 +82,9 @@ namespace movies::description {
 						value->highest = acc;
 				}
 
-				filter make_filter(std::string const& field,
-				                   app::lng label,
-				                   unsigned step) const {
+				[[nodiscard]] filter make_filter(std::string const& field,
+				                                 app::lng label,
+				                                 unsigned step) const {
 					return range_filter{
 					    .field = field,
 					    .label = label,
@@ -91,9 +95,10 @@ namespace movies::description {
 					};
 				}
 
-				filter make_filter(std::string const& field,
-				                   app::lng label,
-				                   std::vector<unsigned> const& steps) const {
+				[[nodiscard]] filter make_filter(
+				    std::string const& field,
+				    app::lng label,
+				    std::vector<unsigned> const& steps) const {
 					return range_filter{
 					    .field = field,
 					    .label = label,
@@ -109,13 +114,16 @@ namespace movies::description {
 				bool has_true{false};
 				bool has_false{false};
 
-				bool is_valid() const noexcept { return has_true && has_false; }
+				[[nodiscard]] bool is_valid() const noexcept {
+					return has_true && has_false;
+				}
 
 				void apply(bool src) { (src ? has_true : has_false) = true; }
 
-				filter make_filter(std::string const& field,
-				                   app::lng label,
-				                   app::lng opposite_label) const {
+				[[nodiscard]] filter make_filter(
+				    std::string const& field,
+				    app::lng label,
+				    app::lng opposite_label) const {
 					return description::on_off_filter{
 					    .field = field,
 					    .label = label,
@@ -126,10 +134,11 @@ namespace movies::description {
 			};
 
 			struct monostate {
-				bool is_valid() const noexcept { return false; }
+				[[nodiscard]] bool is_valid() const noexcept { return false; }
 			};
 
-#define X_RANGE_STG(NAME, TYPE, LABEL) range_stats<TYPE> NAME{};
+#define X_RANGE_STG(NAME, TYPE, LABEL) \
+	range_stats<TYPE> NAME{};  // NOLINT(bugprone-macro-parentheses)
 #define X_TAGS_STG(NAME, LABEL) string_set NAME{};
 #define X_ON_OFF_STG(NAME, LABEL) bool_stats NAME{0};
 			TRIPLET(STG)
@@ -147,25 +156,33 @@ namespace movies::description {
 				filter_list.reserve(count_of(TRIPLET(NAME) monostate{}));
 
 #define X_RANGE_MAKE_FILTER(NAME, TYPE, LABEL) \
-	if (NAME.is_valid())                       \
+	if ((NAME).is_valid())                     \
 		filter_list.push_back(                 \
-		    NAME.make_filter(#NAME##s, app::LABEL, NAME##_steps()));
+		    (NAME).make_filter(#NAME##s, app::LABEL, NAME##_steps()));
 #define X_TAGS_MAKE_FILTER(NAME, LABEL) \
-	if (NAME.is_valid())                \
-		filter_list.push_back(NAME.make_filter(#NAME##s, app::LABEL));
+	if ((NAME).is_valid())              \
+		filter_list.push_back((NAME).make_filter(#NAME##s, app::LABEL));
 #define X_ON_OFF_MAKE_FILTER(NAME, LABEL) \
-	if (NAME.is_valid())                  \
+	if ((NAME).is_valid())                \
 		filter_list.push_back(            \
-		    NAME.make_filter(#NAME##s, app::LABEL, app::LABEL##_OPOSITE));
+		    (NAME).make_filter(#NAME##s, app::LABEL, app::LABEL##_OPOSITE));
 				TRIPLET(MAKE_FILTER);
 
 				return filter_list;
 			}
 
 		private:
-			static inline unsigned year_steps() noexcept { return 1; }
-			static inline unsigned runtime_steps() noexcept { return 10; }
-			static inline unsigned rating_steps() noexcept { return 10; }
+			static constexpr auto generic_steps_value = 10;
+			static inline unsigned year_steps() noexcept {
+				static constexpr auto yearly_steps_value = 1;
+				return yearly_steps_value;
+			}
+			static inline unsigned runtime_steps() noexcept {
+				return generic_steps_value;
+			}
+			static inline unsigned rating_steps() noexcept {
+				return generic_steps_value;
+			}
 			static inline unsigned arrival_steps() noexcept {
 				static constexpr auto day = 24h;
 				static constexpr auto week = 7 * day;
@@ -187,7 +204,7 @@ namespace movies::description {
 
 			template <typename... Filters>
 			static size_t count_of(Filters const&... filter) {
-				return ((filter.is_valid() ? 1u : 0u) + ...);
+				return ((filter.is_valid() ? 1U : 0U) + ...);
 			}
 		};
 	}  // namespace

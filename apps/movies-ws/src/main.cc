@@ -44,12 +44,12 @@ void setup_breaks(movies::service& service) {
 }
 
 #else
-#include <signal.h>
+#include <signal.h>  // NOLINT(modernize-deprecated-headers)
 
 std::filesystem::path exec_path() {
 	using namespace std::literals;
 	std::error_code ec;
-	static constexpr std::string_view self_links[] = {
+	static constexpr std::array self_links = {
 	    "/proc/self/exe"sv,
 	    "/proc/curproc/file"sv,
 	    "/proc/curproc/exe"sv,
@@ -63,14 +63,15 @@ std::filesystem::path exec_path() {
 	return {};     // GCOV_EXCL_LINE[POSIX]
 }
 
-static movies::service* ptr;
+static movies::service* ptr;  // NOLINT
 
 void install(int sig, void signal_handler(int)) {
-	struct sigaction handler;
+	struct sigaction handler;  // NOLINT(cppcoreguidelines-pro-type-member-init)
 	memset(&handler, 0, sizeof(handler));
-	handler.sa_handler = signal_handler;
+	handler.sa_handler =  // NOLINT(cppcoreguidelines-pro-type-union-access)
+	    signal_handler;
 	sigfillset(&handler.sa_mask);
-	::sigaction(sig, &handler, 0);
+	::sigaction(sig, &handler, nullptr);
 }
 
 void setup_breaks(movies::service& service) {
@@ -134,7 +135,7 @@ int main(int argc, char** argv) {
 	SetConsoleOutputCP(CP_UTF8);
 #endif
 
-	unsigned short port{9876};
+	unsigned short port{9876};  // NOLINT(readability-magic-numbers)
 	movies::service_cfg cfg{};
 
 	{
@@ -158,7 +159,7 @@ int main(int argc, char** argv) {
 		cfg = load(cfg_path);
 	}
 
-	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, NULL);
+	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
 	lwsl_user("movies-ws version %s\n", version::string_ui);
 
 	movies::server backend{};

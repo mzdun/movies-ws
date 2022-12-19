@@ -30,7 +30,7 @@ namespace movies {
 			using arg_t = unsigned;
 
 			static std::optional<unsigned> conv(std::string_view term) {
-				unsigned result;
+				unsigned result{};
 				if (!parse(term, result)) return std::nullopt;
 				return result;
 			}
@@ -66,7 +66,8 @@ namespace movies {
 		public:
 			explicit term_filter(Value term) : term_{move_if_needed(term)} {}
 
-			bool matches(extended_info const& data) const noexcept final {
+			[[nodiscard]] bool matches(
+			    extended_info const& data) const noexcept final {
 				return contains(data, term_);
 			}
 
@@ -78,7 +79,7 @@ namespace movies {
 			}
 
 		private:
-			virtual bool contains(
+			[[nodiscard]] virtual bool contains(
 			    extended_info const&,
 			    typename conv_term<Value>::arg_t) const noexcept = 0;
 
@@ -90,8 +91,9 @@ namespace movies {
 			using term_filter<std::u8string>::term_filter;
 
 		private:
-			bool contains(extended_info const& data,
-			              std::u8string_view term) const noexcept final {
+			[[nodiscard]] bool contains(
+			    extended_info const& data,
+			    std::u8string_view term) const noexcept final {
 				auto const& list = access(data);
 
 				for (auto const& item : list) {
@@ -101,7 +103,7 @@ namespace movies {
 				return false;
 			}
 
-			virtual std::vector<std::u8string> const& access(
+			[[nodiscard]] virtual std::vector<std::u8string> const& access(
 			    extended_info const&) const noexcept = 0;
 		};
 
@@ -110,13 +112,13 @@ namespace movies {
 			using term_filter<unsigned>::term_filter;
 
 		private:
-			bool contains(extended_info const& data,
-			              unsigned term) const noexcept final {
+			[[nodiscard]] bool contains(extended_info const& data,
+			                            unsigned term) const noexcept final {
 				auto const field = access(data);
 				return field && *field == term;
 			}
 
-			virtual std::optional<unsigned> access(
+			[[nodiscard]] virtual std::optional<unsigned> access(
 			    extended_info const&) const noexcept = 0;
 		};
 
@@ -125,8 +127,9 @@ namespace movies {
 			using term_filter<std::string>::term_filter;
 
 		private:
-			bool contains(extended_info const& data,
-			              std::string_view term) const noexcept final {
+			[[nodiscard]] bool contains(
+			    extended_info const& data,
+			    std::string_view term) const noexcept final {
 				for (auto const& ref : data.local_people_refs) {
 					if (ref == term) return true;
 				}
@@ -179,8 +182,7 @@ namespace movies {
 	    term_filter<TYPE>::factory<ACCESS##_term_filter>, \
 	},
 
-		static constexpr term_filter_info term_filters[] = {
-		    TERM_FILTER(X_INFO)};
+		constexpr term_filter_info term_filters[] = {TERM_FILTER(X_INFO)};
 	}  // namespace
 
 	filter::ptr filter::make_term(std::string_view cat, std::string_view term) {

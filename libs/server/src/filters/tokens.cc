@@ -17,7 +17,8 @@ namespace movies {
 			token_filter(std::vector<std::string>&& tokens)
 			    : tokens_{std::move(tokens)} {}
 
-			bool matches(extended_info const& data) const noexcept final {
+			[[nodiscard]] bool matches(
+			    extended_info const& data) const noexcept final {
 				if (tokens_.empty()) return true;
 
 				auto const& items = access(data);
@@ -42,7 +43,7 @@ namespace movies {
 			}
 
 		private:
-			virtual std::vector<std::u8string> const& access(
+			[[nodiscard]] virtual std::vector<std::u8string> const& access(
 			    extended_info const&) const noexcept = 0;
 			std::vector<std::string> tokens_{};
 		};
@@ -72,8 +73,7 @@ namespace movies {
 			filter::ptr (*make)(std::vector<std::string>&& tokens);
 		};
 
-		static constexpr token_filter_info token_filters[] = {
-		    TOKEN_FILTER(X_INFO)};
+		constexpr token_filter_info token_filters[] = {TOKEN_FILTER(X_INFO)};
 	}  // namespace
 
 	filter::ptr filter::make_tokens(std::string_view field,
