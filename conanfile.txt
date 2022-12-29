@@ -1,14 +1,14 @@
 [requires]
-fmt/8.1.1
+fmt/9.1.0
 date/3.0.1
 gtest/cci.20210126
-protobuf/3.21.4
+protobuf/3.21.9
 libwebsockets/4.3.2
-icu/71.1
-sqlitecpp/3.2.0
+icu/72.1
+sqlitecpp/3.2.1
 mbits-args/0.12.3
 mbits-utfconv/1.0.3
-mbits-lngs/0.7.2
+mbits-lngs/0.7.4
 
 libcurl/7.85.0
 zlib/1.2.13
@@ -19,5 +19,4 @@ sqlite3:enable_fts5 = True
 libwebsockets:enable_ranges = True
 
 [generators]
-cmake
-cmake_find_package_multi
+CMakeDeps

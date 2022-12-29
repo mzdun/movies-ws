@@ -19,18 +19,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CONAN_CMAKE_SILENT_OUTPUT TRUE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-include(conanbuildinfo)
-conan_basic_setup(TARGETS)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(Libwebsockets CONFIG REQUIRED)
 find_package(ICU CONFIG REQUIRED)
 find_package(SQLiteCpp CONFIG REQUIRED)
 find_package(mbits-lngs CONFIG REQUIRED)
 find_package(mbits-utfconv CONFIG REQUIRED)
-find_package(args REQUIRED)
+find_package(mbits-args REQUIRED)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
-find_program(LNGS_EXEC lngs HINTS ${CONAN_BIN_DIRS} REQUIRED)
+set(LNGS_BINDIRS)
+foreach(BUILD_MODE RELEASE DEBUG)
+  list(APPEND LNGS_BINDIRS "${mbits-lngs_PACKAGE_FOLDER_${BUILD_MODE}}/bin")
+endforeach()
+
+find_program(LNGS_EXEC lngs HINTS ${LNGS_BINDIRS} REQUIRED)
+message(STATUS "lngs: ${LNGS_EXEC}")
 
 set(STAGING "${CMAKE_BINARY_DIR}/staging/${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
 
@@ -95,7 +99,7 @@ enable_testing()
 set(PLUGINS)
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" "clang-tidy-12")
-message(STATUS "clan-tidy: ${CLANG_TIDY_EXE}")
+message(STATUS "clang-tidy: ${CLANG_TIDY_EXE}")
 
 set(CLANG_TIDY_OMIT
   abseil-*

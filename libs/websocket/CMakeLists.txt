@@ -103,7 +103,7 @@ target_include_directories(websocket
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(websocket PUBLIC proto Libwebsockets::websockets server)
+target_link_libraries(websocket PUBLIC proto websockets server)
 target_compile_options(websocket PRIVATE ${ADDITIONAL_WALL_FLAGS})
 
 if (UNIX AND NOT APPLE)

@@ -157,8 +157,8 @@ target_include_directories(server
 )
 target_link_libraries(server PUBLIC
     ICU::data ICU::uc ICU::i18n
-    SQLiteCpp::SQLiteCpp
-    mbits-lngs::lngs mbits::utfconv
+    SQLiteCpp
+    mbits::lngs mbits::utfconv
     browser movies)
 target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(DIRECTORY "${BIN_DIR}/lngs" TYPE BIN)
