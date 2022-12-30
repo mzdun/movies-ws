@@ -20,3 +20,4 @@ libwebsockets:enable_ranges = True
 
 [generators]
 CMakeDeps
+CMakeToolchain

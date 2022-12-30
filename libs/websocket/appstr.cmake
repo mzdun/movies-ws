@@ -4,7 +4,7 @@ set(LNGS_FILE "${DATA_DIR}/strings/webapp.lngs")
 
 function(add_idl_mustache OUTPUT MUSTACHE)
     add_custom_command(OUTPUT "${OUTPUT}"
-        COMMAND "${LNGS_EXEC}"
+        COMMAND mbits::lngs
         ARGS mustache
             "${LNGS_FILE}"
             -o "${OUTPUT}"

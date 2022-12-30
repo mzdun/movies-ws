@@ -1,5 +1,7 @@
 include(appstr.cmake)
 set(JSAPI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../extras/jsapi")
+get_filename_component(JSAPI_DIR "${JSAPI_DIR}" ABSOLUTE)
+
 file(GLOB JSAPI_FILES ${JSAPI_DIR}/lib/*.ts ${JSAPI_DIR}/lib/proto/bundle.*)
 
 option(WITH_JSAPI "Should building the server also build jsapi")

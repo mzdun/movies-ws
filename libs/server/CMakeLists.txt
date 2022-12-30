@@ -39,10 +39,12 @@ else()
 endif()
 
 set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../data")
+get_filename_component(DATA_DIR "${DATA_DIR}" ABSOLUTE)
 
 set(LNGS_DIR "${DATA_DIR}/strings")
 set(TR_DIR "${DATA_DIR}/translations")
 set(BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../bin")
+get_filename_component(BIN_DIR "${BIN_DIR}" ABSOLUTE)
 
 set(LNG_SOURCES server tags regions webapp)
 
@@ -77,7 +79,7 @@ source_group(TREE ${DATA_DIR} FILES ${DATA_SRCS} PREFIX data)
 foreach(LNG_SOURCE ${LNG_SOURCES})
     set(__LNGS_FILES "${LNGS_DIR}/${LNG_SOURCE}.lngs")
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
-    COMMAND "${LNGS_EXEC}"
+    COMMAND mbits::lngs
     ARGS res
         "${__LNGS_FILES}"
         --include "${LNG_SOURCE}/lngs.hh"
@@ -87,7 +89,7 @@ foreach(LNG_SOURCE ${LNG_SOURCES})
     VERBATIM)
 
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}/lngs.hh"
-    COMMAND "${LNGS_EXEC}"
+    COMMAND mbits::lngs
     ARGS enums
         "${__LNGS_FILES}"
         --resource 
@@ -96,7 +98,7 @@ foreach(LNG_SOURCE ${LNG_SOURCES})
     VERBATIM)
 
     add_custom_command(OUTPUT "${TR_DIR}/${LNG_SOURCE}.pot"
-        COMMAND "${LNGS_EXEC}"
+        COMMAND mbits::lngs
         ARGS pot "${__LNGS_FILES}" -o "${TR_DIR}/${LNG_SOURCE}.pot" -a "marcin.zdun@midnightbits.com"
         DEPENDS "${__LNGS_FILES}"
         VERBATIM)
@@ -108,7 +110,7 @@ foreach(LNG_SOURCE ${LNG_SOURCES})
             message(STATUS "${__po} -> ${__lng}")
 
             add_custom_command(OUTPUT "${__lng}"
-                COMMAND "${LNGS_EXEC}"
+                COMMAND mbits::lngs
                 ARGS make
                 "${__LNGS_FILES}"
                 -o "${__lng}"
@@ -158,7 +160,7 @@ target_include_directories(server
 target_link_libraries(server PUBLIC
     ICU::data ICU::uc ICU::i18n
     SQLiteCpp
-    mbits::lngs mbits::utfconv
+    mbits::liblngs mbits::utfconv
     browser movies)
 target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(DIRECTORY "${BIN_DIR}/lngs" TYPE BIN)

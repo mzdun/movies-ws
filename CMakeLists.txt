@@ -11,13 +11,13 @@ set(PROJECT_VERSION_STABILITY "" # or "-alpha", or "-beta", or "-rc.1", or "-rc.
 
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/conan")
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}/conan")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CONAN_CMAKE_SILENT_OUTPUT TRUE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+include(output-dirs)
 
 find_package(Protobuf CONFIG REQUIRED)
 find_package(Libwebsockets CONFIG REQUIRED)
@@ -27,14 +27,6 @@ find_package(mbits-lngs CONFIG REQUIRED)
 find_package(mbits-utfconv CONFIG REQUIRED)
 find_package(mbits-args REQUIRED)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
-
-set(LNGS_BINDIRS)
-foreach(BUILD_MODE RELEASE DEBUG)
-  list(APPEND LNGS_BINDIRS "${mbits-lngs_PACKAGE_FOLDER_${BUILD_MODE}}/bin")
-endforeach()
-
-find_program(LNGS_EXEC lngs HINTS ${LNGS_BINDIRS} REQUIRED)
-message(STATUS "lngs: ${LNGS_EXEC}")
 
 set(STAGING "${CMAKE_BINARY_DIR}/staging/${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
 
