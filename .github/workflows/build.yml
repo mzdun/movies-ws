@@ -48,6 +48,9 @@ jobs:
       with:
          submodules: true
 
+    - name: CMake version
+      run: cmake --version
+
     - name: Conanfile hash
       run: |
         echo ${{ hashFiles('conanfile.txt') }}
