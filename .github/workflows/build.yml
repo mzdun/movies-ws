@@ -29,10 +29,12 @@ jobs:
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
+            conan_profile: release
             cpack_generator: TGZ
             # Windows Release
           - os: windows-latest
             build_type: Release
+            conan_profile: release
             cpack_generator: ZIP
 
     env:
@@ -71,17 +73,22 @@ jobs:
 
     - name: Configure Conan
       run: |
-        conan profile new default --detect
+        conan profile new release --detect
+        conan profile new debug --detect
+        conan profile update build_type=Release release
+        conan profile update build_type=Debug debug
         conan remote add mbits-conan https://mbits.jfrog.io/artifactory/api/conan/mbits-conan
         conan user -p ${{ secrets.JFROG_KEY }} -r mbits-conan ${{ secrets.JFROG_USER }}
     - name: Configure Conan (GCC C++11 library)
       if: ${{ matrix.ubuntu }}
       run: |
-        conan profile update settings.compiler.libcxx=libstdc++11 default
+        conan profile update settings.compiler.libcxx=libstdc++11 release
+        conan profile update settings.compiler.libcxx=libstdc++11 debug
     - name: Configure Conan (MSVC/MD)
       if: ${{ matrix.windows }}
       run: |
-        conan profile update settings.compiler.runtime=MD default
+        conan profile update settings.compiler.runtime=MD release
+        conan profile update settings.compiler.runtime=MDd debug
 
     - name: Conan cache
       uses: actions/cache@v3
@@ -94,7 +101,7 @@ jobs:
 
     - name: Get Conan packages
       working-directory: ${{github.workspace}}/build/conan
-      run: conan install ../.. --build missing -s build_type=${{env.BUILD_TYPE}}
+      run: conan install ../.. --build missing -pr:b=${{matrix.conan_profile}} -pr:h=${{matrix.conan_profile}}
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
