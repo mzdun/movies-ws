@@ -9,6 +9,7 @@ set(PROJECT_VERSION_SHORT "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 set(PROJECT_VERSION_STABILITY "" # or "-alpha", or "-beta", or "-rc.1", or "-rc.2"
     CACHE STRING "" FORCE)
 
+set(MOVIES_TIDY OFF CACHE BOOL "Use clang-tidy")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -90,56 +91,60 @@ enable_testing()
 
 set(PLUGINS)
 
-find_program(CLANG_TIDY_EXE NAMES "clang-tidy" "clang-tidy-12")
-message(STATUS "clang-tidy: ${CLANG_TIDY_EXE}")
+if (MOVIES_TIDY)
+  find_program(CLANG_TIDY_EXE NAMES "clang-tidy" "clang-tidy-12")
+  message(STATUS "clang-tidy: ${CLANG_TIDY_EXE}")
 
-set(CLANG_TIDY_OMIT
-  abseil-*
-  altera-*
-  android-*
-  boost-*
-  darwin-*
-  fuchsia-*
-  google-*
-  hicpp-*
-  linuxkernel-*
-  llvm-*
-  llvmlibc-*
-  mpi-*
-  objc-*
-  zircon-*
+  set(CLANG_TIDY_OMIT
+    abseil-*
+    altera-*
+    android-*
+    boost-*
+    darwin-*
+    fuchsia-*
+    google-*
+    hicpp-*
+    linuxkernel-*
+    llvm-*
+    llvmlibc-*
+    mpi-*
+    objc-*
+    zircon-*
 
-  clang-diagnostic-gnu-zero-variadic-macro-arguments
-  misc-non-private-member-variables-in-classes
-  readability-braces-around-statements
-  readability-implicit-bool-conversion
-  readability-named-parameter
-  readability-use-anyofallof
-  readability-convert-member-functions-to-static
-  readability-qualified-auto
-  readability-function-cognitive-complexity
-  cppcoreguidelines-macro-usage
-  cppcoreguidelines-avoid-magic-numbers
-  cppcoreguidelines-avoid-c-arrays
-  cppcoreguidelines-pro-*
-  modernize-use-trailing-return-type
-  modernize-avoid-c-arrays
-  modernize-use-nullptr
+    clang-diagnostic-gnu-zero-variadic-macro-arguments
+    misc-non-private-member-variables-in-classes
+    readability-braces-around-statements
+    readability-implicit-bool-conversion
+    readability-named-parameter
+    readability-use-anyofallof
+    readability-convert-member-functions-to-static
+    readability-qualified-auto
+    readability-function-cognitive-complexity
+    cppcoreguidelines-macro-usage
+    cppcoreguidelines-avoid-magic-numbers
+    cppcoreguidelines-avoid-c-arrays
+    cppcoreguidelines-pro-*
+    modernize-use-trailing-return-type
+    modernize-avoid-c-arrays
+    modernize-use-nullptr
 
-  clang-analyzer-*
-)
-string(REPLACE ";" ",-" CLANG_TIDY_OMIT "${CLANG_TIDY_OMIT}")
-set(CLANG_TIDY_COMMAND
-  ${CLANG_TIDY_EXE}
-  -extra-arg=-std=c++2b
-  --use-color
-  -checks=*,-${CLANG_TIDY_OMIT})
+    clang-analyzer-*
+  )
+  string(REPLACE ";" ",-" CLANG_TIDY_OMIT "${CLANG_TIDY_OMIT}")
+  set(CLANG_TIDY_COMMAND
+    ${CLANG_TIDY_EXE}
+    -extra-arg=-std=c++2b
+    --use-color
+    -checks=*,-${CLANG_TIDY_OMIT})
+endif()
 
 add_subdirectory(libs)
 add_subdirectory(extras)
 add_subdirectory(apps)
 
-set_target_properties(server movies-ws websocket PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+if (MOVIES_TIDY)
+  set_target_properties(server movies-ws websocket PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
 
 include(prepare_pack)
 configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)
