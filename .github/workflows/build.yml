@@ -20,12 +20,12 @@ jobs:
           - os: ubuntu-latest
             ubuntu: true
             home: /home/runner
-            latest_conan_hash: 27765cdf6063bf1846425b0b3c9d14c15fd4011ff2acbf25aa9802f7730a595f
+            latest_conan_hash: 2201c342a28c9c0629f72b66d12427fcb3dfa79412e47a41167d1e80c5b724c6
             # Windows ANY
           - os: windows-latest
             windows: true
             home: C:/Users/runneradmin
-            latest_conan_hash: baf7bef17bec4186d3241d3afbf680ced6ce6ce0d8ce087a7c5734d0be44efd6
+            latest_conan_hash: f818b75116ee4a3e3f30114d81f7091e6c9713c83ad849d59f0b15a04e373ece
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
