@@ -114,4 +114,4 @@ jobs:
       if: ${{ matrix.cpack_generator != '' }}
       with:
         name: Packages
-        path: ${{github.workspace}}/build/packages/cov-*
+        path: ${{github.workspace}}/build/packages/movies-*

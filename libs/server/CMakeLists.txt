@@ -76,26 +76,37 @@ source_group(TREE ${CMAKE_CURRENT_BINARY_DIR} FILES ${GEN_SRCS} PREFIX gen)
 source_group(TREE ${BIN_DIR} FILES ${BIN_SRCS} PREFIX gen/bin)
 source_group(TREE ${DATA_DIR} FILES ${DATA_SRCS} PREFIX data)
 
-foreach(LNG_SOURCE ${LNG_SOURCES})
-    set(__LNGS_FILES "${LNGS_DIR}/${LNG_SOURCE}.lngs")
-    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
-    COMMAND mbits::lngs
-    ARGS res
-        "${__LNGS_FILES}"
-        --include "${LNG_SOURCE}/lngs.hh"
-        -o "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
-        -w
-    DEPENDS "${__LNGS_FILES}"
+add_custom_command(OUTPUT "${BIN_DIR}/lngs"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_DIR}/lngs"
     VERBATIM)
 
+foreach(LNG_SOURCE ${LNG_SOURCES})
+    set(__LNGS_FILES "${LNGS_DIR}/${LNG_SOURCE}.lngs")
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}"
+        VERBATIM)
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}"
+        VERBATIM)
+
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
+        COMMAND mbits::lngs
+        ARGS res
+            "${__LNGS_FILES}"
+            --include "${LNG_SOURCE}/lngs.hh"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}/resources.cc"
+            -w
+        DEPENDS "${__LNGS_FILES}" "${CMAKE_CURRENT_BINARY_DIR}/src/${LNG_SOURCE}"
+        VERBATIM)
+
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}/lngs.hh"
-    COMMAND mbits::lngs
-    ARGS enums
-        "${__LNGS_FILES}"
-        --resource 
-        -o "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}/lngs.hh"
-    DEPENDS "${__LNGS_FILES}"
-    VERBATIM)
+        COMMAND mbits::lngs
+        ARGS enums
+            "${__LNGS_FILES}"
+            --resource
+            -o "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}/lngs.hh"
+        DEPENDS "${__LNGS_FILES}" "${CMAKE_CURRENT_BINARY_DIR}/inc/${LNG_SOURCE}"
+        VERBATIM)
 
     add_custom_command(OUTPUT "${TR_DIR}/${LNG_SOURCE}.pot"
         COMMAND mbits::lngs
@@ -116,7 +127,7 @@ foreach(LNG_SOURCE ${LNG_SOURCES})
                 -o "${__lng}"
                 --msgs "${__po}"
                 --lang "${TR_DIR}/llcc.txt"
-                DEPENDS ${__po} "${__LNGS_FILES}"
+                DEPENDS ${__po} "${__LNGS_FILES}" "${BIN_DIR}/lngs"
                 VERBATIM)
         endif()
     endforeach()
