@@ -70,6 +70,7 @@ jobs:
       run: |
         conan profile new default --detect
         conan remote add mbits-conan https://mbits.jfrog.io/artifactory/api/conan/mbits-conan
+        conan user -p ${{ secrets.JFROG_KEY }} -r mbits-conan ${{ secrets.JFROG_USER }}
     - name: Configure Conan (GCC C++11 library)
       if: ${{ matrix.ubuntu }}
       run: |
