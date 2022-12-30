@@ -22,7 +22,7 @@ jobs:
           - os: windows-latest
             windows: true
             home: C:/Users/runneradmin
-            latest_conan_hash: 8c1370b4796ea7399cc31d9b362e5ec2532c434e75ed721cfbed7e3425f33b60
+            latest_conan_hash: baf7bef17bec4186d3241d3afbf680ced6ce6ce0d8ce087a7c5734d0be44efd6
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
@@ -66,16 +66,19 @@ jobs:
       id: conan
       uses: turtlebrowser/get-conan@main
 
+    - name: Configure Conan
+      run: |
+        conan profile new default --detect
+        conan remote add mbits-conan https://mbits.jfrog.io/artifactory/api/conan/mbits-conan
     - name: Configure Conan (GCC C++11 library)
       if: ${{ matrix.ubuntu }}
       run: |
-        conan profile new default --detect
         conan profile update settings.compiler.libcxx=libstdc++11 default
     - name: Configure Conan (MSVC/MD)
       if: ${{ matrix.windows }}
       run: |
-        conan profile new default --detect
         conan profile update settings.compiler.runtime=MD default
+
     - name: Conan cache
       uses: actions/cache@v3
       id: cache
@@ -84,7 +87,8 @@ jobs:
         key: ${{ matrix.os }}-${{ matrix.build_type }}-${{ hashFiles('conanfile.txt') }}
         restore-keys: |
           ${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.latest_conan_hash }}
-    - name: Configure Conan
+
+    - name: Get Conan packages
       working-directory: ${{github.workspace}}/build/conan
       run: conan install ../.. --build missing -s build_type=${{env.BUILD_TYPE}}
 
