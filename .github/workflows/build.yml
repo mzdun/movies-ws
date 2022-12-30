@@ -29,12 +29,12 @@ jobs:
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
-            conan_profile: release
+            conan_profile: default
             cpack_generator: TGZ
             # Windows Release
           - os: windows-latest
             build_type: Release
-            conan_profile: release
+            conan_profile: default
             cpack_generator: ZIP
 
     env:
@@ -73,22 +73,17 @@ jobs:
 
     - name: Configure Conan
       run: |
-        conan profile new release --detect
-        conan profile new debug --detect
-        conan profile update settings.build_type=Release release
-        conan profile update settings.build_type=Debug debug
+        conan profile new default --detect
         conan remote add mbits-conan https://mbits.jfrog.io/artifactory/api/conan/mbits-conan
         conan user -p ${{ secrets.JFROG_KEY }} -r mbits-conan ${{ secrets.JFROG_USER }}
     - name: Configure Conan (GCC C++11 library)
       if: ${{ matrix.ubuntu }}
       run: |
-        conan profile update settings.compiler.libcxx=libstdc++11 release
-        conan profile update settings.compiler.libcxx=libstdc++11 debug
+        conan profile update settings.compiler.libcxx=libstdc++11 default
     - name: Configure Conan (MSVC/MD)
       if: ${{ matrix.windows }}
       run: |
         conan profile update settings.compiler.runtime=MD release
-        conan profile update settings.compiler.runtime=MDd debug
 
     - name: Conan cache
       uses: actions/cache@v3
