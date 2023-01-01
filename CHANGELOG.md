@@ -1,4 +1,10 @@
 
+## [0.4.1](https://github.com/mzdun/movies-ws/compare/v0.4.0...v0.4.1) (2023-01-01)
+
+### Bug Fixes
+
+- add and adapt to clang-tidy ([7438a59](https://github.com/mzdun/movies-ws/commit/7438a599bef1f270adfe1447aa4db2cdb0b7c679))
+
 ## [0.4.0](https://github.com/mzdun/movies-ws/compare/v0.3.0...v0.4.0) (2022-12-16)
 
 ### New Features
