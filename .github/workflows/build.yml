@@ -21,21 +21,21 @@ jobs:
             ubuntu: true
             home: /home/runner
             latest_conan_hash: 591cf06f8ba3177ad697a3c24f523d14b4854a2458461c9619160400f5a27668
-            # Windows ANY
-          - os: windows-latest
-            windows: true
-            home: C:/Users/runneradmin
-            latest_conan_hash: ae08c38291042d33cd9bea0e8e0cb180e208cc5cdcad249a6828cecc608ee20a
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
             cmake_profile: release-make
             cpack_generator: TGZ
-            # Windows Release
-          - os: windows-latest
-            build_type: Release
-            cmake_profile: release-vs22
-            cpack_generator: ZIP
+          #   # Windows ANY
+          # - os: windows-latest
+          #   windows: true
+          #   home: C:/Users/runneradmin
+          #   latest_conan_hash: ae08c38291042d33cd9bea0e8e0cb180e208cc5cdcad249a6828cecc608ee20a
+          #   # Windows Release
+          # - os: windows-latest
+          #   build_type: Release
+          #   cmake_profile: release-vs22
+          #   cpack_generator: ZIP
             # ANY Release
           - build_type: Release
             conan_profile: default
