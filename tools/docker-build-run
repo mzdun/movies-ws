@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cmake --build --preset release --parallel
+cpack -G TGZ -C Release --config build/release/CPackConfig.cmake
+cmake --build --preset release --parallel --target container
+docker run --rm -v "/home/marcin/code/movies-ws/build:/data" ghcr.io/mzdun/movies-ws:latest
