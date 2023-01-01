@@ -5,7 +5,6 @@ set(JSON_INSTALL OFF CACHE BOOL "Install the library")
 set(JSON_IGNORE_CONAN ON CACHE BOOL "Ignore conanbuildinfo")
 set(MOVIES_IGNORE_CONAN ON CACHE BOOL "Ignore conanbuildinfo")
 
-add_subdirectory(tangle)
 add_subdirectory(json)
 add_subdirectory(movies)
 add_subdirectory(server)

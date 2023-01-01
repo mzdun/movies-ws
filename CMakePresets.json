@@ -1,9 +1,47 @@
 {
-    "version": 4,
-    "vendor": {
-        "conan": {}
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 15,
+        "patch": 0
     },
-    "include": [
-        "./build/conan/CMakePresets.json"
-    ]
+    "configurePresets": [
+        {
+            "name": "release",
+            "displayName": "Release",
+            "description": "Release build",
+            "cacheVariables": {
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "toolchainFile": "${sourceDir}/build/conan/conan_toolchain.cmake",
+            "binaryDir": "${sourceDir}/build/release"
+        },
+        {
+            "name": "release-ninja",
+            "displayName": "Ninja",
+            "description": "Release build using Ninja generator",
+            "generator": "Ninja",
+            "inherits": [
+                "release"
+            ]
+        },
+        {
+            "name": "release-vs22",
+            "displayName": "Visual Studio 2022",
+            "description": "Release build using Visual Studio 2022 generator",
+            "generator": "Visual Studio 17 2022",
+            "inherits": [
+                "release"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "configuration": "Release"
+        }
+    ],
+    "testPresets": []
 }

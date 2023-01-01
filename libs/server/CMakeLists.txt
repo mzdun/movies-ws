@@ -172,6 +172,6 @@ target_link_libraries(server PUBLIC
     ICU::data ICU::uc ICU::i18n
     SQLiteCpp
     mbits::liblngs mbits::utfconv
-    browser movies)
+    tangle::tangle movies)
 target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(DIRECTORY "${BIN_DIR}/lngs" TYPE BIN)

@@ -9,8 +9,9 @@ sqlitecpp/3.2.1
 mbits-args/0.12.3
 mbits-utfconv/1.0.3
 mbits-lngs/0.7.4
+tangle/0.2.1
 
-libcurl/7.85.0
+libcurl/7.86.0
 zlib/1.2.13
 openssl/1.1.1q
 
