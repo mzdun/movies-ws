@@ -80,8 +80,8 @@ void setup_breaks(movies::service& service) {
 		lwsl_warn("signal intercepted\n");
 		ptr->stop();
 	};
-	install(SIGINT, handler);
-	install(SIGTERM, handler);
+	install(SIGINT, handler);   // ^C
+	install(SIGTERM, handler);  // docker stop
 }
 
 #endif
