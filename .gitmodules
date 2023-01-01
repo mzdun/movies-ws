@@ -4,6 +4,3 @@
 [submodule "libs/movies"]
 	path = libs/movies
 	url = https://github.com/mbits-libs/movies.git
-[submodule "external/tangle"]
-	path = libs/tangle
-	url = https://github.com/mbits-os/tangle.git
