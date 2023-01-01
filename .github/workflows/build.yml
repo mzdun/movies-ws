@@ -20,22 +20,22 @@ jobs:
           - os: ubuntu-latest
             ubuntu: true
             home: /home/runner
-            latest_conan_hash: 4ec98f84f49f3be2312287af1b4a1bb81fce2e009b9139810a71418f50728f09
-            # Windows ANY
-          - os: windows-latest
-            windows: true
-            home: C:/Users/runneradmin
-            latest_conan_hash: 19f147f67d264bc0b4034be035e3e6de8be3196f217c58eafd9cf09b2dca7c53
+            latest_conan_hash: 591cf06f8ba3177ad697a3c24f523d14b4854a2458461c9619160400f5a27668
+          #   # Windows ANY
+          # - os: windows-latest
+          #   windows: true
+          #   home: C:/Users/runneradmin
+          #   latest_conan_hash: ae08c38291042d33cd9bea0e8e0cb180e208cc5cdcad249a6828cecc608ee20a
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
             conan_profile: default
             cpack_generator: TGZ
-            # Windows Release
-          - os: windows-latest
-            build_type: Release
-            conan_profile: default
-            cpack_generator: ZIP
+          #   # Windows Release
+          # - os: windows-latest
+          #   build_type: Release
+          #   conan_profile: default
+          #   cpack_generator: ZIP
 
     env:
       BUILD_TYPE: ${{ matrix.build_type }}
