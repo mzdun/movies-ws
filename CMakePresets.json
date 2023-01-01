@@ -27,6 +27,15 @@
             ]
         },
         {
+            "name": "release-make",
+            "displayName": "Makefile",
+            "description": "Release build using Unix Makefiles generator",
+            "generator": "Unix Makefiles",
+            "inherits": [
+                "release"
+            ]
+        },
+        {
             "name": "release-vs22",
             "displayName": "Visual Studio 2022",
             "description": "Release build using Visual Studio 2022 generator",
@@ -39,6 +48,7 @@
     "buildPresets": [
         {
             "name": "release",
+            "displayName": "Build for Release",
             "configurePreset": "release",
             "configuration": "Release"
         }

@@ -21,21 +21,27 @@ jobs:
             ubuntu: true
             home: /home/runner
             latest_conan_hash: 591cf06f8ba3177ad697a3c24f523d14b4854a2458461c9619160400f5a27668
-          #   # Windows ANY
-          # - os: windows-latest
-          #   windows: true
-          #   home: C:/Users/runneradmin
-          #   latest_conan_hash: ae08c38291042d33cd9bea0e8e0cb180e208cc5cdcad249a6828cecc608ee20a
+            # Windows ANY
+          - os: windows-latest
+            windows: true
+            home: C:/Users/runneradmin
+            latest_conan_hash: ae08c38291042d33cd9bea0e8e0cb180e208cc5cdcad249a6828cecc608ee20a
             # Ubuntu Release
           - os: ubuntu-latest
             build_type: Release
-            conan_profile: default
+            cmake_profile: release-make
             cpack_generator: TGZ
-          #   # Windows Release
-          # - os: windows-latest
-          #   build_type: Release
-          #   conan_profile: default
-          #   cpack_generator: ZIP
+            # Windows Release
+          - os: windows-latest
+            build_type: Release
+            cmake_profile: release-vs22
+            cpack_generator: ZIP
+            # ANY Release
+          - build_type: Release
+            conan_profile: default
+            cmake_build_profile: release
+        exclude:
+          - os: windows-latest
 
     env:
       BUILD_TYPE: ${{ matrix.build_type }}
@@ -99,15 +105,15 @@ jobs:
       run: conan install ../.. --build missing -pr:b=${{matrix.conan_profile}} -pr:h=${{matrix.conan_profile}}
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/build/conan/conan_toolchain.cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
+      run: cmake --preset ${{matrix.cmake_profile}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build --preset ${{matrix.cmake_build_profile}} --parallel
 
     - name: Pack
       if: ${{ matrix.cpack_generator != '' }}
-      working-directory: ${{github.workspace}}/build
-      run: cpack -G ${{ matrix.cpack_generator }}
+      working-directory: ${{github.workspace}}/build/${{matrix.cmake_build_profile}}
+      run: cpack -G ${{ matrix.cpack_generator }} -C ${{ matrix.build_type }}
 
     - name: Upload packages
       uses: actions/upload-artifact@v3
