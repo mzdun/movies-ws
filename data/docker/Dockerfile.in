@@ -1,5 +1,10 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:20.04
+
+LABEL org.opencontainers.image.source=https://github.com/mzdun/movies-ws
+LABEL org.opencontainers.image.description="Movies WebSocket image"
+LABEL org.opencontainers.image.licenses=MIT
+
 RUN apt-get update -y && \
     apt-get install -y software-properties-common && \
     add-apt-repository ppa:ubuntu-toolchain-r/test -y && \

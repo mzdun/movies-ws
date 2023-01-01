@@ -120,4 +120,4 @@ jobs:
       if: ${{ matrix.cpack_generator != '' }}
       with:
         name: Packages
-        path: ${{github.workspace}}/build/packages/movies-*
+        path: ${{github.workspace}}/build/${{matrix.cmake_build_profile}}/packages/movies-*

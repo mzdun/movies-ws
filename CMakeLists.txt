@@ -29,6 +29,7 @@ find_package(mbits-utfconv CONFIG REQUIRED)
 find_package(mbits-args CONFIG REQUIRED)
 find_package(tangle CONFIG REQUIRED)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+find_program(DOCKER_EXECUTABLE docker)
 
 set(STAGING "${CMAKE_BINARY_DIR}/staging/${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
 
@@ -148,5 +149,26 @@ if (MOVIES_TIDY)
 endif()
 
 include(prepare_pack)
-configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)
-file(COPY_FILE data/docker/start.sh ${PROJECT_BINARY_DIR}/packages/start.sh)
+
+if (DOCKER_EXECUTABLE)
+  configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)
+  file(COPY_FILE data/docker/start.sh ${PROJECT_BINARY_DIR}/packages/start.sh)
+
+  set(DOCKER_TAG ghcr.io/mzdun/movies-ws)
+
+  add_custom_target(container
+    COMMAND
+      ${DOCKER_EXECUTABLE} build
+      -t "${DOCKER_TAG}:${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}"
+      ${PROJECT_BINARY_DIR}/packages
+    COMMAND
+      ${DOCKER_EXECUTABLE} tag
+      "${DOCKER_TAG}:${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}"
+      "${DOCKER_TAG}:latest"
+    DEPENDS
+      ${PROJECT_BINARY_DIR}/packages/Dockerfile
+      ${PROJECT_BINARY_DIR}/packages/start.sh
+  )
+
+  message(STATUS "Docker: ${DOCKER_TAG}:${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
+endif()
