@@ -8,44 +8,10 @@
 
 using namespace std::literals;
 
-using process = int;
-process start_ws(std::filesystem::path const& executable,
-                 std::vector<char*>& argv) {
-	auto pid = fork();
-	if (pid == 0) {
-		execv(executable.c_str(), argv.data());
-		_exit(1);
-	}
-
-	return pid;
-}
-
-void send_interrupt(process pid) {
-	kill(pid, SIGINT);
-}
-
-void wait_for_process(std::filesystem::path const& executable, process pid) {
-	if (pid < 0) {
-		fprintf(stderr, "%s error: %d\n", executable.c_str(), pid);
-	} else if (pid > 0) {
-		fprintf(stderr, "%s pid: %d\n", executable.c_str(), pid);
-
-		int status{};
-		waitpid(pid, &status, 0);
-		if (status) printf("%s returned: %d\n", executable.c_str(), status);
-	}
-}
-
-#ifdef _WIN32
-#define EXE(NAME) NAME ".exe"sv
-#else
-#define EXE(NAME) NAME ""sv
-#endif
-
 int main() {
-	auto executable = exec_path().parent_path() / EXE("movies-ws");
+	auto executable = exec_path().parent_path() / "movies-ws";
 
-	std::vector args_storage{
+	std::vector args{
 	    "movies-ws"s,
 	    "--config"s,
 	    [] {
@@ -56,13 +22,24 @@ int main() {
 	    "9000"s,
 	};
 
-	std::vector<char*> args{};
-	args.reserve(args_storage.size() + 1);
-	for (auto& stg : args_storage)
-		args.push_back(stg.data());
-	args.push_back(nullptr);
+	std::vector<char*> argv{};
+	argv.reserve(args.size() + 1);
+	for (auto& arg : args)
+		argv.push_back(arg.data());
+	argv.push_back(nullptr);
 
-	auto const id = start_ws(executable, args);
-	setup_breaks([&] { send_interrupt(id); });
-	wait_for_process(executable, id);
+	auto const pid = fork();
+	if (pid == 0) {
+		execv(executable.c_str(), argv.data());
+		_exit(1);
+	} else if (pid < 0) {
+		fprintf(stderr, "%s error: %d\n", executable.c_str(), pid);
+	} else if (pid > 0) {
+		fprintf(stderr, "%s pid: %d\n", executable.c_str(), pid);
+		setup_breaks([&] { kill(pid, SIGINT); });
+
+		int status{};
+		waitpid(pid, &status, 0);
+		if (status) printf("%s returned: %d\n", executable.c_str(), status);
+	}
 }

@@ -11,4 +11,4 @@ add_subdirectory(server)
 add_subdirectory(websocket)
 add_subdirectory(startup)
 
-set_target_properties(json movies io websocket proto server PROPERTIES FOLDER libs)
+set_target_properties(json movies io websocket proto server startup PROPERTIES FOLDER libs)
