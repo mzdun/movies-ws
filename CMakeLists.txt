@@ -166,7 +166,6 @@ if (DOCKER_EXECUTABLE)
       "${DOCKER_TAG}:latest"
     DEPENDS
       ${PROJECT_BINARY_DIR}/packages/Dockerfile
-      ${PROJECT_BINARY_DIR}/packages/start.sh
   )
 
   message(STATUS "Docker: ${DOCKER_TAG}:${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
