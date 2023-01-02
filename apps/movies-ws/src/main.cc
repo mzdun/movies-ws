@@ -11,80 +11,8 @@
 #include <server/lngs.hh>
 #include <server/version.hh>
 #include <service.hh>
+#include <startup.hh>
 #include <ws/session.hh>
-
-#ifdef _WIN32
-#include <Windows.h>
-
-std::filesystem::path exec_path() {
-	wchar_t modpath[2048];
-	GetModuleFileNameW(nullptr, modpath, sizeof(modpath) / sizeof(modpath[0]));
-	return modpath;
-}
-
-static movies::service* ptr;
-
-BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
-	switch (fdwCtrlType) {
-		case CTRL_C_EVENT:
-		case CTRL_CLOSE_EVENT:
-		case CTRL_BREAK_EVENT:
-			lwsl_warn("signal intercepted\n");
-			ptr->stop();
-			return TRUE;
-		default:
-			break;
-	}
-	return FALSE;
-}
-
-void setup_breaks(movies::service& service) {
-	ptr = &service;
-	SetConsoleCtrlHandler(CtrlHandler, TRUE);
-}
-
-#else
-#include <signal.h>  // NOLINT(modernize-deprecated-headers)
-
-std::filesystem::path exec_path() {
-	using namespace std::literals;
-	std::error_code ec;
-	static constexpr std::array self_links = {
-	    "/proc/self/exe"sv,
-	    "/proc/curproc/file"sv,
-	    "/proc/curproc/exe"sv,
-	    "/proc/self/path/a.out"sv,
-	};
-	for (auto path : self_links) {
-		auto link = std::filesystem::read_symlink(path, ec);
-		if (!ec) return link;
-	}
-	[[unlikely]];  // GCOV_EXCL_LINE[POSIX]
-	return {};     // GCOV_EXCL_LINE[POSIX]
-}
-
-static movies::service* ptr;  // NOLINT
-
-void install(int sig, void signal_handler(int)) {
-	struct sigaction handler;  // NOLINT(cppcoreguidelines-pro-type-member-init)
-	memset(&handler, 0, sizeof(handler));
-	handler.sa_handler =  // NOLINT(cppcoreguidelines-pro-type-union-access)
-	    signal_handler;
-	sigfillset(&handler.sa_mask);
-	::sigaction(sig, &handler, nullptr);
-}
-
-void setup_breaks(movies::service& service) {
-	ptr = &service;
-	auto const handler = +[](int) {
-		lwsl_warn("signal intercepted\n");
-		ptr->stop();
-	};
-	install(SIGINT, handler);   // ^C
-	install(SIGTERM, handler);  // docker stop
-}
-
-#endif
 
 #define X_CREATE_HANDLER(NS, NAME, VAR) \
 	handler.create_handler<NS::NAME##Handler>(&backend);
@@ -168,7 +96,12 @@ int main(int argc, char** argv) {
 	UI_HANDLERS(X_CREATE_HANDLER);
 
 	movies::service service{&handler};
-	setup_breaks(service);
+
+	setup_breaks([&] {
+		lwsl_warn("signal intercepted\n");
+		service.stop();
+	});
+
 	backend.set_on_db_update(
 	    [&](bool notify, std::span<std::string> const& lines) {
 		    for (auto const& line : lines) {

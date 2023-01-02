@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 cmake --build --preset release --parallel
 cpack -G TGZ -C Release --config build/release/CPackConfig.cmake
