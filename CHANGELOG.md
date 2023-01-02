@@ -1,4 +1,10 @@
 
+## [0.5.1](https://github.com/mzdun/movies-ws/compare/v0.5.0...v0.5.1) (2023-01-02)
+
+### Bug Fixes
+
+- allow port configuration ([3f83a43](https://github.com/mzdun/movies-ws/commit/3f83a435c4a0a06c38744c3b98868cf3e5ff5ec1))
+
 ## [0.5.0](https://github.com/mzdun/movies-ws/compare/v0.4.1...v0.5.0) (2023-01-02)
 
 ### New Features
