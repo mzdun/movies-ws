@@ -16,5 +16,8 @@ RUN mkdir -p /app && \
 RUN rm /tmp/@TAR_GZ_PACKAGE_FILE_NAME@
 
 ENV PATH=/app/bin:$PATH
-EXPOSE 9000
+ENV REPO_NAME=default
+ENV REPO_PORT=9000
+VOLUME /data
+EXPOSE ${REPO_PORT}
 ENTRYPOINT ["docker-start"]

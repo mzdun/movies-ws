@@ -8,18 +8,20 @@
 
 using namespace std::literals;
 
+char const* env_or(char const* name, char const* alt) {
+	auto const env = getenv(name);
+	return env && *env ? env : alt;
+}
+
 int main() {
 	auto executable = exec_path().parent_path() / "movies-ws";
 
 	std::vector args{
 	    "movies-ws"s,
 	    "--config"s,
-	    [] {
-		    auto const env = getenv("REPO_NAME");
-		    return fmt::format("/data/{}.json", env ? env : "default");
-	    }(),
+	    fmt::format("/data/{}.json", env_or("REPO_NAME", "default")),
 	    "--port"s,
-	    "9000"s,
+	    std::string{env_or("REPO_PORT", "9000")},
 	};
 
 	std::vector<char*> argv{};
