@@ -152,7 +152,6 @@ include(prepare_pack)
 
 if (DOCKER_EXECUTABLE)
   configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)
-  file(COPY_FILE data/docker/start.sh ${PROJECT_BINARY_DIR}/packages/start.sh)
 
   set(DOCKER_TAG ghcr.io/mzdun/movies-ws)
 
