@@ -1,4 +1,11 @@
 
+## [0.5.0](https://github.com/mzdun/movies-ws/compare/v0.4.1...v0.5.0) (2023-01-02)
+
+### New Features
+
+- **posix**: replace start.sh with docker-start ([4a7d156](https://github.com/mzdun/movies-ws/commit/4a7d15681e6a508710de6057fa371652d2730235))
+- extract startup code to separate library ([b9618ce](https://github.com/mzdun/movies-ws/commit/b9618ceeff598edfbb9d84fcd21a80705e6b9cac))
+
 ## [0.4.1](https://github.com/mzdun/movies-ws/compare/v0.4.0...v0.4.1) (2023-01-01)
 
 ### Bug Fixes
