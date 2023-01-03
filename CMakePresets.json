@@ -1,57 +1,26 @@
 {
-    "version": 3,
+    "version": 4,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 15,
+        "minor": 23,
         "patch": 0
     },
-    "configurePresets": [
-        {
-            "name": "release",
-            "displayName": "Release",
-            "description": "Release build",
-            "cacheVariables": {
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "CMAKE_BUILD_TYPE": "Release"
-            },
-            "toolchainFile": "${sourceDir}/build/conan/conan_toolchain.cmake",
-            "binaryDir": "${sourceDir}/build/release"
-        },
-        {
-            "name": "release-ninja",
-            "displayName": "Ninja",
-            "description": "Release build using Ninja generator",
-            "generator": "Ninja",
-            "inherits": [
-                "release"
-            ]
-        },
-        {
-            "name": "release-make",
-            "displayName": "Makefile",
-            "description": "Release build using Unix Makefiles generator",
-            "generator": "Unix Makefiles",
-            "inherits": [
-                "release"
-            ]
-        },
-        {
-            "name": "release-vs22",
-            "displayName": "Visual Studio 2022",
-            "description": "Release build using Visual Studio 2022 generator",
-            "generator": "Visual Studio 17 2022",
-            "inherits": [
-                "release"
-            ]
-        }
+    "include": [
+        "cmake/matrix.json"
     ],
+    "configurePresets": [],
     "buildPresets": [
         {
             "name": "release",
             "displayName": "Build for Release",
             "configurePreset": "release",
             "configuration": "Release"
+        },
+        {
+            "name": "debug",
+            "displayName": "Build for Debug",
+            "configurePreset": "debug",
+            "configuration": "Debug"
         }
-    ],
-    "testPresets": []
+    ]
 }

@@ -150,7 +150,7 @@ endif()
 
 include(prepare_pack)
 
-if (DOCKER_EXECUTABLE)
+if (DOCKER_EXECUTABLE AND TARGET docker-start)
   configure_file(data/docker/Dockerfile.in packages/Dockerfile @ONLY)
 
   set(DOCKER_TAG ghcr.io/mzdun/movies-ws)
@@ -166,6 +166,8 @@ if (DOCKER_EXECUTABLE)
       "${DOCKER_TAG}:latest"
     DEPENDS
       ${PROJECT_BINARY_DIR}/packages/Dockerfile
+      docker-start
+      movies-ws
   )
 
   message(STATUS "Docker: ${DOCKER_TAG}:${PROJECT_VERSION}${PROJECT_VERSION_STABILITY}")
