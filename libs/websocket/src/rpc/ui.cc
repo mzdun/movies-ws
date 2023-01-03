@@ -261,6 +261,7 @@ namespace movies::ui::v1 {
 
 		copy(sort::get_config(tr), *resp.mutable_sort(), tr);
 		copy(server()->current_filters(), *resp.mutable_filters(), tr);
+		copy(server()->title(), *resp.mutable_title());
 
 		{
 			auto& dst_tags = *resp.mutable_tags();

@@ -8,6 +8,7 @@
 #include <base/str.hh>
 #include <iostream>
 #include <movies/opt.hpp>
+#include <regions/mapping.hh>
 #include <server/server.hh>
 #include <set>
 #include <span>
@@ -612,6 +613,65 @@ namespace movies {
 		return sort.empty() || !group_items
 		           ? quick_inflate_locked(keys, langs)
 		           : inflate_locked(keys, *sort.front(), tr, langs);
+	}
+
+	static std::optional<std::string> expand_country(
+	    std::string_view prefix,
+	    std::string const& term,
+	    movies::region::Strings const& region) {
+		for (auto const& [name, lng] : movies::region::names) {
+			if (name == term) return fmt::format("{}: {}", prefix, region(lng));
+		}
+		return {};
+	}
+
+	static std::optional<std::string> expand_crew(
+	    std::string_view prefix,
+	    std::string const& term,
+	    std::map<std::string, movie_info_refs> const& people) {
+		auto it = people.find(term);
+		if (it != people.end()) {
+			return fmt::format("{}: {}", prefix, as_sv(it->second.name));
+			// TODO: it->second.refs for links
+		}
+		return {};
+	}
+
+	static std::optional<std::string> expand_term(
+	    std::string_view prefix,
+	    std::string const& term,
+	    filter::expand kind,
+	    movies::region::Strings const& region,
+	    std::map<std::string, movie_info_refs> const& people) {
+		std::optional<std::string> result;
+		switch (kind) {
+			case filter::expand::none:
+				break;
+			case filter::expand::country:
+				result = expand_country(prefix, term, region);
+				break;
+			case filter::expand::crew:
+				result = expand_crew(prefix, term, people);
+				break;
+		}
+		if (!result) result = fmt::format("{}: {}", prefix, term);
+		return result;
+	}
+
+	std::optional<std::string> server::filter_title(
+	    filter* filter,
+	    std::string const& term,
+	    app::Strings const& tr,
+	    movies::region::Strings const& region) const {
+		std::optional<std::string> result{};
+		if (filter) {
+			auto const id = filter->title();
+			if (id != app::lng{}) {
+				result = expand_term(tr(id), term, filter->title_expand(),
+				                     region, movies_.people);
+			}
+		}
+		return result;
 	}
 
 	void server::set_on_db_update(

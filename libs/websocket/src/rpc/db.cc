@@ -371,9 +371,10 @@ namespace movies::db::v1 {
 
 		movies::session data{session};
 
-		auto const filters =
-		    from_req(req.filters(),
-		             movies::filter::make_term(req.category(), req.term()));
+		auto prefix = movies::filter::make_term(req.category(), req.term());
+		auto title = server()->filter_title(prefix.get(), req.term(), data.tr(),
+		                                    data.tr());
+		auto const filters = from_req(req.filters(), std::move(prefix));
 		auto const sort = from_req(req.sort());
 		std::string const* search = nullptr;
 		if (req.has_search()) search = &req.search();
@@ -391,6 +392,10 @@ namespace movies::db::v1 {
 			return count == 1 ? "" : "s";
 		};
 		lwsl_user("   -> %zu title%s\n", result.size(), s(result.size()));
+		if (title) {
+			lwsl_user("   -> \"%s\"\n", title->c_str());
+			copy(*title, *resp.mutable_title());
+		}
 	}
 
 	MSG_HANDLER(GetMovieInfo) {

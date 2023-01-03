@@ -115,4 +115,13 @@
 	FILTER_LABEL_HAS_INFO_OPOSITE = "Has no info";
 	[help("Filter label for movies not matching 'has_imdb'"), id(-1)]
 	FILTER_LABEL_HAS_IMDB_OPOSITE = "Has no IMDb link";
+
+	[help("Filter list label for release genre"), id(-1)]
+	TERM_FILTER_LABEL_GENRE = "Genre";
+	[help("Filter list label for release country"), id(-1)]
+	TERM_FILTER_LABEL_COUNTRY = "Country";
+	[help("Filter list label for release year"), id(-1)]
+	TERM_FILTER_LABEL_YEAR = "Release year";
+	[help("Filter list label for crew"), id(-1)]
+	TERM_FILTER_LABEL_CREW = "Crew";
 }

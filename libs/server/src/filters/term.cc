@@ -14,13 +14,17 @@ using namespace std::literals;
 
 namespace movies {
 	namespace {
-		unsigned move_if_needed(unsigned val) { return val; }
+		unsigned move_if_needed(unsigned val) {
+			return val;
+		}
 
 		std::u8string move_if_needed(std::u8string& val) {
 			return std::move(val);
 		}
 
-		std::string move_if_needed(std::string& val) { return std::move(val); }
+		std::string move_if_needed(std::string& val) {
+			return std::move(val);
+		}
 
 		template <typename Value>
 		struct conv_term;
@@ -64,11 +68,18 @@ namespace movies {
 		template <typename Value>
 		class term_filter : public filter {
 		public:
-			explicit term_filter(Value term) : term_{move_if_needed(term)} {}
+			term_filter(Value term, app::lng title, expand kind)
+			    : term_{move_if_needed(term)}, title_{title}, kind_{kind} {}
 
 			[[nodiscard]] bool matches(
 			    extended_info const& data) const noexcept final {
 				return contains(data, term_);
+			}
+			[[nodiscard]] app::lng title() const noexcept override {
+				return title_;
+			}
+			[[nodiscard]] expand title_expand() const noexcept override {
+				return kind_;
 			}
 
 			template <std::derived_from<term_filter<Value>> Filter>
@@ -84,6 +95,8 @@ namespace movies {
 			    typename conv_term<Value>::arg_t) const noexcept = 0;
 
 			Value term_{};
+			app::lng title_{};
+			expand kind_{};
 		};
 
 		class tokens_term_filter : public term_filter<std::u8string> {
@@ -124,7 +137,9 @@ namespace movies {
 
 		class crew_term_filter : public term_filter<std::string> {
 		public:
-			using term_filter<std::string>::term_filter;
+			crew_term_filter(std::string term)
+			    : term_filter<std::string>{std::move(term),
+			                               app::lng::TERM_FILTER_LABEL_CREW, expand::crew} {}
 
 		private:
 			[[nodiscard]] bool contains(
@@ -137,17 +152,21 @@ namespace movies {
 			}
 		};
 
-#define TERM_TOKENS_FILTER(X)       \
-	X(genre, genres, std::u8string) \
-	X(country, countries, std::u8string)
-#define TERM_VALUE_FILTER(X) X(year, year, unsigned)
-#define TERM_FILTER(X) \
-	TERM_TOKENS_FILTER(X) TERM_VALUE_FILTER(X) X(crew, crew, std::string)
+#define TERM_TOKENS_FILTER(X)                                          \
+	X(genre, genres, std::u8string, app::lng::TERM_FILTER_LABEL_GENRE) \
+	X(country, countries, std::u8string, app::lng::TERM_FILTER_LABEL_COUNTRY)
+#define TERM_VALUE_FILTER(X) \
+	X(year, year, unsigned, app::lng::TERM_FILTER_LABEL_YEAR)
+#define TERM_FILTER(X)    \
+	TERM_TOKENS_FILTER(X) \
+	TERM_VALUE_FILTER(X)  \
+	X(crew, crew, std::string, IGNORE)
 
-#define X_TOKENS_TERM_FILTER(CAT, ACCESS, T)                  \
+#define X_TOKENS_TERM_FILTER(CAT, ACCESS, T, LNG)             \
 	class ACCESS##_term_filter : public tokens_term_filter {  \
 	public:                                                   \
-		using tokens_term_filter::tokens_term_filter;         \
+		ACCESS##_term_filter(std::u8string term)              \
+		    : tokens_term_filter{std::move(term), LNG, expand_from<LNG>} {}     \
                                                               \
 	private:                                                  \
 		std::vector<std::u8string> const& access(             \
@@ -156,17 +175,22 @@ namespace movies {
 		}                                                     \
 	};
 
-#define X_VALUE_TERM_FILTER(CAT, ACCESS, T)                   \
-	class ACCESS##_term_filter : public value_term_filter {   \
-	public:                                                   \
-		using value_term_filter::value_term_filter;           \
-                                                              \
-	private:                                                  \
-		std::optional<unsigned> access(                       \
-		    extended_info const& data) const noexcept final { \
-			return data.ACCESS;                               \
-		}                                                     \
+#define X_VALUE_TERM_FILTER(CAT, ACCESS, T, LNG)                              \
+	class ACCESS##_term_filter : public value_term_filter {                   \
+	public:                                                                   \
+		ACCESS##_term_filter(unsigned term) : value_term_filter{term, LNG, expand::none} {} \
+                                                                              \
+	private:                                                                  \
+		std::optional<unsigned> access(                                       \
+		    extended_info const& data) const noexcept final {                 \
+			return data.ACCESS;                                               \
+		}                                                                     \
 	};
+
+		template <app::lng LNG>
+		static constinit auto const expand_from =
+		    LNG == app::lng::TERM_FILTER_LABEL_COUNTRY ? filter::expand::country
+		                                               : filter::expand::none;
 
 		TERM_TOKENS_FILTER(X_TOKENS_TERM_FILTER);
 		TERM_VALUE_FILTER(X_VALUE_TERM_FILTER);
@@ -176,7 +200,7 @@ namespace movies {
 			filter::ptr (*make)(std::string_view term);
 		};
 
-#define X_INFO(CAT, ACCESS, TYPE)                         \
+#define X_INFO(CAT, ACCESS, TYPE, LNG)                    \
 	{                                                     \
 	    #CAT##sv,                                         \
 	    term_filter<TYPE>::factory<ACCESS##_term_filter>, \

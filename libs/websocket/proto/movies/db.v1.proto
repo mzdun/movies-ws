@@ -25,7 +25,9 @@ message GetFilterListingRequest {
 };
 
 message GetFilterListingResponse {
-	repeated movies.listing.v1.MovieReference items = 1;
+	optional string title = 1;
+	repeated movies.listing.v1.MovieReference items = 2;
+	repeated movies.info.v1.Link links = 3;
 };
 
 message GetMovieInfoRequest {

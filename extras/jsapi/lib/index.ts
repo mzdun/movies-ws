@@ -2,6 +2,12 @@ import {MovieEventTarget} from './Event';
 import {movies} from './proto/bundle';
 import WsClient from './WsClient';
 
+export interface FilterListing {
+	title?: string;
+	items: movies.listing.v1.IMovieReference[];
+	links: movies.info.v1.ILink[];
+};
+
 export class Service extends MovieEventTarget {
 	_ws: WsClient;
 	_lang: string = navigator.language;
@@ -54,10 +60,15 @@ export class Service extends MovieEventTarget {
 	async getFilterListing(
 	    category: string, term: string, filters: movies.filters.v1.IFilter[],
 	    sort: string[], search?: string) {
-		return (await this._ws.send({
-			       getFilterListing: {filters, sort, search, category, term}
-		       })).getFilterListing?.items ??
-		    [];
+		const result = (await this._ws.send({
+			getFilterListing: { filters, sort, search, category, term }
+		})).getFilterListing;
+		return {
+			title: result?.title || undefined,
+			items: result?.items || [],
+			links: result?.links || [],
+		}
+		//
 	}
 
 	async getListing(

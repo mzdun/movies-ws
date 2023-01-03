@@ -46,8 +46,12 @@ namespace movies {
 		using ptr = std::unique_ptr<filter>;
 		using list = std::vector<ptr>;
 
+		enum class expand { none, country, crew };
+
 		virtual ~filter();
 		virtual bool matches(extended_info const&) const noexcept = 0;
+		virtual app::lng title() const { return {}; }
+		virtual expand title_expand() const noexcept { return expand::none; }
 
 		static std::vector<description::filter> gather_from_db(movie_db const&);
 

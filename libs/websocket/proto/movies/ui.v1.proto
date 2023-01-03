@@ -23,11 +23,12 @@ message OpenMovieResponse {
 message GetConfigRequest {};
 
 message GetConfigResponse {
-	repeated movies.filters.v1.FilterDescription filters = 1;
-	repeated movies.filters.v1.SortDescription sort = 2;
-	repeated Strings countries = 3;
-	repeated Strings tags = 4;
-	movies.appstr.v1.AppStrings app = 5;
+	string title = 1;
+	repeated movies.filters.v1.FilterDescription filters = 2;
+	repeated movies.filters.v1.SortDescription sort = 3;
+	repeated Strings countries = 4;
+	repeated Strings tags = 5;
+	movies.appstr.v1.AppStrings app = 6;
 };
 
 ////////////////////////////////////////////

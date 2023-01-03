@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
 	lwsl_user("movies-ws version %s\n", version::string_ui);
 
-	movies::server backend{};
+	movies::server backend{cfg.title};
 	per_session_dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);
 	UI_HANDLERS(X_CREATE_HANDLER);

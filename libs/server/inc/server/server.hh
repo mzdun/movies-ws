@@ -67,7 +67,9 @@ namespace movies {
 
 	class server : private observer_callback {
 	public:
+		explicit server(std::string const& title) : title_{title} {}
 		void load(std::filesystem::path const& database);
+		std::string const& title() const noexcept { return title_; }
 		extended_info find_movie_copy(std::string_view id) const;
 		std::optional<std::filesystem::path> get_video_path(
 		    std::string_view id) const;
@@ -83,6 +85,11 @@ namespace movies {
 		                           bool hide_episodes,
 		                           Strings const& tr,
 		                           std::span<std::string const> langs) const;
+		std::optional<std::string> filter_title(
+		    filter* filter,
+		    std::string const& term,
+		    app::Strings const& tr,
+		    region::Strings const& region) const;
 		std::vector<description::filter> const& current_filters()
 		    const noexcept {
 			return current_filters_;
@@ -129,5 +136,6 @@ namespace movies {
 		std::map<string, std::string> ref2id_{};
 		plugin::list plugins_{};
 		observer db_observer_{};
+		std::string title_{};
 	};
 }  // namespace movies

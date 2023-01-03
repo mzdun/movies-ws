@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: movies-ws latest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-29 07:53+0100\n"
+"POT-Creation-Date: 2023-01-03 13:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -284,6 +284,26 @@ msgstr ""
 
 #. Sort label for order by movie release year
 msgctxt "SORT_LABEL_YEAR"
+msgid "Release year"
+msgstr ""
+
+#. Filter list label for release country
+msgctxt "TERM_FILTER_LABEL_COUNTRY"
+msgid "Country"
+msgstr ""
+
+#. Filter list label for crew
+msgctxt "TERM_FILTER_LABEL_CREW"
+msgid "Crew"
+msgstr ""
+
+#. Filter list label for release genre
+msgctxt "TERM_FILTER_LABEL_GENRE"
+msgid "Genre"
+msgstr ""
+
+#. Filter list label for release year
+msgctxt "TERM_FILTER_LABEL_YEAR"
 msgid "Release year"
 msgstr ""
 
