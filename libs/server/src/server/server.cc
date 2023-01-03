@@ -12,6 +12,7 @@
 #include <server/server.hh>
 #include <set>
 #include <span>
+#include <tangle/browser/html_split.hpp>
 
 using namespace std::literals;
 
@@ -171,9 +172,138 @@ namespace movies {
 		}
 	};
 
+	struct patch {
+		size_t attrs_stop;
+		size_t start;
+		size_t stop;
+		std::string replacement;
+		std::string rel;
+	};
+
+	std::vector<patch> get_patches(std::string_view summary) {
+		std::vector<patch> results;
+		auto nodes = tangle::browser::html_split(summary);
+		for (auto& node : nodes) {
+			if (!node.name.is("a"sv)) continue;
+
+			std::string_view attr_name;
+			tangle::browser::attr_pos attr_pos;
+			for (auto const& [attr, pos] : node.attrs) {
+				if (!tangle::browser::equal_ignore_case(attr, "href"sv))
+					continue;
+				attr_name = attr;
+				attr_pos = pos;
+				break;
+			}
+
+			if (attr_name.empty()) continue;
+
+			size_t attrs_stop{};
+			for (auto const& [attr, pos] : node.attrs) {
+				if (attrs_stop < pos.stop) attrs_stop = pos.stop;
+			}
+
+			static constexpr auto schema_internal = "internal:"sv;
+			if (!attr_pos.value.starts_with(schema_internal)) {
+				results.push_back({
+				    .attrs_stop = attrs_stop,
+				    .start = attrs_stop,
+				    .stop = attrs_stop,
+				    .replacement{},
+				    .rel{as_str(link::noreferrer)},
+				});
+				continue;
+			}
+
+			results.push_back({
+			    .attrs_stop = attrs_stop,
+			    .start = attr_pos.start,
+			    .stop = attr_pos.stop,
+			    .replacement = tangle::browser::attr_decode(
+			        attr_pos.value.substr(schema_internal.size())),
+			    .rel{},
+			});
+		}
+		return results;
+	}
+
+	void lookup_patches(std::vector<patch>& patches,
+	                    std::map<string, std::string> const& ref2id,
+	                    plugin::list const& plugins) {
+		for (auto& p : patches) {
+			if (p.replacement.empty()) continue;
+
+			auto key = as_u8s(p.replacement);
+			auto it = ref2id.find(key);
+			if (it != ref2id.end()) {
+				// todo: url-encode...
+				p.replacement = fmt::format("/movie/{}", it->second);
+				continue;
+			}
+
+			auto links = plugin::ref_links(plugins, {key});
+			if (!links.empty()) {
+				auto const& link = links.front();
+				p.replacement = as_str(link.href);
+				if (link.rel) p.rel = as_str(*link.rel);
+				continue;
+			}
+
+			p.replacement = "#";
+		}
+	}
+
+	static constexpr auto rel_prefix = u8" rel=\""sv;
+	static constexpr auto rel_postfix = u8"\" target = \"_blank\""sv;
+
+	std::u8string patch_text(std::vector<patch> const& patches,
+	                       std::u8string_view text) {
+		size_t prev = 0;
+		json::string patched{};
+		{
+			size_t length = 0;
+			for (auto const& p : patches) {
+				if (!p.replacement.empty()) {
+					length += p.start - prev;
+					length += p.replacement.length() + 2;
+					prev = p.stop;
+				}
+				if (!p.rel.empty()) {
+					length += p.rel.length() + rel_prefix.length() +
+					          rel_postfix.length();
+				}
+			}
+			patched.reserve(length + (text.length() - prev));
+		}
+
+		prev = 0;
+
+		for (auto const& p : patches) {
+			if (!p.replacement.empty()) {
+				patched.append(text.substr(prev, p.start - prev));
+				patched.push_back(u8'"');
+				patched.append(as_u8v(p.replacement));
+				patched.push_back(u8'"');
+				prev = p.stop;
+			}
+			if (!p.rel.empty()) {
+				patched.append(text.substr(prev, p.attrs_stop - prev));
+				patched.append(rel_prefix);
+				patched.append(as_u8v(p.rel));
+				patched.append(rel_postfix);
+				prev = p.attrs_stop;
+			}
+		}
+
+		patched.append(text.substr(prev));
+		return patched;
+	}
+
 	std::string server::loader::load_async(
 	    std::filesystem::path const& database) {
 		using namespace std::chrono;
+
+		auto plugins = plugin::load_plugins();
 
 		auto const then = steady_clock::now();
 		auto jsons = load_from(database / "db", database / "videos", false);
@@ -211,6 +341,17 @@ namespace movies {
 		}
 
 		auto const arrival_and_title = steady_clock::now();
+
+		for (auto& [_, movie] : db.movies) {
+			for (auto& [lng, summary] : movie.summary) {
+				auto patches = get_patches(as_sv(summary));
+				if (patches.empty()) continue;
+				lookup_patches(patches, ref2id, plugins);
+				summary = patch_text(patches, summary);
+			}
+		}
+
+		auto const summary_patching = steady_clock::now();
 
 		for (auto& [parent, movie] : db.movies) {
 			if (movie.episodes.empty()) continue;
@@ -334,14 +475,15 @@ namespace movies {
 	fmt::arg((name), duration_cast<milliseconds>((stop) - (start)))
 
 		return fmt::format(
-		    "Loaded {count} movie{pl} in {load} (enh {enh}, episodes "
-		    "{episodes}, people table {people}, filters {filters}, total "
-		    "{total})\n",
+		    "Loaded {count} movie{pl} in {load} (enh {enh}, patching "
+		    "{summary}, episodes {episodes}, people table {people}, filters "
+		    "{filters}, total {total})\n",
 		    fmt::arg("count", db.movies.size()),
 		    fmt::arg("pl", db.movies.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
 		    dur_arg("enh", loaded, arrival_and_title),
-		    dur_arg("episodes", arrival_and_title, episodes),
+		    dur_arg("summary", arrival_and_title, summary_patching),
+		    dur_arg("episodes", summary_patching, episodes),
 		    dur_arg("people", episodes, people),
 		    dur_arg("filters", people, now), dur_arg("total", then, now));
 #undef dur_arg
