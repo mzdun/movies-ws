@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project (movies
   DESCRIPTION "WebSocket server for movies library"
-  VERSION 0.5.1
+  VERSION 0.6.0
   LANGUAGES CXX
 )
 

@@ -1,4 +1,18 @@
 
+## [0.6.0](https://github.com/mzdun/movies-ws/compare/v0.5.1...v0.6.0) (2023-01-03)
+
+### New Features
+
+- patch summary internal links ([fe5a5d6](https://github.com/mzdun/movies-ws/commit/fe5a5d6e35c19217e2bc760a943ceefcaa97b2c4))
+- find links for crew references ([23c2300](https://github.com/mzdun/movies-ws/commit/23c2300016f951c52060699a9dc73c37a718504b))
+- send app title and filter titles ([c45bb59](https://github.com/mzdun/movies-ws/commit/c45bb5994ad57817f55f4baf1be8595d1785a87c))
+
+### Bug Fixes
+
+- notice updated summaries and taglines ([82c2642](https://github.com/mzdun/movies-ws/commit/82c264273c80cc18266bb65dffce8ca3793367f1))
+- prefer default translatable over en/en-US ([50e4f25](https://github.com/mzdun/movies-ws/commit/50e4f253302cd9e4bace5afa1c7d181e7ced7391))
+- un-warp strings for react app ([ba5b885](https://github.com/mzdun/movies-ws/commit/ba5b885468357eb9888f744e6567f34c5786e803))
+
 ## [0.5.1](https://github.com/mzdun/movies-ws/compare/v0.5.0...v0.5.1) (2023-01-02)
 
 ### Bug Fixes
