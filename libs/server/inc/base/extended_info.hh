@@ -49,7 +49,8 @@ namespace movies {
 
 	struct movie_info_refs {
 		std::u8string name;
-		std::vector<std::string> refs;
+		std::vector<string> external_ids;
+		std::vector<std::string> movies;
 
 		auto operator<=>(movie_info_refs const&) const noexcept = default;
 	};

@@ -30,10 +30,14 @@ namespace movies {
 
 		virtual ~plugin();
 		virtual std::vector<link> page_links(extended_info const&) const = 0;
+		virtual std::vector<link> ref_links(
+		    std::vector<string> const&) const = 0;
 
 		static plugin::list load_plugins();
 		static std::vector<link> page_links(plugin::list const&,
 		                                    extended_info const&);
+		static std::vector<link> ref_links(plugin::list const&,
+		                                   std::vector<string> const&);
 	};
 
 	struct page_link_plugin_impl {
@@ -41,6 +45,7 @@ namespace movies {
 		page_link_plugin_impl(string&& prefix);
 
 		std::vector<link> page_links_impl(extended_info const&) const;
+		std::vector<link> ref_links_impl(std::vector<string> const&) const;
 		virtual link current_url(string const& id) const = 0;
 
 	private:
@@ -56,6 +61,11 @@ namespace movies {
 
 		std::vector<link> page_links(extended_info const& data) const override {
 			return page_links_impl(data);
+		}
+
+		std::vector<link> ref_links(
+		    std::vector<string> const& refs) const override {
+			return ref_links_impl(refs);
 		}
 	};
 }  // namespace movies

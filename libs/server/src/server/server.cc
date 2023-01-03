@@ -302,9 +302,23 @@ namespace movies {
 
 			for (auto& [name, refs] : reverse) {
 				for (auto& ref : refs) {
+					std::vector<string> external_ids;
+					external_ids.reserve(ref.external_ids.size());
+					std::transform(
+					    ref.external_ids.begin(), ref.external_ids.end(),
+					    std::back_inserter(external_ids), [](auto const& pair) {
+						    string result;
+						    result.reserve(pair.first.length() +
+						                   pair.second.length() + 1);
+						    result.append(pair.first);
+						    result.push_back(':');
+						    result.append(pair.second);
+						    return result;
+					    });
 					db.people[std::move(ref.id)] = {
 					    .name = name,
-					    .refs = std::move(ref.movies),
+					    .external_ids = std::move(external_ids),
+					    .movies = std::move(ref.movies),
 					};
 				}
 			}
@@ -632,43 +646,57 @@ namespace movies {
 		auto it = people.find(term);
 		if (it != people.end()) {
 			return fmt::format("{}: {}", prefix, as_sv(it->second.name));
-			// TODO: it->second.refs for links
 		}
 		return {};
 	}
 
-	static std::optional<std::string> expand_term(
+	static std::vector<link> crew_links(
+	    std::string const& term,
+	    plugin::list const& plugins,
+	    std::map<std::string, movie_info_refs> const& people) {
+		auto it = people.find(term);
+		if (it != people.end()) {
+			return plugin::ref_links(plugins, it->second.external_ids);
+		}
+		return {};
+	}
+
+	static std::pair<std::optional<std::string>, std::vector<link>> expand_term(
 	    std::string_view prefix,
 	    std::string const& term,
 	    filter::expand kind,
 	    movies::region::Strings const& region,
+	    plugin::list const& plugins,
 	    std::map<std::string, movie_info_refs> const& people) {
-		std::optional<std::string> result;
+		std::pair<std::optional<std::string>, std::vector<link>> result{};
+		auto& [title, links] = result;
 		switch (kind) {
 			case filter::expand::none:
 				break;
 			case filter::expand::country:
-				result = expand_country(prefix, term, region);
+				title = expand_country(prefix, term, region);
 				break;
 			case filter::expand::crew:
-				result = expand_crew(prefix, term, people);
+				title = expand_crew(prefix, term, people);
+				links = crew_links(term, plugins, people);
 				break;
 		}
-		if (!result) result = fmt::format("{}: {}", prefix, term);
+		if (!title) title = fmt::format("{}: {}", prefix, term);
 		return result;
 	}
 
-	std::optional<std::string> server::filter_title(
+	std::pair<std::optional<std::string>, std::vector<link>>
+	server::filter_info(
 	    filter* filter,
 	    std::string const& term,
 	    app::Strings const& tr,
 	    movies::region::Strings const& region) const {
-		std::optional<std::string> result{};
+		std::pair<std::optional<std::string>, std::vector<link>> result{};
 		if (filter) {
 			auto const id = filter->title();
 			if (id != app::lng{}) {
 				result = expand_term(tr(id), term, filter->title_expand(),
-				                     region, movies_.people);
+				                     region, plugins_, movies_.people);
 			}
 		}
 		return result;
@@ -680,5 +708,7 @@ namespace movies {
 		on_db_update_ = cb;
 	}
 
-	void server::on_files_changed() { load_async(true); }
+	void server::on_files_changed() {
+		load_async(true);
+	}
 }  // namespace movies

@@ -85,7 +85,7 @@ namespace movies {
 		                           bool hide_episodes,
 		                           Strings const& tr,
 		                           std::span<std::string const> langs) const;
-		std::optional<std::string> filter_title(
+		std::pair<std::optional<std::string>, std::vector<link>> filter_info(
 		    filter* filter,
 		    std::string const& term,
 		    app::Strings const& tr,
