@@ -138,7 +138,7 @@ namespace movies {
 	void server::load(std::filesystem::path const& database) {
 		database_ = database;
 		load_async(false);
-		db_observer_.observe(*this, database);
+		db_observer_.observe({shared_from_this(), this}, database);
 	}
 
 	auto split_refs(std::vector<std::u8string> const& refs) {

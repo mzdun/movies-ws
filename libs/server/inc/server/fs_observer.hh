@@ -16,7 +16,7 @@ namespace movies {
 
 	template <typename WatchHandle>
 	inline void observe_directory(std::stop_token tok,
-	                              observer_callback* cb,
+	                              std::shared_ptr<observer_callback> cb,
 	                              std::filesystem::path const& path) {
 		using namespace std::chrono;
 
@@ -46,13 +46,14 @@ namespace movies {
 
 	class observer {
 	public:
-		void observe(observer_callback&, std::filesystem::path const&);
+		void observe(std::shared_ptr<observer_callback> const&,
+		             std::filesystem::path const&);
 
 	private:
 		template <typename WatchHandle>
-		void observe_impl(observer_callback& cb,
+		void observe_impl(std::shared_ptr<observer_callback> const& cb,
 		                  std::filesystem::path const& path) {
-			th_ = std::jthread{observe_directory<WatchHandle>, &cb, path};
+			th_ = std::jthread{observe_directory<WatchHandle>, cb, path};
 		}
 
 		std::jthread th_{};

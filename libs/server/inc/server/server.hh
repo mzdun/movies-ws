@@ -65,7 +65,8 @@ namespace movies {
 		std::string lang_id_{};
 	};
 
-	class server : private observer_callback {
+	class server : public std::enable_shared_from_this<server>,
+	               private observer_callback {
 	public:
 		explicit server(std::string const& title) : title_{title} {}
 		void load(std::filesystem::path const& database);

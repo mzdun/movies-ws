@@ -15,7 +15,7 @@
 #include <ws/session.hh>
 
 #define X_CREATE_HANDLER(NS, NAME, VAR) \
-	handler.create_handler<NS::NAME##Handler>(&backend);
+	handler.create_handler<NS::NAME##Handler>(backend.get());
 
 struct per_session_dispatcher : movies::rpc::dispatcher {
 	void on_connect(ws::session& session) override {
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
 	lwsl_user("movies-ws version %s\n", version::string_ui);
 
-	movies::server backend{cfg.title};
+	auto backend = std::make_shared<movies::server>(cfg.title);
 	per_session_dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);
 	UI_HANDLERS(X_CREATE_HANDLER);
@@ -99,10 +99,19 @@ int main(int argc, char** argv) {
 
 	setup_breaks([&] {
 		lwsl_warn("signal intercepted\n");
+		backend->set_on_db_update(
+		    [&](bool notify, std::span<std::string> const& lines) {
+			    for (auto const& line : lines) {
+				    lwsl_user("%s", line.c_str());
+			    }
+			    if (notify) {
+				    lwsl_user("  -> Shutting down\n");
+			    }
+		    });
 		service.stop();
 	});
 
-	backend.set_on_db_update(
+	backend->set_on_db_update(
 	    [&](bool notify, std::span<std::string> const& lines) {
 		    for (auto const& line : lines) {
 			    lwsl_user("%s", line.c_str());
@@ -113,7 +122,7 @@ int main(int argc, char** argv) {
 		    }
 	    });
 
-	backend.load(cfg.database);
+	backend->load(cfg.database);
 	service.init(port, cfg);
 	lwsl_user("%s\n", cfg.title.c_str());
 	lwsl_user("%s\n", reinterpret_cast<char const*>(

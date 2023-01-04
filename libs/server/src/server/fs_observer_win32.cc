@@ -68,7 +68,7 @@ namespace movies {
 
 	observer_callback::~observer_callback() = default;
 
-	void observer::observe(observer_callback& cb,
+	void observer::observe(std::shared_ptr<observer_callback> const& cb,
 	                       std::filesystem::path const& path) {
 		observe_impl<Win32Handle>(cb, path);
 	}

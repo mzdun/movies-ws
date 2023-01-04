@@ -259,7 +259,8 @@ namespace movies {
 	}  // namespace
 
 	observer_callback::~observer_callback() = default;
-	void observer::observe(observer_callback& cb, fs::path const& path) {
+	void observer::observe(std::shared_ptr<observer_callback> const& cb,
+	                       fs::path const& path) {
 		observe_impl<InotifyHandle>(cb, path);
 	}
 }  // namespace movies
