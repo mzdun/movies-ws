@@ -57,6 +57,7 @@ namespace ws {
 			packed_ = clock::now();
 			active_ = true;
 		}
+		bool silent() const noexcept { return silent_; }
 
 #define dur_arg(name, start, stop) \
 	fmt::arg(name, duration_cast<milliseconds>(stop - start))
@@ -72,6 +73,7 @@ namespace ws {
 #undef dur_arg
 
 		bool active_{false};
+		bool silent_{false};
 		time_point start_{clock::now()}, parsed_{}, found_{}, handled_{},
 		    packed_{};
 	};

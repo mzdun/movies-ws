@@ -50,7 +50,8 @@ namespace ws::protobuf {
 		request const& req() const noexcept { return req_; }
 		connection* conn() const noexcept { return conn_; }
 
-		bool send_response(response const& resp) {
+		bool send_response(response const& resp, bool silent) {
+			stats_.silent_ = silent;
 			stats_.handled();
 			std::vector<unsigned char> buffer;
 			if (serialize(resp, buffer)) {

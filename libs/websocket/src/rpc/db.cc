@@ -425,4 +425,10 @@ namespace movies::db::v1 {
 			lwsl_user("   -> no video\n");
 		}
 	}
+
+	MSG_HANDLER(SetVideoPosition) {
+		silent = true;
+	}
+
+	MSG_HANDLER(SetVideoInfo) {}
 }  // namespace movies::db::v1

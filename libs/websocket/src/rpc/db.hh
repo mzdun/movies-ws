@@ -13,7 +13,9 @@ namespace movies::db {
 	X(movies::db::v1, GetListing, get_listing)              \
 	X(movies::db::v1, GetFilterListing, get_filter_listing) \
 	X(movies::db::v1, GetMovieInfo, get_movie_info)         \
-	X(movies::db::v1, GetVideoFile, get_video_file)
+	X(movies::db::v1, GetVideoFile, get_video_file)         \
+	X(movies::db::v1, SetVideoPosition, set_video_position) \
+	X(movies::db::v1, SetVideoInfo, set_video_info)
 
 namespace movies::rpc::v1 {
 	DB_HANDLERS(X_MSG_TRAITS);

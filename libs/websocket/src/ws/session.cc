@@ -18,9 +18,11 @@ namespace ws {
 			std::memcpy(out.payload.data() + LWS_PRE, payload.data(),
 			            payload.size());
 		}
-		lwsl_warn("[%s/%u] send %zu byte%s%s\n", lws_get_protocol(wsi_)->name,
-		          id_, payload.size(), payload.size() == 1 ? "" : "s",
-		          stats.msg().c_str());
+		if (!stats.silent()) {
+			lwsl_warn("[%s/%u] send %zu byte%s%s\n",
+			          lws_get_protocol(wsi_)->name, id_, payload.size(),
+			          payload.size() == 1 ? "" : "s", stats.msg().c_str());
+		}
 		lws_callback_on_writable(wsi_);
 	}
 

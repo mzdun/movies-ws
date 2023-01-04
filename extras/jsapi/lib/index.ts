@@ -87,9 +87,22 @@ export class Service extends MovieEventTarget {
 	}
 
 	async getVideoFile(key: string) {
-		const uri =
-		    (await this._ws.send({getVideoFile: {key}})).getVideoFile?.uri;
-		return uri === null ? undefined : uri;
+		return (await this._ws.send({getVideoFile: {key}})).getVideoFile || {};
+	}
+
+	async setVideoPosition(key: string, where: number) {
+		const when = new Date().valueOf()
+		return (await this._ws.send({
+			       setVideoPosition: {key, lastWatched: {where, when}}
+		       })).setVideoPosition ||
+		    {};
+	}
+
+	async setVideoInfo(key: string, info: movies.info.v1.IMovieStats) {
+		return (await this._ws.send({
+			       setVideoInfo: {key, info}
+		       })).setVideoInfo ||
+		    {};
 	}
 
 	async openMovie(id: string) {

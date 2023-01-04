@@ -15,7 +15,9 @@ message Request {
 		movies.db.v1.GetFilterListingRequest get_filter_listing = 5;
 		movies.db.v1.GetMovieInfoRequest get_movie_info = 6;
 		movies.db.v1.GetVideoFileRequest get_video_file = 7;
-		movies.ui.v1.OpenMovieRequest open_movie = 8;
+		movies.db.v1.SetVideoPositionRequest set_video_position = 8;
+		movies.db.v1.SetVideoInfoRequest set_video_info = 9;
+		movies.ui.v1.OpenMovieRequest open_movie = 10;
 	}
 };
 
@@ -30,7 +32,9 @@ message Response {
 		movies.db.v1.GetFilterListingResponse get_filter_listing = 6;
 		movies.db.v1.GetMovieInfoResponse get_movie_info = 7;
 		movies.db.v1.GetVideoFileResponse get_video_file = 8;
-		movies.ui.v1.OpenMovieResponse open_movie = 9;
+		movies.db.v1.SetVideoPositionResponse set_video_position = 9;
+		movies.db.v1.SetVideoInfoResponse set_video_info = 10;
+		movies.ui.v1.OpenMovieResponse open_movie = 11;
 	}
 }
 

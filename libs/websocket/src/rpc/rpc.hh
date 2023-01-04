@@ -79,10 +79,14 @@ namespace movies::rpc::v1 {
 				answer.set_error(ex.what());
 			}
 			answer.set_id(msgid);
-			query.send_response(generic);
+			query.send_response(generic, silent);
+			silent = false;
 		}
 
 		movies::server* server_;
+
+	protected:
+		bool silent{false};
 	};
 };  // namespace movies::rpc::v1
 
