@@ -185,3 +185,4 @@ target_link_libraries(server PUBLIC
     tangle::tangle movies)
 target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(DIRECTORY "${BIN_DIR}/lngs" TYPE BIN)
+install(DIRECTORY "${BIN_DIR}/plugins" TYPE BIN)

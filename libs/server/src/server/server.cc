@@ -256,7 +256,7 @@ namespace movies {
 	static constexpr auto rel_postfix = u8"\" target = \"_blank\""sv;
 
 	std::u8string patch_text(std::vector<patch> const& patches,
-	                       std::u8string_view text) {
+	                         std::u8string_view text) {
 		size_t prev = 0;
 		json::string patched{};
 		{
@@ -473,11 +473,14 @@ namespace movies {
 	fmt::arg((name), duration_cast<milliseconds>((stop) - (start)))
 
 		return fmt::format(
-		    "Loaded {count} movie{pl} in {load} (enh {enh}, patching "
-		    "{summary}, episodes {episodes}, people table {people}, filters "
-		    "{filters}, total {total})\n",
-		    fmt::arg("count", db.movies.size()),
-		    fmt::arg("pl", db.movies.size() == 1 ? "" : "s"),
+		    "Loaded {count_movies} movie{pl_movies} and {count_plugins} "
+		    "plugin{pl_plugins} in {load} (enh {enh}, patching {summary}, "
+		    "episodes {episodes}, people table {people}, filters {filters}, "
+		    "total {total})\n",
+		    fmt::arg("count_movies", db.movies.size()),
+		    fmt::arg("pl_movies", db.movies.size() == 1 ? "" : "s"),
+		    fmt::arg("count_plugins", plugins.size()),
+		    fmt::arg("pl_plugins", plugins.size() == 1 ? "" : "s"),
 		    dur_arg("load", then, loaded),
 		    dur_arg("enh", loaded, arrival_and_title),
 		    dur_arg("summary", arrival_and_title, summary_patching),
@@ -832,11 +835,10 @@ namespace movies {
 	}
 
 	std::pair<std::optional<std::string>, std::vector<link>>
-	server::filter_info(
-	    filter* filter,
-	    std::string const& term,
-	    app::Strings const& tr,
-	    movies::region::Strings const& region) const {
+	server::filter_info(filter* filter,
+	                    std::string const& term,
+	                    app::Strings const& tr,
+	                    movies::region::Strings const& region) const {
 		std::pair<std::optional<std::string>, std::vector<link>> result{};
 		if (filter) {
 			auto const id = filter->title();
@@ -854,7 +856,5 @@ namespace movies {
 		on_db_update_ = cb;
 	}
 
-	void server::on_files_changed() {
-		load_async(true);
-	}
+	void server::on_files_changed() { load_async(true); }
 }  // namespace movies
