@@ -549,6 +549,11 @@ namespace movies {
 			std::lock_guard writing{db_access_};
 			locked = steady_clock::now();
 
+			if (!plugin::eq(plugins_, ldr.plugins)) {
+				changed = true;
+				dbg.emplace_back("plugins changed\n");
+			}
+
 			if (movies_ != ldr.db || ref2id_ != ldr.ref2id) {
 				changed = true;
 

@@ -24,6 +24,7 @@ namespace movies {
 		}
 	};
 
+	class json_plugin;
 	struct plugin {
 		using ptr = std::unique_ptr<plugin>;
 		using list = std::vector<ptr>;
@@ -33,11 +34,17 @@ namespace movies {
 		virtual std::vector<link> ref_links(
 		    std::vector<string> const&) const = 0;
 
+		virtual bool eq(plugin const&) const noexcept { return false; }
+		virtual bool eq_double_disp(json_plugin const&) const noexcept {
+			return false;
+		}
+
 		static plugin::list load_plugins(std::filesystem::path const& database);
 		static std::vector<link> page_links(plugin::list const&,
 		                                    extended_info const&);
 		static std::vector<link> ref_links(plugin::list const&,
 		                                   std::vector<string> const&);
+		static bool eq(plugin::list const& lhs, plugin::list const& rhs);
 	};
 
 	struct page_link_plugin_impl {
@@ -47,6 +54,8 @@ namespace movies {
 		std::vector<link> page_links_impl(extended_info const&) const;
 		std::vector<link> ref_links_impl(std::vector<string> const&) const;
 		virtual link current_url(string const& id) const = 0;
+
+		string const& prefix() const noexcept { return prefix_; }
 
 	private:
 		string prefix_;

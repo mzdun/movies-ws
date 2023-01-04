@@ -29,6 +29,16 @@ namespace movies {
 		return result;
 	}
 
+	bool plugin::eq(plugin::list const& lhs, plugin::list const& rhs) {
+		if (lhs.size() != rhs.size()) return false;
+		auto rhs_it = rhs.begin();
+		for (auto const& lhs_plugin : lhs) {
+			auto const& rhs_plugin = *rhs_it++;
+			if (!lhs_plugin->eq(*rhs_plugin)) return false;
+		}
+		return true;
+	}
+
 	page_link_plugin_impl::~page_link_plugin_impl() = default;
 
 	page_link_plugin_impl::page_link_plugin_impl(string&& prefix)

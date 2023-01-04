@@ -22,6 +22,8 @@ namespace movies {
 		          bool assume_noreferrer);
 		void print(std::u8string_view prefix) const;
 
+		bool operator==(json_link const&) const noexcept = default;
+
 	private:
 		std::optional<string> overriden(
 		    std::optional<string> const& mine,
@@ -53,6 +55,8 @@ namespace movies {
 		void print(std::u8string_view prefix) const;
 		static json_plugin_info load(std::u8string_view name,
 		                             std::filesystem::path const& filename);
+
+		bool operator==(json_plugin_info const&) const noexcept = default;
 	};
 
 	class json_plugin : public page_link_plugin<> {
@@ -62,6 +66,8 @@ namespace movies {
 
 		link current_url(string const& id) const;
 
+		bool eq(plugin const& rhs) const noexcept final { return rhs.eq_double_disp(*this); }
+		bool eq_double_disp(json_plugin const&) const noexcept final; 
 	private:
 		json_plugin_info info_;
 	};

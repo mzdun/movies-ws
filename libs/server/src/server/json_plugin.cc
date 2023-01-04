@@ -206,6 +206,10 @@ namespace movies {
 		};
 	}
 
+	bool json_plugin::eq_double_disp(json_plugin const& rhs) const noexcept {
+		return prefix() == rhs.prefix() && info_ == rhs.info_;
+	}
+
 	plugin::list plugin::load_plugins(std::filesystem::path const& database) {
 		plugin::list result{};
 
@@ -226,8 +230,10 @@ namespace movies {
 
 		result.reserve(jsons.size());
 		for (auto& [name, cfg] : jsons) {
+#ifndef NDEBUG
 			cfg.print(name + u8".");
 			std::fputc('\n', stdout);
+#endif
 
 			result.push_back(
 			    std::make_unique<json_plugin>(name, std::move(cfg)));
