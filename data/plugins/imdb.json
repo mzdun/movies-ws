@@ -1,0 +1,12 @@
+{
+    "icon": "local:imdb",
+    "alt": "IMDb",
+    "links": {
+        "nm.*": {
+            "href": "https://www.imdb.com/name/{id}/"
+        },
+        "tt.*": {
+            "href": "https://www.imdb.com/title/{id}/"
+        }
+    }
+}

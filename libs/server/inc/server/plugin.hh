@@ -33,7 +33,7 @@ namespace movies {
 		virtual std::vector<link> ref_links(
 		    std::vector<string> const&) const = 0;
 
-		static plugin::list load_plugins();
+		static plugin::list load_plugins(std::filesystem::path const& database);
 		static std::vector<link> page_links(plugin::list const&,
 		                                    extended_info const&);
 		static std::vector<link> ref_links(plugin::list const&,

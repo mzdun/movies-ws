@@ -91,8 +91,6 @@ endif()
 include(CTest)
 enable_testing()
 
-set(PLUGINS)
-
 if (MOVIES_TIDY)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy" "clang-tidy-12")
   message(STATUS "clang-tidy: ${CLANG_TIDY_EXE}")

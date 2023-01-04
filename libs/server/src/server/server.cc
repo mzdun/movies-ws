@@ -136,7 +136,6 @@ namespace movies {
 	}
 
 	void server::load(std::filesystem::path const& database) {
-		plugins_ = plugin::load_plugins();
 		database_ = database;
 		load_async(false);
 		db_observer_.observe(*this, database);
@@ -303,9 +302,8 @@ namespace movies {
 	    std::filesystem::path const& database) {
 		using namespace std::chrono;
 
-		auto plugins = plugin::load_plugins();
-
 		auto const then = steady_clock::now();
+		plugins = plugin::load_plugins(database);
 		auto jsons = load_from(database / "db", database / "videos", false);
 		auto const loaded = steady_clock::now();
 		for (auto&& movie : jsons) {
@@ -583,6 +581,7 @@ namespace movies {
 
 			printed = steady_clock::now();
 
+			plugins_ = std::move(ldr.plugins);
 			movies_ = std::move(ldr.db);
 			current_filters_ = std::move(ldr.current_filters);
 			ref2id_ = std::move(ldr.ref2id);

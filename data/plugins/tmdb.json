@@ -1,0 +1,5 @@
+{
+    "icon": "local:tmdb",
+    "alt": "TMDb",
+    "href": "https://www.themoviedb.org/{id}/"
+}

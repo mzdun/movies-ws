@@ -102,6 +102,7 @@ namespace movies {
 
 	private:
 		struct loader {
+			plugin::list plugins{};
 			movie_db db{};
 			std::vector<description::filter> current_filters{};
 			std::map<string, std::string> ref2id{};

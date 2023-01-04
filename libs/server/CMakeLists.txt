@@ -22,6 +22,8 @@ set(SRCS
     src/filters/term.cc
     src/filters/tokens.cc
     src/full_text/engine.cc
+    src/server/json_plugin.cc
+    src/server/json_plugin.hh
     src/server/plugin.cc
     src/server/server.cc
     src/sorting/config.cc
@@ -43,10 +45,12 @@ get_filename_component(DATA_DIR "${DATA_DIR}" ABSOLUTE)
 
 set(LNGS_DIR "${DATA_DIR}/strings")
 set(TR_DIR "${DATA_DIR}/translations")
+set(PLUGIN_DIR "${DATA_DIR}/plugins")
 set(BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../bin")
 get_filename_component(BIN_DIR "${BIN_DIR}" ABSOLUTE)
 
 set(LNG_SOURCES server tags regions webapp)
+set(PLUGIN_SOURCES imdb tmdb)
 
 set(GEN_SRCS "${CMAKE_CURRENT_BINARY_DIR}/inc/regions/mapping.hh")
 set(DATA_SRCS)
@@ -69,6 +73,11 @@ foreach(LNG_SOURCE ${LNG_SOURCES})
             list(APPEND BIN_SRCS ${__lng})
         endif()
     endforeach()
+endforeach()
+
+foreach(PLUGIN_SOURCE ${PLUGIN_SOURCES})
+    list(APPEND DATA_SRCS "${PLUGIN_DIR}/${PLUGIN_SOURCE}.json")
+    list(APPEND BIN_SRCS "${BIN_DIR}/plugins/${PLUGIN_SOURCE}.json")
 endforeach()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRCS})
@@ -124,6 +133,14 @@ foreach(LNG_SOURCE ${LNG_SOURCES})
                 VERBATIM)
         endif()
     endforeach()
+endforeach()
+
+foreach(PLUGIN_SOURCE ${PLUGIN_SOURCES})
+    add_custom_command(OUTPUT "${BIN_DIR}/plugins/${PLUGIN_SOURCE}.json"
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy "${PLUGIN_DIR}/${PLUGIN_SOURCE}.json" "${BIN_DIR}/plugins/${PLUGIN_SOURCE}.json"
+        DEPENDS "${PLUGIN_DIR}/${PLUGIN_SOURCE}.json"
+        VERBATIM)
 endforeach()
 
 set(REGIONS_DEPS
