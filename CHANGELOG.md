@@ -1,4 +1,15 @@
 
+## [0.7.0](https://github.com/mzdun/movies-ws/compare/v0.6.0...v0.7.0) (2023-01-04)
+
+### New Features
+
+- link plugins from config ([0bde3a4](https://github.com/mzdun/movies-ws/commit/0bde3a49ebaf6a5ffa13f1c3585edfc8f5aa3e91))
+
+### Bug Fixes
+
+- install plugin configs ([2b47f93](https://github.com/mzdun/movies-ws/commit/2b47f93da73d4c883faab40d14e7f27699d45264))
+- send update if only plugins change ([fc2893c](https://github.com/mzdun/movies-ws/commit/fc2893c3ff0abaebb73e96ee15bfa9f65c60046f))
+
 ## [0.6.0](https://github.com/mzdun/movies-ws/compare/v0.5.1...v0.6.0) (2023-01-03)
 
 ### New Features
