@@ -2,6 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
+#include <optional>
 #include <stats/sqlite.hh>
 
 namespace movies {
