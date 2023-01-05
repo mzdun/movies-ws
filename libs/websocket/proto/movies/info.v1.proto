@@ -25,6 +25,7 @@ message MovieInfo {
 	optional MovieLink prev = 17;
 	optional MovieLink next = 18;
 	optional string parent = 19;
+	optional LastWatched last_watched = 20;
 };
 
 message MovieLink {
@@ -95,5 +96,5 @@ message Marker {
 
 message LastWatched {
 	optional uint32 where = 1;
-	optional uint64 when = 2;
+	optional int64 when = 2;
 }

@@ -12,6 +12,8 @@
 namespace movies {
 	struct service_cfg {
 		std::filesystem::path database;
+		std::filesystem::path watch_db;
+		std::filesystem::path edit_db;
 		std::string prefix;
 		std::string title;
 	};

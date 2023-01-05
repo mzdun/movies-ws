@@ -171,6 +171,12 @@ namespace movies::db::v1 {
 			TR_COPY(title);
 		}
 
+		void copy(watch_offset const& src,
+		          info::v1::LastWatched& dst) {
+			if (src.offset) dst.set_where(*src.offset);
+			if (src.timestamp) dst.set_when(*src.timestamp);
+		}
+
 		template <typename Src, typename Dst, typename... Additional>
 		inline void copy(std::vector<Src> const& src,
 		                 RepeatedPtrField<Dst>& dst,
@@ -187,6 +193,7 @@ namespace movies::db::v1 {
 		          std::string const& key,
 		          std::vector<link> const& links,
 		          std::vector<reference> const& episodes,
+		          watch_offset const& watch,
 		          info::v1::MovieInfo& dst,
 		          std::span<std::string const> langs) {
 			dst.set_id(key);
@@ -202,6 +209,7 @@ namespace movies::db::v1 {
 				v1::copy(src.next, *dst.mutable_next(), langs);
 
 			if (src.is_episode) v1::copy(src.series_id, *dst.mutable_parent());
+			if (watch) v1::copy(watch, *dst.mutable_last_watched());
 		}
 
 		template <typename Request>
@@ -405,8 +413,9 @@ namespace movies::db::v1 {
 		auto info = server()->find_movie_copy(req.key());
 		auto const episodes =
 		    server()->get_episodes(info.episodes, data.langs());
+		auto const watch = server()->get_watch_time(req.key());
 
-		copy(info, req.key(), server()->links_for(info, data.tr()), episodes,
+		copy(info, req.key(), server()->links_for(info, data.tr()), episodes, watch,
 		     *resp.mutable_info(), data.langs());
 		if (resp.info().title().has_local())
 			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
@@ -420,6 +429,10 @@ namespace movies::db::v1 {
 		if (resource) {
 			auto const generic = resource->generic_u8string();
 			resp.set_uri(fmt::format("/{}", as_sv(generic)));
+
+			auto const watch = server()->get_watch_time(req.key());
+			if (watch) v1::copy(watch, *resp.mutable_last_watched());
+
 			lwsl_user("   -> %s\n", resp.uri().c_str());
 		} else {
 			lwsl_user("   -> no video\n");
@@ -428,6 +441,9 @@ namespace movies::db::v1 {
 
 	MSG_HANDLER(SetVideoPosition) {
 		silent = true;
+		server()->set_watch_time(req.key(),
+		                         {.offset = req.last_watched().where(),
+		                          .timestamp = req.last_watched().when()});
 	}
 
 	MSG_HANDLER(SetVideoInfo) {}

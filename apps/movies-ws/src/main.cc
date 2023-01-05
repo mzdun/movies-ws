@@ -41,11 +41,23 @@ movies::service_cfg load(fs::path const& json_filename) {
 	auto json_prefix = cast<json::string>(node, u8"mount"s);
 	auto json_path = cast<json::string>(node, u8"path"s);
 	auto json_title = cast<json::string>(node, u8"title"s);
+	auto json_db = cast<json::string>(node, u8"db"s);
+	auto json_watch_db = cast<json::string>(node, u8"watch-db"s);
+	auto json_edit_db = cast<json::string>(node, u8"edit-db"s);
 
 	movies::service_cfg result{};
+	auto db_dir =
+	    fs::weakly_canonical(json_db ? json_filename.parent_path() / *json_db
+	                                 : json_filename.parent_path());
+
 	result.database = fs::weakly_canonical(
 	    json_path ? json_filename.parent_path() / *json_path
 	              : json_filename.parent_path());
+	result.watch_db = fs::weakly_canonical(
+	    json_watch_db ? db_dir / *json_watch_db : db_dir / u8"watch.sqlite"sv);
+	result.edit_db = fs::weakly_canonical(
+	    json_edit_db ? db_dir / *json_edit_db : db_dir / u8"edits.sqlite"sv);
+
 	if (json_prefix) result.prefix.assign(movies::as_sv(*json_prefix));
 	if (result.prefix.empty() || result.prefix.front() != '/')
 		result.prefix.insert(result.prefix.begin(), '/');
@@ -58,7 +70,7 @@ movies::service_cfg load(fs::path const& json_filename) {
 	return result;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 #ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
 #endif
@@ -90,7 +102,7 @@ int main(int argc, char** argv) {
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
 	lwsl_user("movies-ws version %s\n", version::string_ui);
 
-	auto backend = std::make_shared<movies::server>(cfg.title);
+	auto backend = std::make_shared<movies::server>(cfg.title, cfg.watch_db);
 	per_session_dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);
 	UI_HANDLERS(X_CREATE_HANDLER);
@@ -130,4 +142,6 @@ int main(int argc, char** argv) {
 	lwsl_user("http://localhost:%d%s/\n", service.port(), cfg.prefix.c_str());
 	service.run();
 	lwsl_user("goodbye!\n");
+} catch (std::exception& ex) {
+	std::cerr << "Exception: " << ex.what() << '\n';
 }

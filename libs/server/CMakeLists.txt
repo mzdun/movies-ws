@@ -12,6 +12,8 @@ set(SRCS
     inc/server/plugin.hh
     inc/server/server.hh
     inc/sorting/sort.hh
+    inc/stats/sqlite.hh
+    inc/stats/watch_offset.hh
     src/base/extended_info.cc
     src/filters/base.cc
     src/filters/description.cc
@@ -28,6 +30,8 @@ set(SRCS
     src/server/server.cc
     src/sorting/config.cc
     src/sorting/sort.cc
+    src/stats/sqlite.cc
+    src/stats/watch_offset.cc
 )
 
 if (WIN32)

@@ -857,4 +857,13 @@ namespace movies {
 	}
 
 	void server::on_files_changed() { load_async(true); }
+
+	watch_offset server::get_watch_time(std::string const& movie) {
+		return watch_offsets_.get_watch_time(movie);
+	}
+
+	void server::set_watch_time(std::string const& movie,
+	                            watch_offset const& offset) {
+		watch_offsets_.set_watch_time(movie, offset);
+	}
 }  // namespace movies

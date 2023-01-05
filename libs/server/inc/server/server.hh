@@ -11,6 +11,7 @@
 #include <server/plugin.hh>
 #include <shared_mutex>
 #include <sorting/sort.hh>
+#include <stats/watch_offset.hh>
 #include <span>
 
 namespace movies {
@@ -68,7 +69,9 @@ namespace movies {
 	class server : public std::enable_shared_from_this<server>,
 	               private observer_callback {
 	public:
-		explicit server(std::string const& title) : title_{title} {}
+		explicit server(std::string const& title,
+		                std::filesystem::path& watch_db)
+		    : title_{title}, watch_offsets_{watch_db} {}
 		void load(std::filesystem::path const& database);
 		std::string const& title() const noexcept { return title_; }
 		extended_info find_movie_copy(std::string_view id) const;
@@ -100,6 +103,9 @@ namespace movies {
 		}
 		void set_on_db_update(
 		    std::function<void(bool, std::span<std::string> const&)> const& cb);
+		watch_offset get_watch_time(std::string const& movie);
+		void set_watch_time(std::string const& movie,
+		                    watch_offset const& offset);
 
 	private:
 		struct loader {
@@ -139,5 +145,6 @@ namespace movies {
 		plugin::list plugins_{};
 		observer db_observer_{};
 		std::string title_{};
+		watch_db watch_offsets_;
 	};
 }  // namespace movies
