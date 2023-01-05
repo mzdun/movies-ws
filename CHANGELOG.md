@@ -1,4 +1,16 @@
 
+## [0.8.0](https://github.com/mzdun/movies-ws/compare/v0.7.0...v0.8.0) (2023-01-05)
+
+### New Features
+
+- store watch offset and histogram ([2ad6910](https://github.com/mzdun/movies-ws/commit/2ad69109b6475f6eb77c267155a239b38e745398))
+- expose video metadata ([a2da589](https://github.com/mzdun/movies-ws/commit/a2da5898ffeaf264cc066978ddb8377510dbbe41))
+
+### Bug Fixes
+
+- build on Linux ([9024513](https://github.com/mzdun/movies-ws/commit/9024513b6195b4f156ab72d646fb279e5d2074ac))
+- block server from broadcasting beyond main() ([b0330d4](https://github.com/mzdun/movies-ws/commit/b0330d4847cf4ec1aff0c0a30518b8688599f942))
+
 ## [0.7.0](https://github.com/mzdun/movies-ws/compare/v0.6.0...v0.7.0) (2023-01-04)
 
 ### New Features
