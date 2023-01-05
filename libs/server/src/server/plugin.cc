@@ -1,8 +1,8 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <server/plugin.hh>
 #include <base/str.hh>
+#include <server/plugin.hh>
 
 namespace movies {
 	plugin::~plugin() = default;
@@ -53,8 +53,7 @@ namespace movies {
 	    std::vector<string> const& refs) const {
 		std::vector<link> result{};
 		for (auto const& ref : refs) {
-			if (ref.length() > prefix_.length() &&
-			    ref.starts_with(prefix_) &&
+			if (ref.length() > prefix_.length() && ref.starts_with(prefix_) &&
 			    ref[prefix_.length()] == ':') {
 				auto id = ref.substr(prefix_.length() + 1);
 				auto link = current_url(id);

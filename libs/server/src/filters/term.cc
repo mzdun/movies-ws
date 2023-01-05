@@ -14,17 +14,13 @@ using namespace std::literals;
 
 namespace movies {
 	namespace {
-		unsigned move_if_needed(unsigned val) {
-			return val;
-		}
+		unsigned move_if_needed(unsigned val) { return val; }
 
 		std::u8string move_if_needed(std::u8string& val) {
 			return std::move(val);
 		}
 
-		std::string move_if_needed(std::string& val) {
-			return std::move(val);
-		}
+		std::string move_if_needed(std::string& val) { return std::move(val); }
 
 		template <typename Value>
 		struct conv_term;
@@ -139,7 +135,8 @@ namespace movies {
 		public:
 			crew_term_filter(std::string term)
 			    : term_filter<std::string>{std::move(term),
-			                               app::lng::TERM_FILTER_LABEL_CREW, expand::crew} {}
+			                               app::lng::TERM_FILTER_LABEL_CREW,
+			                               expand::crew} {}
 
 		private:
 			[[nodiscard]] bool contains(
@@ -162,29 +159,30 @@ namespace movies {
 	TERM_VALUE_FILTER(X)  \
 	X(crew, crew, std::string, IGNORE)
 
-#define X_TOKENS_TERM_FILTER(CAT, ACCESS, T, LNG)             \
-	class ACCESS##_term_filter : public tokens_term_filter {  \
+#define X_TOKENS_TERM_FILTER(CAT, ACCESS, T, LNG)                           \
+	class ACCESS##_term_filter : public tokens_term_filter {                \
+	public:                                                                 \
+		ACCESS##_term_filter(std::u8string term)                            \
+		    : tokens_term_filter{std::move(term), LNG, expand_from<LNG>} {} \
+                                                                            \
+	private:                                                                \
+		std::vector<std::u8string> const& access(                           \
+		    extended_info const& data) const noexcept final {               \
+			return data.ACCESS;                                             \
+		}                                                                   \
+	};
+
+#define X_VALUE_TERM_FILTER(CAT, ACCESS, T, LNG)              \
+	class ACCESS##_term_filter : public value_term_filter {   \
 	public:                                                   \
-		ACCESS##_term_filter(std::u8string term)              \
-		    : tokens_term_filter{std::move(term), LNG, expand_from<LNG>} {}     \
+		ACCESS##_term_filter(unsigned term)                   \
+		    : value_term_filter{term, LNG, expand::none} {}   \
                                                               \
 	private:                                                  \
-		std::vector<std::u8string> const& access(             \
+		std::optional<unsigned> access(                       \
 		    extended_info const& data) const noexcept final { \
 			return data.ACCESS;                               \
 		}                                                     \
-	};
-
-#define X_VALUE_TERM_FILTER(CAT, ACCESS, T, LNG)                              \
-	class ACCESS##_term_filter : public value_term_filter {                   \
-	public:                                                                   \
-		ACCESS##_term_filter(unsigned term) : value_term_filter{term, LNG, expand::none} {} \
-                                                                              \
-	private:                                                                  \
-		std::optional<unsigned> access(                                       \
-		    extended_info const& data) const noexcept final {                 \
-			return data.ACCESS;                                               \
-		}                                                                     \
 	};
 
 		template <app::lng LNG>

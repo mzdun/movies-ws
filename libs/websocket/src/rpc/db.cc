@@ -171,8 +171,7 @@ namespace movies::db::v1 {
 			TR_COPY(title);
 		}
 
-		void copy(watch_offset const& src,
-		          info::v1::LastWatched& dst) {
+		void copy(watch_offset const& src, info::v1::LastWatched& dst) {
 			if (src.offset) dst.set_where(*src.offset);
 			if (src.timestamp) dst.set_when(*src.timestamp);
 		}
@@ -415,8 +414,8 @@ namespace movies::db::v1 {
 		    server()->get_episodes(info.episodes, data.langs());
 		auto const watch = server()->get_watch_time(req.key());
 
-		copy(info, req.key(), server()->links_for(info, data.tr()), episodes, watch,
-		     *resp.mutable_info(), data.langs());
+		copy(info, req.key(), server()->links_for(info, data.tr()), episodes,
+		     watch, *resp.mutable_info(), data.langs());
 		if (resp.info().title().has_local())
 			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
 		else

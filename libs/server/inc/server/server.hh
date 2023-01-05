@@ -11,8 +11,8 @@
 #include <server/plugin.hh>
 #include <shared_mutex>
 #include <sorting/sort.hh>
-#include <stats/watch_offset.hh>
 #include <span>
+#include <stats/watch_offset.hh>
 
 namespace movies {
 	struct reference {

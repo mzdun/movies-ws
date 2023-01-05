@@ -66,8 +66,11 @@ namespace movies {
 
 		link current_url(string const& id) const;
 
-		bool eq(plugin const& rhs) const noexcept final { return rhs.eq_double_disp(*this); }
-		bool eq_double_disp(json_plugin const&) const noexcept final; 
+		bool eq(plugin const& rhs) const noexcept final {
+			return rhs.eq_double_disp(*this);
+		}
+		bool eq_double_disp(json_plugin const&) const noexcept final;
+
 	private:
 		json_plugin_info info_;
 	};

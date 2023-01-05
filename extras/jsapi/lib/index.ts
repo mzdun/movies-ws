@@ -6,7 +6,7 @@ export interface FilterListing {
 	title?: string;
 	items: movies.listing.v1.IMovieReference[];
 	links: movies.info.v1.ILink[];
-};
+}
 
 export class Service extends MovieEventTarget {
 	_ws: WsClient;
@@ -60,13 +60,13 @@ export class Service extends MovieEventTarget {
 	async getFilterListing(
 	    category: string, term: string, filters: movies.filters.v1.IFilter[],
 	    sort: string[], search?: string) {
-		const result = (await this._ws.send({
-			getFilterListing: { filters, sort, search, category, term }
-		})).getFilterListing;
+		const result =
+		    (await this._ws.send({
+			    getFilterListing: {filters, sort, search, category, term}
+		    })).getFilterListing;
 		return {
-			title: result?.title || undefined,
-			items: result?.items || [],
-			links: result?.links || [],
+			title: result?.title || undefined, items: result?.items || [],
+			    links: result?.links || [],
 		}
 		//
 	}

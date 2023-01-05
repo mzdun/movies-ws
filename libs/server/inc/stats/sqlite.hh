@@ -25,7 +25,7 @@ namespace movies {
 
 		SQLite::Database& conn() noexcept { return db_; }
 		SQLite::Database const& conn() const noexcept { return db_; }
-        void create_tables(std::span<table_def const> tables);
+		void create_tables(std::span<table_def const> tables);
 		std::shared_mutex& mutex() const noexcept { return m_; }
 
 	private:
