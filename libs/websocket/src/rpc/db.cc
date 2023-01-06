@@ -171,6 +171,30 @@ namespace movies::db::v1 {
 			TR_COPY(title);
 		}
 
+		void copy(marker const& src, info::v1::Marker& dst) {
+			using info::v1::Marker;
+#define ASSERT_EQ(CXX, PROTO)                              \
+	static_assert(std::to_underlying(marker::type::CXX) == \
+	                  std::to_underlying(Marker::PROTO),   \
+	              #CXX " and " #PROTO " are mismatched")
+			ASSERT_EQ(other, Other);
+			ASSERT_EQ(recap, Recap);
+			ASSERT_EQ(credits, Credits);
+			ASSERT_EQ(credits_scene, CreditsScene);
+
+			dst.set_type(static_cast<Marker::Type>(std::to_underlying(src.kind)));
+			OPT_SET(start);
+			OPT_SET(stop);
+			OPT_COPY(comment);
+		}
+
+		void copy(video_info const& src, info::v1::VideoInfo& dst) {
+			if (src.credits) dst.set_credits(*src.credits);
+			if (src.end_of_watch) dst.set_end_of_watch(*src.end_of_watch);
+			if (src.has_a_valid_marker())
+				v1::copy(src.markers, *dst.mutable_markers());
+		}
+
 		void copy(watch_offset const& src, info::v1::LastWatched& dst) {
 			if (src.offset) dst.set_where(*src.offset);
 			if (src.timestamp) dst.set_when(*src.timestamp);
@@ -209,6 +233,11 @@ namespace movies::db::v1 {
 
 			if (src.is_episode) v1::copy(src.series_id, *dst.mutable_parent());
 			if (watch) v1::copy(watch, *dst.mutable_last_watched());
+		}
+
+		size_t cap(int isize) {
+			if (isize < 0) return 0;
+			return static_cast<size_t>(isize);
 		}
 
 		template <typename Request>
@@ -429,6 +458,8 @@ namespace movies::db::v1 {
 			auto const generic = resource->generic_u8string();
 			resp.set_uri(fmt::format("/{}", as_sv(generic)));
 
+			auto const info = server()->get_video_info(req.key());
+			if (info) v1::copy(info, *resp.mutable_info());
 			auto const watch = server()->get_watch_time(req.key());
 			if (watch) v1::copy(watch, *resp.mutable_last_watched());
 
@@ -445,5 +476,23 @@ namespace movies::db::v1 {
 		                          .timestamp = req.last_watched().when()});
 	}
 
-	MSG_HANDLER(SetVideoInfo) {}
+	MSG_HANDLER(SetVideoInfo) {
+		lwsl_user("SetVideoInfo(%s)\n", req.key().c_str());
+		auto const& src = req.info();
+		video_info info{};
+		if (src.has_credits()) info.credits = src.credits();
+		if (src.has_end_of_watch()) info.end_of_watch = src.end_of_watch();
+		auto const& markers = src.markers();
+		info.markers.reserve(cap(markers.size()));
+		for (auto const& marker : markers) {
+			info.markers.emplace_back();
+			auto& next = info.markers.back();
+			next.kind = static_cast<movies::marker::type>(marker.type());
+			if (marker.has_start()) next.start = marker.start();
+			if (marker.has_stop()) next.stop = marker.stop();
+			if (marker.has_comment()) next.comment = marker.comment();
+			if (!next) info.markers.pop_back();
+		}
+		server()->set_video_info(req.key(), info);
+	}
 }  // namespace movies::db::v1

@@ -98,7 +98,7 @@ export class Service extends MovieEventTarget {
 		    {};
 	}
 
-	async setVideoInfo(key: string, info: movies.info.v1.IMovieStats) {
+	async setVideoInfo(key: string, info: movies.info.v1.IVideoInfo) {
 		return (await this._ws.send({
 			       setVideoInfo: {key, info}
 		       })).setVideoInfo ||

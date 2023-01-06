@@ -866,4 +866,13 @@ namespace movies {
 	                            watch_offset const& offset) {
 		watch_offsets_.set_watch_time(movie, offset);
 	}
+
+	video_info server::get_video_info(std::string const& movie) {
+		return video_info_.get_video_info(movie);
+	}
+
+	void server::set_video_info(std::string const& movie,
+	                            video_info const& info) {
+		video_info_.set_video_info(movie, info);
+	}
 }  // namespace movies

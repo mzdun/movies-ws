@@ -43,7 +43,7 @@ movies::service_cfg load(fs::path const& json_filename) {
 	auto json_title = cast<json::string>(node, u8"title"s);
 	auto json_db = cast<json::string>(node, u8"db"s);
 	auto json_watch_db = cast<json::string>(node, u8"watch-db"s);
-	auto json_edit_db = cast<json::string>(node, u8"edit-db"s);
+	auto json_video_info_db = cast<json::string>(node, u8"video-info-db"s);
 
 	movies::service_cfg result{};
 	auto db_dir =
@@ -55,8 +55,9 @@ movies::service_cfg load(fs::path const& json_filename) {
 	              : json_filename.parent_path());
 	result.watch_db = fs::weakly_canonical(
 	    json_watch_db ? db_dir / *json_watch_db : db_dir / u8"watch.sqlite"sv);
-	result.edit_db = fs::weakly_canonical(
-	    json_edit_db ? db_dir / *json_edit_db : db_dir / u8"edits.sqlite"sv);
+	result.video_info_db = fs::weakly_canonical(
+	    json_video_info_db ? db_dir / *json_video_info_db
+	                       : db_dir / u8"video-info.sqlite"sv);
 
 	if (json_prefix) result.prefix.assign(movies::as_sv(*json_prefix));
 	if (result.prefix.empty() || result.prefix.front() != '/')
@@ -102,7 +103,8 @@ int main(int argc, char** argv) try {
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
 	lwsl_user("movies-ws version %s\n", version::string_ui);
 
-	auto backend = std::make_shared<movies::server>(cfg.title, cfg.watch_db);
+	auto backend = std::make_shared<movies::server>(cfg.title, cfg.watch_db,
+	                                                cfg.video_info_db);
 	per_session_dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);
 	UI_HANDLERS(X_CREATE_HANDLER);

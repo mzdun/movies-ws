@@ -27,6 +27,8 @@ namespace movies {
 		SQLite::Database const& conn() const noexcept { return db_; }
 		void create_tables(std::span<table_def const> tables);
 		std::shared_mutex& mutex() const noexcept { return m_; }
+		std::optional<int64_t> check_movie_id(std::string const& movie);
+		int64_t movie_id(std::string const& movie);
 
 	private:
 		unsigned get_version();

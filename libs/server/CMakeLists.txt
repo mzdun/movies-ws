@@ -13,6 +13,7 @@ set(SRCS
     inc/server/server.hh
     inc/sorting/sort.hh
     inc/stats/sqlite.hh
+    inc/stats/video_info.hh
     inc/stats/watch_offset.hh
     src/base/extended_info.cc
     src/filters/base.cc
@@ -30,7 +31,9 @@ set(SRCS
     src/server/server.cc
     src/sorting/config.cc
     src/sorting/sort.cc
+    src/stats/movie_table.hh
     src/stats/sqlite.cc
+    src/stats/video_info.cc
     src/stats/watch_offset.cc
 )
 

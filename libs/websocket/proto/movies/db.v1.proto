@@ -44,13 +44,13 @@ message GetVideoFileRequest {
 
 message GetVideoFileResponse {
 	optional string uri = 1;
-	optional movies.info.v1.MovieStats info = 2;
+	optional movies.info.v1.VideoInfo info = 2;
 	optional movies.info.v1.LastWatched last_watched = 3;
 };
 
 message SetVideoInfoRequest {
 	string key = 1;
-	movies.info.v1.MovieStats info = 2;
+	movies.info.v1.VideoInfo info = 2;
 };
 
 message SetVideoInfoResponse {};

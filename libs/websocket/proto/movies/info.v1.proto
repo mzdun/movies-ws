@@ -75,7 +75,7 @@ message PosterInfo {
 	optional string normal = 3;
 };
 
-message MovieStats {
+message VideoInfo {
 	optional uint32 credits = 2;
 	optional uint32 end_of_watch = 3;
 	repeated Marker markers = 4;
@@ -83,15 +83,16 @@ message MovieStats {
 
 message Marker {
 	enum Type {
-		recap = 0;
-		credits = 1;
-		credits_scene = 2;
+		Other = 0;
+		Recap = 1;
+		Credits = 2;
+		CreditsScene = 3;
 	};
 
 	Type type = 1;
 	optional uint32 start = 2;
 	optional uint32 stop = 3;
-	optional string dev_comment = 4;
+	optional string comment = 4;
 };
 
 message LastWatched {

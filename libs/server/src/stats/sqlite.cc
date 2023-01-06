@@ -37,6 +37,27 @@ namespace movies {
 		}
 	}
 
+	std::optional<int64_t> sqlite::check_movie_id(std::string const& movie) {
+		SQLite::Statement stmt{conn(), "SELECT id FROM movie WHERE movie=?"};
+		stmt.bind(1, movie);
+		if (stmt.executeStep()) {
+			return stmt.getColumn(0).getInt64();
+		}
+
+		return std::nullopt;
+	}
+
+	int64_t sqlite::movie_id(std::string const& movie) {
+		auto opt = check_movie_id(movie);
+		if (opt) return *opt;
+
+		SQLite::Statement stmt{conn(),
+		                       "INSERT OR FAIL INTO movie (movie) VALUES (?)"};
+		stmt.bind(1, movie);
+		stmt.exec();
+		return conn().getLastInsertRowid();
+	}
+
 	SQLite::Database sqlite::open(std::filesystem::path const& path) {
 		std::error_code ignore{};
 		std::filesystem::create_directories(path.parent_path(), ignore);

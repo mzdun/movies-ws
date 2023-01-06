@@ -4,16 +4,10 @@
 #include <SQLiteCpp/Transaction.h>
 #include <sqlite3.h>
 #include <stats/watch_offset.hh>
-
-using namespace std::literals;
+#include "movie_table.hh"
 
 namespace movies {
 	namespace v1 {
-		static constexpr std::string_view movie_columns[] = {
-		    "id INTEGER PRIMARY KEY NOT NULL"sv,
-		    "movie TEXT UNIQUE NOT NULL"sv,
-		};
-
 		static constexpr std::string_view offset_columns[] = {
 		    "id INTEGER NOT NULL REFERENCES movie ON UPDATE CASCADE"sv,
 		    "offset INTEGER NOT NULL"sv,
@@ -84,19 +78,6 @@ namespace movies {
 			set_histo(id, off, histo);
 		}
 		trans.commit();
-	}
-
-	int64_t watch_db::movie_id(std::string const& movie) {
-		SQLite::Statement stmt{conn(), "SELECT id FROM movie WHERE movie=?"};
-		stmt.bind(1, movie);
-		if (stmt.executeStep()) {
-			return stmt.getColumn(0).getInt64();
-		}
-
-		stmt = {conn(), "INSERT OR FAIL INTO movie (movie) VALUES (?)"};
-		stmt.bind(1, movie);
-		stmt.exec();
-		return conn().getLastInsertRowid();
 	}
 
 	void watch_db::remove_offset(int64_t id) {

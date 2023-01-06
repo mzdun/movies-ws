@@ -27,7 +27,6 @@ namespace movies {
 
 	private:
 		bool update_schema(unsigned prev_version) override;
-		int64_t movie_id(std::string const& movie);
 		void remove_offset(int64_t id);
 		void insert_or_update(uint32_t offset,
 		                      std::optional<int64_t> const& timestamp,
