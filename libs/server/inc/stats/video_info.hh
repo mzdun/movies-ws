@@ -4,6 +4,7 @@
 #pragma once
 #include <optional>
 #include <stats/sqlite.hh>
+#include <vector>
 
 namespace movies {
 	struct marker {

@@ -11,9 +11,8 @@
 #include <server/plugin.hh>
 #include <shared_mutex>
 #include <sorting/sort.hh>
-#include <stats/watch_offset.hh>
-#include <stats/video_info.hh>
 #include <span>
+#include <stats/video_info.hh>
 #include <stats/watch_offset.hh>
 
 namespace movies {

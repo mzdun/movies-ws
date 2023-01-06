@@ -182,7 +182,8 @@ namespace movies::db::v1 {
 			ASSERT_EQ(credits, Credits);
 			ASSERT_EQ(credits_scene, CreditsScene);
 
-			dst.set_type(static_cast<Marker::Type>(std::to_underlying(src.kind)));
+			dst.set_type(
+			    static_cast<Marker::Type>(std::to_underlying(src.kind)));
 			OPT_SET(start);
 			OPT_SET(stop);
 			OPT_COPY(comment);
