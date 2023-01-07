@@ -173,14 +173,12 @@ namespace movies::db::v1 {
 
 		void copy(marker const& src, info::v1::Marker& dst) {
 			using info::v1::Marker;
-#define ASSERT_EQ(CXX, PROTO)                              \
+#define MARKER_TYPE_X_ASSERT_EQ(CXX, PROTO)                              \
 	static_assert(std::to_underlying(marker::type::CXX) == \
 	                  std::to_underlying(Marker::PROTO),   \
-	              #CXX " and " #PROTO " are mismatched")
-			ASSERT_EQ(other, Other);
-			ASSERT_EQ(recap, Recap);
-			ASSERT_EQ(credits, Credits);
-			ASSERT_EQ(credits_scene, CreditsScene);
+	              #CXX " and " #PROTO " are mismatched");
+			MARKER_TYPE_X(MARKER_TYPE_X_ASSERT_EQ);
+#undef MARKER_TYPE_X_ASSERT_EQ
 
 			dst.set_type(
 			    static_cast<Marker::Type>(std::to_underlying(src.kind)));

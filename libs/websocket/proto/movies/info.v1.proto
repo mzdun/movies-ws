@@ -87,6 +87,7 @@ message Marker {
 		Recap = 1;
 		Credits = 2;
 		CreditsScene = 3;
+		Chapter = 4;
 	};
 
 	Type type = 1;
