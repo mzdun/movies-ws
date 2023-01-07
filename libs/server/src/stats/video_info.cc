@@ -63,8 +63,8 @@ namespace movies {
 #define MARKER_TYPE(NAME) \
 	{ marker::type::NAME, #NAME##sv }
 		static constexpr marker_type marker_types[] = {
-		    MARKER_TYPE(other),   MARKER_TYPE(recap),
-		    MARKER_TYPE(credits), MARKER_TYPE(credits_scene),
+		    MARKER_TYPE(bookmark), MARKER_TYPE(recap),
+		    MARKER_TYPE(credits),  MARKER_TYPE(credits_scene),
 		    MARKER_TYPE(chapter),
 		};
 	}  // namespace v1
@@ -78,7 +78,7 @@ namespace movies {
 			return false;
 		}
 
-#define MARKER_TYPE_X_HAS_KEY_FOR(TYPE, _) has_key_for(marker::type::TYPE)&&
+#define MARKER_TYPE_X_HAS_KEY_FOR(TYPE) has_key_for(marker::type::TYPE)&&
 		static_assert(MARKER_TYPE_X(MARKER_TYPE_X_HAS_KEY_FOR) true,
 		              "a key is missing from marker_types");
 #undef MARKER_TYPE_X_HAS_KEY_FOR

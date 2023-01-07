@@ -7,21 +7,21 @@
 #include <vector>
 
 namespace movies {
-#define MARKER_TYPE_X(X)           \
-	X(other, Other)                \
-	X(recap, Recap)                \
-	X(credits, Credits)            \
-	X(credits_scene, CreditsScene) \
-	X(chapter, Chapter)
+#define MARKER_TYPE_X(X) \
+	X(bookmark)          \
+	X(recap)             \
+	X(credits)           \
+	X(credits_scene)     \
+	X(chapter)
 
 	struct marker {
 		enum class type {
-#define MARKER_TYPE_X_DECL_TYPE(NAME, _) NAME,
+#define MARKER_TYPE_X_DECL_TYPE(NAME) NAME,
 			MARKER_TYPE_X(MARKER_TYPE_X_DECL_TYPE)
 #undef MARKER_TYPE_X_DECL_TYPE
 		};
 
-		type kind{type::other};
+		type kind{type::bookmark};
 		std::optional<uint32_t> start{};
 		std::optional<uint32_t> stop{};
 		std::optional<std::string> comment{};

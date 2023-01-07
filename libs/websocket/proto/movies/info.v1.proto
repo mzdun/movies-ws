@@ -83,11 +83,11 @@ message VideoInfo {
 
 message Marker {
 	enum Type {
-		Other = 0;
-		Recap = 1;
-		Credits = 2;
-		CreditsScene = 3;
-		Chapter = 4;
+		bookmark = 0;
+		recap = 1;
+		credits = 2;
+		credits_scene = 3;
+		chapter = 4;
 	};
 
 	Type type = 1;
