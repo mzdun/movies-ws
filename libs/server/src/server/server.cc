@@ -30,7 +30,7 @@ namespace movies {
 	}
 
 	inline auto fs2wall(std::filesystem::file_time_type const& fs) {
-#if __cpp_lib_chrono > 201907L
+#if __cpp_lib_chrono >= 201907L
 		using namespace std::chrono;
 		auto const wall = clock_cast<system_clock>(fs);
 		return floor<seconds>(wall);
@@ -546,6 +546,7 @@ namespace movies {
 		steady_clock::time_point locked{};
 		steady_clock::time_point printed{};
 		steady_clock::time_point sqlite{};
+		steady_clock::time_point video_infos{};
 
 		std::function<void(bool, std::span<std::string> const&)> on_db_update{};
 		{
@@ -598,6 +599,15 @@ namespace movies {
 
 			sqlite = steady_clock::now();
 			engine_.rebuild(movies_);
+
+			video_infos = steady_clock::now();
+			if (changed) {
+				for (auto const& [id, movie] : movies_.movies) {
+					if (!movie.video.credits && !movie.video.end_of_watch &&
+					    movie.video.markers.empty()) continue;
+					video_info_.set_video_info(id, movie.video);
+				}
+			}
 		}
 		auto const now = steady_clock::now();
 
@@ -606,9 +616,10 @@ namespace movies {
 
 		dbg[1] = fmt::format(
 		    "Installed in {total} (waiting for {waiting}, moving in "
-		    "{moving}, sqlite {sqlite})\n",
+		    "{moving}, sqlite {sqlite}, video info {infos})\n",
 		    dur_arg("waiting", then, locked),
-		    dur_arg("moving", printed, sqlite), dur_arg("sqlite", sqlite, now),
+		    dur_arg("moving", printed, sqlite), dur_arg("sqlite", sqlite, video_infos),
+		    dur_arg("infos", video_infos, now),
 		    dur_arg("total", then, now));
 #undef dur_arg
 
