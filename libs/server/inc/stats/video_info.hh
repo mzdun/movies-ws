@@ -2,10 +2,10 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
+#include <movies/movie_info.hpp>
 #include <optional>
 #include <stats/sqlite.hh>
 #include <vector>
-#include <movies/movie_info.hpp>
 
 namespace movies {
 	class video_info_db final : sqlite {

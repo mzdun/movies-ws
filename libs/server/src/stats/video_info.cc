@@ -32,9 +32,10 @@ namespace movies {
 		}
 
 		template <typename... Args>
-		void bind(SQLite::Statement& stmt,
-		          int index,
-		          std::optional<std::basic_string<char8_t, Args...>> const& value) {
+		void bind(
+		    SQLite::Statement& stmt,
+		    int index,
+		    std::optional<std::basic_string<char8_t, Args...>> const& value) {
 			if (value)
 				stmt.bind(index, as_sv(*value).data());
 			else

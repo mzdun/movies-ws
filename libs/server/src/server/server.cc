@@ -604,7 +604,8 @@ namespace movies {
 			if (changed) {
 				for (auto const& [id, movie] : movies_.movies) {
 					if (!movie.video.credits && !movie.video.end_of_watch &&
-					    movie.video.markers.empty()) continue;
+					    movie.video.markers.empty())
+						continue;
 					video_info_.set_video_info(id, movie.video);
 				}
 			}
@@ -618,9 +619,9 @@ namespace movies {
 		    "Installed in {total} (waiting for {waiting}, moving in "
 		    "{moving}, sqlite {sqlite}, video info {infos})\n",
 		    dur_arg("waiting", then, locked),
-		    dur_arg("moving", printed, sqlite), dur_arg("sqlite", sqlite, video_infos),
-		    dur_arg("infos", video_infos, now),
-		    dur_arg("total", then, now));
+		    dur_arg("moving", printed, sqlite),
+		    dur_arg("sqlite", sqlite, video_infos),
+		    dur_arg("infos", video_infos, now), dur_arg("total", then, now));
 #undef dur_arg
 
 		auto lines = std::span{dbg};
