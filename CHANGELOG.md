@@ -1,4 +1,19 @@
 
+## [0.9.0](https://github.com/mzdun/movies-ws/compare/v0.8.0...v0.9.0) (2023-01-08)
+
+### New Features
+
+- always prefer json markers over db ([92f4acb](https://github.com/mzdun/movies-ws/commit/92f4acb60b49f62e76b2bc6ed8852246cc41f74a))
+- store video markers ([0c8d3dd](https://github.com/mzdun/movies-ws/commit/0c8d3dd68937539766ac7f5ca0f2070d6508c682))
+
+### Bug Fixes
+
+- backtrack to_underlying on GCC ([a542557](https://github.com/mzdun/movies-ws/commit/a54255786cb3ee29920a5ce72d0a9eceb177fe92))
+- switch to video_info from libmovies ([8674665](https://github.com/mzdun/movies-ws/commit/86746655b6810be40d4c4d1ff8facecd4c79d465))
+- unite sql, c++ and proto names ([6a45e16](https://github.com/mzdun/movies-ws/commit/6a45e16c10e0096343195a507decab7179ac8a6b))
+- add chapter to marker types ([f9f9274](https://github.com/mzdun/movies-ws/commit/f9f927438f2c2eedf1fbb2841781eeb9c500d720))
+- build on Linux ([362a6f4](https://github.com/mzdun/movies-ws/commit/362a6f42d23051a148a1d269f9000f2bfa90023d))
+
 ## [0.8.0](https://github.com/mzdun/movies-ws/compare/v0.7.0...v0.8.0) (2023-01-05)
 
 ### New Features
