@@ -3,6 +3,7 @@
 
 #include <SQLiteCpp/Transaction.h>
 #include <sqlite3.h>
+#include <base/str.hh>
 #include <stats/video_info.hh>
 #include "movie_table.hh"
 
@@ -13,9 +14,11 @@ namespace movies {
 			return col.getUInt();
 		}
 
-		std::optional<std::string> opt_string(SQLite::Column const& col) {
+		std::optional<std::u8string> opt_u8string(SQLite::Column const& col) {
 			if (col.isNull()) return std::nullopt;
-			return col.getString();
+			auto const str = col.getString();
+			auto const view = as_u8v(str);
+			return std::u8string{view.data(), view.length()};
 		}
 
 		template <typename Payload>
@@ -24,6 +27,16 @@ namespace movies {
 		          std::optional<Payload> const& value) {
 			if (value)
 				stmt.bind(index, *value);
+			else
+				stmt.bind(index);
+		}
+
+		template <typename... Args>
+		void bind(SQLite::Statement& stmt,
+		          int index,
+		          std::optional<std::basic_string<char8_t, Args...>> const& value) {
+			if (value)
+				stmt.bind(index, as_sv(*value).data());
 			else
 				stmt.bind(index);
 		}
@@ -56,13 +69,13 @@ namespace movies {
 		    {"marker"sv, marker_columns},
 		};
 
-		struct marker_type {
-			marker::type type;
+		struct marker_type_str {
+			marker_type type;
 			std::string_view name;
 		};
 #define MARKER_TYPE(NAME) \
-	{ marker::type::NAME, #NAME##sv }
-		static constexpr marker_type marker_types[] = {
+	{ marker_type::NAME, #NAME##sv }
+		static constexpr marker_type_str marker_types[] = {
 		    MARKER_TYPE(bookmark), MARKER_TYPE(recap),
 		    MARKER_TYPE(credits),  MARKER_TYPE(credits_scene),
 		    MARKER_TYPE(chapter),
@@ -70,7 +83,7 @@ namespace movies {
 	}  // namespace v1
 
 	namespace {
-		consteval bool has_key_for(marker::type kind) {
+		consteval bool has_key_for(marker_type kind) {
 			for (auto const& [type, _] : v1::marker_types) {
 				if (type == kind) return true;
 			}
@@ -78,10 +91,10 @@ namespace movies {
 			return false;
 		}
 
-#define MARKER_TYPE_X_HAS_KEY_FOR(TYPE) has_key_for(marker::type::TYPE)&&
-		static_assert(MARKER_TYPE_X(MARKER_TYPE_X_HAS_KEY_FOR) true,
+#define X_HAS_KEY_FOR(TYPE) has_key_for(marker_type::TYPE)&&
+		static_assert(VIDEO_MARKER_TYPE_X(X_HAS_KEY_FOR) true,
 		              "a key is missing from marker_types");
-#undef MARKER_TYPE_X_HAS_KEY_FOR
+#undef X_HAS_KEY_FOR
 	}  // namespace
 
 	bool video_info_db::update_schema(unsigned prev_version) {
@@ -149,7 +162,7 @@ namespace movies {
 		};
 	}
 
-	std::vector<marker> video_info_db::get_markers(int64_t id) {
+	std::vector<video_marker> video_info_db::get_markers(int64_t id) {
 		SQLite::Statement cursor{
 		    conn(), "SELECT type, start, stop, comment FROM marker WHERE id=?"};
 		cursor.bind(1, id);
@@ -158,16 +171,18 @@ namespace movies {
 		while (cursor.executeStep())
 			++count;
 
-		std::vector<marker> result{};
+		std::vector<video_marker> result{};
 		result.reserve(count);
 
 		cursor.reset();
 		while (cursor.executeStep()) {
+			auto const start = opt_uint(cursor.getColumn(1));
+			if (!start) continue;
 			result.push_back({
-			    .kind = static_cast<marker::type>(cursor.getColumn(0).getInt()),
-			    .start = opt_uint(cursor.getColumn(1)),
+			    .type = static_cast<marker_type>(cursor.getColumn(0).getInt()),
+			    .start = *start,
 			    .stop = opt_uint(cursor.getColumn(2)),
-			    .comment = opt_string(cursor.getColumn(3)),
+			    .comment = opt_u8string(cursor.getColumn(3)),
 			});
 		}
 		std::sort(result.begin(), result.end());
@@ -211,7 +226,7 @@ namespace movies {
 	}
 
 	void video_info_db::set_markers(int64_t id,
-	                                std::vector<marker> const& markers) {
+	                                std::vector<video_marker> const& markers) {
 		{
 			SQLite::Statement erase{conn(), "DELETE FROM marker WHERE id=?"};
 			erase.bind(1, id);
@@ -222,11 +237,11 @@ namespace movies {
 		                        "INSERT INTO marker(id, type, start, stop, "
 		                        "comment) VALUES (?, ?, ?, ?, ?)"};
 
-		for (auto const& [kind, start, stop, comment] : markers) {
+		for (auto const& [type, start, stop, comment] : markers) {
 			types.reset();
 			types.bind(1, id);
-			types.bind(2, std::to_underlying(kind));
-			bind(types, 3, start);
+			types.bind(2, std::to_underlying(type));
+			types.bind(3, start);
 			bind(types, 4, stop);
 			bind(types, 5, comment);
 			types.exec();

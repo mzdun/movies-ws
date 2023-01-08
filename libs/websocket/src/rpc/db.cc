@@ -171,18 +171,18 @@ namespace movies::db::v1 {
 			TR_COPY(title);
 		}
 
-		void copy(marker const& src, info::v1::Marker& dst) {
+		void copy(video_marker const& src, info::v1::Marker& dst) {
 			using info::v1::Marker;
-#define MARKER_TYPE_X_ASSERT_EQ(NAME)                       \
-	static_assert(std::to_underlying(marker::type::NAME) == \
-	                  std::to_underlying(Marker::NAME),     \
+#define X_ASSERT_EQ(NAME)                                  \
+	static_assert(std::to_underlying(marker_type::NAME) == \
+	                  std::to_underlying(Marker::NAME),    \
 	              "C++ and Proto values for " #NAME " are mismatched");
-			MARKER_TYPE_X(MARKER_TYPE_X_ASSERT_EQ);
-#undef MARKER_TYPE_X_ASSERT_EQ
+			VIDEO_MARKER_TYPE_X(X_ASSERT_EQ);
+#undef X_ASSERT_EQ
 
 			dst.set_type(
-			    static_cast<Marker::Type>(std::to_underlying(src.kind)));
-			OPT_SET(start);
+			    static_cast<Marker::Type>(std::to_underlying(src.type)));
+			SET(start);
 			OPT_SET(stop);
 			OPT_COPY(comment);
 		}
@@ -190,7 +190,7 @@ namespace movies::db::v1 {
 		void copy(video_info const& src, info::v1::VideoInfo& dst) {
 			if (src.credits) dst.set_credits(*src.credits);
 			if (src.end_of_watch) dst.set_end_of_watch(*src.end_of_watch);
-			if (src.has_a_valid_marker())
+			if (!src.markers.empty())
 				v1::copy(src.markers, *dst.mutable_markers());
 		}
 
@@ -458,7 +458,8 @@ namespace movies::db::v1 {
 			resp.set_uri(fmt::format("/{}", as_sv(generic)));
 
 			auto const info = server()->get_video_info(req.key());
-			if (info) v1::copy(info, *resp.mutable_info());
+			if (info.credits || info.end_of_watch || !info.markers.empty())
+				v1::copy(info, *resp.mutable_info());
 			auto const watch = server()->get_watch_time(req.key());
 			if (watch) v1::copy(watch, *resp.mutable_last_watched());
 
@@ -484,13 +485,13 @@ namespace movies::db::v1 {
 		auto const& markers = src.markers();
 		info.markers.reserve(cap(markers.size()));
 		for (auto const& marker : markers) {
+			if (!marker.has_start()) continue;
 			info.markers.emplace_back();
 			auto& next = info.markers.back();
-			next.kind = static_cast<movies::marker::type>(marker.type());
-			if (marker.has_start()) next.start = marker.start();
+			next.type = static_cast<marker_type>(marker.type());
+			next.start = marker.start();
 			if (marker.has_stop()) next.stop = marker.stop();
-			if (marker.has_comment()) next.comment = marker.comment();
-			if (!next) info.markers.pop_back();
+			if (marker.has_comment()) next.comment = as_u8v(marker.comment());
 		}
 		server()->set_video_info(req.key(), info);
 	}
