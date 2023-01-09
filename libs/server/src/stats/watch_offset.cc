@@ -42,9 +42,10 @@ namespace movies {
 		std::shared_lock lock{mutex()};
 		SQLite::Transaction trans{conn()};
 
-		SQLite::Statement cursor{conn(),
-		                         "SELECT offset, timestamp FROM movie INNER "
-		                         "JOIN offset WHERE movie=?"};
+		SQLite::Statement cursor{
+		    conn(),
+		    "SELECT offset, timestamp FROM movie INNER JOIN offset ON "
+		    "movie.id=offset.id WHERE movie=?"};
 		cursor.bind(1, movie);
 		if (!cursor.executeStep()) {
 			trans.commit();
