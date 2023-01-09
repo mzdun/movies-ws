@@ -230,6 +230,7 @@ namespace movies::ui::v1 {
 			else
 				data->client_id(req.client_id());
 		}
+		session.name(data->client_id());
 
 		std::string dbg{};
 		for (auto const& lng : req.lang_id()) {

@@ -18,6 +18,9 @@ namespace ws {
 		session* get_session() override { return this; }
 
 		unsigned id() const noexcept { return id_; }
+		std::string const& name() const noexcept { return name_; }
+		void name(std::string const& id) { name_ = id; }
+
 		template <typename Type>
 		void attach(Type&& value) {
 			data_ = std::forward<Type>(value);
@@ -45,6 +48,7 @@ namespace ws {
 		std::vector<unsigned char> inbound_{};
 		unsigned id_{};
 		std::any data_{};
+		std::string name_{};
 		mutable std::mutex m_{};
 	};
 }  // namespace ws

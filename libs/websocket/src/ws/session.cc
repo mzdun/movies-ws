@@ -19,9 +19,13 @@ namespace ws {
 			            payload.size());
 		}
 		if (!stats.silent()) {
-			lwsl_warn("[%s/%u] send %zu byte%s%s\n",
-			          lws_get_protocol(wsi_)->name, id_, payload.size(),
-			          payload.size() == 1 ? "" : "s", stats.msg().c_str());
+			auto const has_name = !name_.empty();
+			std::string faux_name{};
+			if (!has_name) faux_name = std::format("{}", id_);
+			lwsl_warn(
+			    "[%s/%s] send %zu byte%s%s\n", lws_get_protocol(wsi_)->name,
+			    has_name ? name_.c_str() : faux_name.c_str(), payload.size(),
+			    payload.size() == 1 ? "" : "s", stats.msg().c_str());
 		}
 		lws_callback_on_writable(wsi_);
 	}
