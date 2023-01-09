@@ -1,9 +1,77 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
+#define NOMINMAX
+
+#include <date/date.h>
 #include <base/str.hh>
 #include <rpc/db.hh>
 #include <rpc/session.hh>
+
+#include <fmt/chrono.h>
+
+namespace fmt {
+	template <typename Payload>
+	struct formatter<std::optional<Payload>> : public formatter<Payload> {
+		template <typename FormatContext>
+		auto format(std::optional<Payload> const& opt, FormatContext& ctx) const
+		    -> decltype(ctx.out()) {
+			if (!opt) return fmt::format_to(ctx.out(), "-");
+			return formatter<Payload>::format(*opt, ctx);
+		}
+	};
+
+	template <typename Duration>
+	struct formatter<date::hh_mm_ss<Duration>> {
+		constexpr auto parse(format_parse_context& ctx)
+		    -> decltype(ctx.begin()) {
+			auto it = ctx.begin(), end = ctx.end();
+			while (it != end && *it != '}')
+				++it;
+			return it;
+		}
+
+		template <typename FormatContext>
+		auto format(date::hh_mm_ss<Duration> const& hms,
+		            FormatContext& ctx) const -> decltype(ctx.out()) {
+			return hms.hours().count()
+			           ? fmt::format_to(
+			                 ctx.out(), "{}:{:02}:{:02}", hms.hours().count(),
+			                 hms.minutes().count(), hms.seconds().count())
+			           : fmt::format_to(ctx.out(), "{}:{:02}",
+			                            hms.minutes().count(),
+			                            hms.seconds().count());
+		}
+	};
+
+	template <>
+	struct formatter<movies::watch_offset> {
+		constexpr auto parse(format_parse_context& ctx)
+		    -> decltype(ctx.begin()) {
+			auto it = ctx.begin(), end = ctx.end();
+			while (it != end && *it != '}')
+				++it;
+			return it;
+		}
+
+		template <typename FormatContext>
+		auto format(movies::watch_offset const& watch, FormatContext& ctx) const
+		    -> decltype(ctx.out()) {
+			using namespace std::chrono;
+			using hh_mm_ss = date::hh_mm_ss<seconds>;
+			using sys_ms = date::sys_time<milliseconds>;
+
+			std::optional<hh_mm_ss> clock{};
+			std::optional<sys_ms> timestamp{};
+			if (watch.offset) clock = hh_mm_ss{seconds{*watch.offset}};
+			if (watch.timestamp)
+				timestamp = sys_ms{milliseconds{*watch.timestamp}};
+
+			return fmt::format_to(ctx.out(), "offset {} stored on {}", clock,
+			                      timestamp);
+		}
+	};
+}  // namespace fmt
 
 namespace movies::db::v1 {
 	namespace {
@@ -452,6 +520,7 @@ namespace movies::db::v1 {
 			session.log("   -> \"{}\"", resp.info().title().local());
 		else
 			session.log("   -> untitled");
+		session.log("   -> {}", watch);
 	}
 
 	MSG_HANDLER(GetVideoFile) {
@@ -467,6 +536,7 @@ namespace movies::db::v1 {
 			if (watch) v1::copy(watch, *resp.mutable_last_watched());
 
 			session.log("   -> {}", resp.uri());
+			session.log("   -> {}", watch);
 		} else {
 			session.log("   -> no video");
 		}
