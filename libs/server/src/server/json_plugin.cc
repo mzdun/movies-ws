@@ -72,12 +72,13 @@ namespace movies {
 		return true;
 	}
 
-	void json_link::print(std::u8string_view prefix) const {
-		print(prefix, u8"href"sv, href);
-		print(prefix, u8"icon"sv, icon);
-		print(prefix, u8"label"sv, label);
-		print(prefix, u8"alt"sv, alt);
-		print(prefix, u8"rel"sv, rel);
+	void json_link::print(std::u8string_view prefix,
+	                      std::source_location const& loc) const {
+		print(loc, prefix, u8"href"sv, href);
+		print(loc, prefix, u8"icon"sv, icon);
+		print(loc, prefix, u8"label"sv, label);
+		print(loc, prefix, u8"alt"sv, alt);
+		print(loc, prefix, u8"rel"sv, rel);
 	}
 
 	json_link json_plugin_info::match(string const& id) const {
@@ -99,8 +100,9 @@ namespace movies {
 		regex.clear();
 	}
 
-	void json_plugin_info::print(std::u8string_view prefix) const {
-		base.print(prefix);
+	void json_plugin_info::print(std::u8string_view prefix,
+	                             std::source_location const& loc) const {
+		base.print(prefix, loc);
 		for (auto const& [key, re] : regex) {
 			string key_prefix;
 			key_prefix.assign(prefix);
@@ -108,7 +110,7 @@ namespace movies {
 			key_prefix.append(key);
 			key_prefix.push_back('"');
 			key_prefix.push_back('.');
-			re.print(key_prefix);
+			re.print(key_prefix, loc);
 		}
 	}
 
@@ -232,7 +234,6 @@ namespace movies {
 		for (auto& [name, cfg] : jsons) {
 #ifndef NDEBUG
 			cfg.print(name + u8".");
-			std::fputc('\n', stdout);
 #endif
 
 			result.push_back(

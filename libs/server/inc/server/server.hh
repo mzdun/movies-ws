@@ -11,6 +11,7 @@
 #include <server/plugin.hh>
 #include <shared_mutex>
 #include <sorting/sort.hh>
+#include <source_location>
 #include <span>
 #include <stats/video_info.hh>
 #include <stats/watch_offset.hh>
@@ -109,7 +110,9 @@ namespace movies {
 			return database_;
 		}
 		void set_on_db_update(
-		    std::function<void(bool, std::span<std::string> const&)> const& cb);
+		    std::function<void(bool,
+		                       std::span<std::string> const&,
+		                       std::source_location const&)> const& cb);
 		watch_offset get_watch_time(std::string const& movie);
 		void set_watch_time(std::string const& movie,
 		                    watch_offset const& offset);
@@ -144,7 +147,9 @@ namespace movies {
 		void on_files_changed();
 
 		mutable std::shared_mutex db_access_{};
-		std::function<void(bool, std::span<std::string> const&)>
+		std::function<void(bool,
+		                   std::span<std::string> const&,
+		                   std::source_location const&)>
 		    on_db_update_{};
 		movie_db movies_{};
 		std::filesystem::path database_{};

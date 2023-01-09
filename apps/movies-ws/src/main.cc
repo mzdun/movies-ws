@@ -6,6 +6,7 @@
 
 #include <fmt/format.h>
 #include <args/parser.hpp>
+#include <base/logger.hh>
 #include <base/str.hh>
 #include <io/file.hpp>
 #include <server/lngs.hh>
@@ -66,6 +67,8 @@ movies::service_cfg load(fs::path const& json_filename) {
 }
 
 int main(int argc, char** argv) try {
+	using movies::logger;
+
 #ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
 #endif
@@ -95,7 +98,7 @@ int main(int argc, char** argv) try {
 	}
 
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
-	lwsl_user("movies-ws version %s\n", version::string_ui);
+	fmt::print("\nmovies-ws version {}\n\n", version::string_ui);
 
 	auto backend = std::make_shared<movies::server>(cfg.title, cfg.watch_db,
 	                                                cfg.video_info_db);
@@ -106,38 +109,43 @@ int main(int argc, char** argv) try {
 	movies::service service{&handler};
 
 	setup_breaks([&] {
-		lwsl_warn("signal intercepted\n");
-		backend->set_on_db_update(
-		    [&](bool notify, std::span<std::string> const& lines) {
-			    for (auto const& line : lines) {
-				    lwsl_user("%s", line.c_str());
-			    }
-			    if (notify) {
-				    lwsl_user("  -> Shutting down\n");
-			    }
-		    });
+		fmt::print("\n");
+		logger().warn("signal intercepted");
+		backend->set_on_db_update([&](bool notify,
+		                              std::span<std::string> const& lines,
+		                              std::source_location const& loc) {
+			for (auto const& line : lines) {
+				logger(loc).info("{}", line);
+			}
+			if (notify) {
+				logger(loc).warn("  -> Shutting down");
+			}
+		});
 		service.stop();
 	});
 
-	backend->set_on_db_update(
-	    [&](bool notify, std::span<std::string> const& lines) {
-		    for (auto const& line : lines) {
-			    lwsl_user("%s", line.c_str());
-		    }
-		    if (notify) {
-			    lwsl_user("  -> Sending update\n");
-			    service.emit_database_contents_change();
-		    }
-	    });
+	backend->set_on_db_update([&](bool notify,
+	                              std::span<std::string> const& lines,
+	                              std::source_location const& loc) {
+		for (auto const& line : lines) {
+			logger(loc).info("{}", line);
+		}
+		if (notify) {
+			logger(loc).warn("  -> Sending update");
+			service.emit_database_contents_change();
+		}
+	});
 
 	backend->load(cfg.database);
 	service.init(port, cfg);
-	lwsl_user("%s\n", cfg.title.c_str());
-	lwsl_user("%s\n", reinterpret_cast<char const*>(
-	                      cfg.database.generic_u8string().c_str()));
-	lwsl_user("http://localhost:%d%s/\n", service.port(), cfg.prefix.c_str());
+	{
+		auto const db = cfg.database.generic_u8string();
+		logger().info("title: {}", cfg.title);
+		logger().info("files: {}", movies::as_sv(db));
+		logger().info("http://localhost:{}{}/", service.port(), cfg.prefix);
+	}
 	service.run();
-	lwsl_user("goodbye!\n");
+	logger().info("goodbye!");
 } catch (std::exception& ex) {
 	std::cerr << "Exception: " << ex.what() << '\n';
 }

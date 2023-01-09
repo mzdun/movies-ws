@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <base/logger.hh>
 #include <rpc/db.hh>
 #include <rpc/rpc.hh>
 #include <rpc/ui.hh>
@@ -46,7 +47,8 @@ namespace movies {
 				broadcast(buffer, true);
 		}
 
-		struct activity_logger : public ws::activity_logger {
+		struct activity_logger : public ws::activity_logger,
+		                         private base_logger {
 			void vlog(ws::session* session,
 			          fmt::string_view fmt,
 			          fmt::format_args args) override;

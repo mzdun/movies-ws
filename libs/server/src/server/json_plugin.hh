@@ -2,6 +2,7 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <fmt/format.h>
+#include <base/logger.hh>
 #include <base/str.hh>
 #include <server/plugin.hh>
 
@@ -20,7 +21,8 @@ namespace movies {
 		bool load(std::u8string_view name,
 		          json::map const& data,
 		          bool assume_noreferrer);
-		void print(std::u8string_view prefix) const;
+		void print(std::u8string_view prefix,
+		           std::source_location const&) const;
 
 		bool operator==(json_link const&) const noexcept = default;
 
@@ -31,16 +33,17 @@ namespace movies {
 			return from_regex ? from_regex : mine;
 		}
 
-		void print(std::u8string_view prefix,
+		void print(std::source_location const& loc,
+		           std::u8string_view prefix,
 		           std::u8string_view name,
 		           std::optional<string> const& value) const {
 			if (!value) return;
 			if (value->length() > 50) {
-				fmt::print("{}{} = {}...\n", as_sv(prefix), as_sv(name),
-				           as_sv(*value).substr(0, 50));
+				logger(loc).info("{}{} = {}...", as_sv(prefix), as_sv(name),
+				                 as_sv(*value).substr(0, 50));
 			} else {
-				fmt::print("{}{} = {}\n", as_sv(prefix), as_sv(name),
-				           as_sv(*value));
+				logger(loc).info("{}{} = {}", as_sv(prefix), as_sv(name),
+				                 as_sv(*value));
 			}
 		}
 	};
@@ -52,7 +55,9 @@ namespace movies {
 
 		json_link match(string const& id) const;
 		void clear();
-		void print(std::u8string_view prefix) const;
+		void print(std::u8string_view prefix,
+		           std::source_location const& =
+		               std::source_location::current()) const;
 		static json_plugin_info load(std::u8string_view name,
 		                             std::filesystem::path const& filename);
 

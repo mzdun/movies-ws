@@ -519,7 +519,7 @@ namespace movies {
 		    "Loaded {count_movies} movie{pl_movies} and {count_plugins} "
 		    "plugin{pl_plugins} in {load} (enh {enh}, patching {summary}, "
 		    "episodes {episodes}, people table {people}, filters {filters}, "
-		    "total {total})\n",
+		    "total {total})",
 		    fmt::arg("count_movies", db.movies.size()),
 		    fmt::arg("pl_movies", db.movies.size() == 1 ? "" : "s"),
 		    fmt::arg("count_plugins", plugins.size()),
@@ -557,19 +557,18 @@ namespace movies {
 					                   flt.high / hundred_to_five);
 				return fmt::format("{} - {}", flt.low, flt.high);
 			}();
-			return fmt::format("<rng> [{}] {}\n", flt.field, range);
+			return fmt::format("<rng> [{}] {}", flt.field, range);
 		}
 
 		std::string operator()(description::tokens_filter const& flt) {
 			auto result = fmt::format("<tok> [{}]", flt.field);
 			for (auto const& item : flt.values)
 				result.append(fmt::format(" {}", item));
-			result.push_back('\n');
 			return result;
 		}
 
 		std::string operator()(description::on_off_filter const& flt) {
-			return fmt::format("<0/1> [{}]\n", flt.field);
+			return fmt::format("<0/1> [{}]", flt.field);
 		}
 	};
 
@@ -591,25 +590,27 @@ namespace movies {
 		steady_clock::time_point sqlite{};
 		steady_clock::time_point video_infos{};
 
-		std::function<void(bool, std::span<std::string> const&)> on_db_update{};
+		std::function<void(bool, std::span<std::string> const&,
+		                   std::source_location const&)>
+		    on_db_update{};
 		{
 			std::lock_guard writing{db_access_};
 			locked = steady_clock::now();
 
 			if (!plugin::eq(plugins_, ldr.plugins)) {
 				changed = true;
-				dbg.emplace_back("plugins changed\n");
+				dbg.emplace_back("plugins changed");
 			}
 
 			if (movies_ != ldr.db || ref2id_ != ldr.ref2id) {
 				changed = true;
 
 				if (movies_.movies.size() != ldr.db.movies.size())
-					dbg.emplace_back(fmt::format("movies changed ({} -> {})\n",
+					dbg.emplace_back(fmt::format("movies changed ({} -> {})",
 					                             movies_.movies.size(),
 					                             ldr.db.movies.size()));
 				else
-					dbg.emplace_back("movies changed\n");
+					dbg.emplace_back("movies changed");
 			}
 
 			if (current_filters_ != ldr.current_filters) {
@@ -660,7 +661,7 @@ namespace movies {
 
 		dbg[1] = fmt::format(
 		    "Installed in {total} (waiting for {waiting}, moving in "
-		    "{moving}, sqlite {sqlite}, video info {infos})\n",
+		    "{moving}, sqlite {sqlite}, video info {infos})",
 		    dur_arg("waiting", then, locked),
 		    dur_arg("moving", printed, sqlite),
 		    dur_arg("sqlite", sqlite, video_infos),
@@ -671,7 +672,7 @@ namespace movies {
 		if (!changed)
 			lines = lines.subspan(0, std::min(size_t{2}, lines.size()));
 
-		on_db_update(notify && changed, lines);
+		on_db_update(notify && changed, lines, std::source_location::current());
 	}
 
 	extended_info server::find_movie_copy(std::string_view id) const {
@@ -906,7 +907,9 @@ namespace movies {
 	}
 
 	void server::set_on_db_update(
-	    std::function<void(bool, std::span<std::string> const&)> const& cb) {
+	    std::function<void(bool,
+	                       std::span<std::string> const&,
+	                       std::source_location const&)> const& cb) {
 		std::shared_lock guard{db_access_};
 		on_db_update_ = cb;
 	}

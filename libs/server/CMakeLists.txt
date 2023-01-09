@@ -4,6 +4,7 @@ set(LANGUAGES pl en-US)
 
 set(SRCS
     inc/base/extended_info.hh
+    inc/base/logger.hh
     inc/base/lngs.hh
     inc/base/str.hh
     inc/filters/filter.hh
@@ -16,6 +17,7 @@ set(SRCS
     inc/stats/video_info.hh
     inc/stats/watch_offset.hh
     src/base/extended_info.cc
+    src/base/logger.cc
     src/filters/base.cc
     src/filters/description.cc
     src/filters/internal.hh
@@ -183,6 +185,7 @@ add_library(server STATIC ${SRCS} ${PROTO_SRCS} ${GEN_SRCS} ${BIN_SRCS} ${DATA_S
 target_include_directories(server
     PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/inc
+    ${CMAKE_CURRENT_BINARY_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 target_link_libraries(server PUBLIC
@@ -193,3 +196,5 @@ target_link_libraries(server PUBLIC
 target_compile_options(server PRIVATE ${ADDITIONAL_WALL_FLAGS})
 install(DIRECTORY "${BIN_DIR}/lngs" TYPE BIN)
 install(DIRECTORY "${BIN_DIR}/plugins" TYPE BIN)
+
+configure_file(src/base/logger_dir.in.hh src/base/logger_dir.hh @ONLY)
