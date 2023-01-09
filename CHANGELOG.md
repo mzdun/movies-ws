@@ -1,4 +1,10 @@
 
+## [0.10.1](https://github.com/mzdun/movies-ws/compare/v0.10.0...v0.10.1) (2023-01-09)
+
+### Bug Fixes
+
+- take video offset for correct video ([2f9fff3](https://github.com/mzdun/movies-ws/commit/2f9fff3acee610aafdaee0d47ee2403ed58c9c92))
+
 ## [0.10.0](https://github.com/mzdun/movies-ws/compare/v0.9.0...v0.10.0) (2023-01-09)
 
 ### New Features
