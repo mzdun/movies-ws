@@ -7,10 +7,12 @@ import "proto/movies/appstr.v1.proto";
 
 message LangChangeRequest {
 	repeated string lang_id = 1;
+	optional string client_id = 2;
 };
 
 message LangChangeResponse {
-	string lang_id = 2;
+	string lang_id = 1;
+	optional string client_id = 2;
 };
 
 message OpenMovieRequest {
@@ -20,7 +22,8 @@ message OpenMovieRequest {
 message OpenMovieResponse {
 };
 
-message GetConfigRequest {};
+message GetConfigRequest {
+};
 
 message GetConfigResponse {
 	string title = 1;

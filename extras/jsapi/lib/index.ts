@@ -11,6 +11,7 @@ export interface FilterListing {
 export class Service extends MovieEventTarget {
 	_ws: WsClient;
 	_lang: string = navigator.language;
+	_clientId?: string = sessionStorage.getItem("clientId") ?? undefined;
 	_onlangs: () => void;
 	constructor(host: Promise<string>) {
 		super();
@@ -30,20 +31,33 @@ export class Service extends MovieEventTarget {
 		return this._lang;
 	}
 
+	get clientId() {
+		return this._clientId;
+	}
+
 	get connected() {
 		return this._ws.connected;
 	}
 
 	updateLangs() {
 		(async () => {
-			const nextLang = (await this._ws.send({
-				                 langChange: {langId: [...navigator.languages]}
-			                 })).langChange?.langId ||
-			    '';
+			const langChange = (await this._ws.send({
+				langChange: { langId: [...navigator.languages], clientId: this._clientId }
+			})).langChange || {};
+			const nextLang = langChange.langId || '';
+			const clientId = langChange.clientId ?? undefined;
+
 			const langChanged = nextLang !== this._lang;
 			this._lang = nextLang;
 			if (langChanged)
 				this.dispatchEvent({message: 'languageChange'});
+
+			const clientIdChanged = clientId !== this._clientId;
+			this._clientId = clientId;
+			if (clientIdChanged && clientId !== undefined) {
+				sessionStorage.setItem("clientId", clientId)
+				this.dispatchEvent({ message: 'clientIdChange' });
+			}
 		})();
 	}
 

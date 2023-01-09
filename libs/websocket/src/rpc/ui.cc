@@ -223,6 +223,14 @@ namespace movies::ui::v1 {
 	}  // namespace
 
 	MSG_HANDLER(LangChange) {
+		auto data = session.data<session_info::ptr>();
+		if (data->client_id().empty()) {
+			if (!req.has_client_id() || req.client_id().empty())
+				data->client_id(session::invent_id());
+			else
+				data->client_id(req.client_id());
+		}
+
 		std::string dbg{};
 		for (auto const& lng : req.lang_id()) {
 			if (!dbg.empty()) dbg += ", ";
@@ -246,11 +254,12 @@ namespace movies::ui::v1 {
 			lwsl_user("<%u>    => %s\n", session.id(), dbg.c_str());
 		}
 
-		auto data = session.data<session_info::ptr>();
 		auto const changed = data->lang_change(full_langs);
 		*resp.mutable_lang_id() = data->lang_id();
+		*resp.mutable_client_id() = data->client_id();
 		lwsl_user("<%u>    -> %s [%schanged]\n", session.id(),
 		          resp.lang_id().c_str(), (changed ? "" : "not "));
+		lwsl_user("<%u>    -> %s\n", session.id(), data->client_id().c_str());
 	}
 
 	MSG_HANDLER(GetConfig) {

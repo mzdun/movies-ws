@@ -60,11 +60,16 @@ namespace movies {
 
 		static std::vector<std::string> expand(std::span<std::string> langs);
 
+		static std::string invent_id(); 
+		std::string const& client_id() const noexcept { return client_id_; }
+		void client_id(std::string const& id) { client_id_ = id; }
+
 	private:
 		mutable std::shared_mutex tr_access_{};
 		Strings tr_{};
 		std::vector<std::string> langs_{};
 		std::string lang_id_{};
+		std::string client_id_{};
 	};
 
 	class server : public std::enable_shared_from_this<server>,

@@ -18,6 +18,9 @@ namespace movies {
 		}
 		std::string const& lang_id() const noexcept { return ref_.lang_id(); }
 		Strings const& tr() const noexcept { return ref_.tr(); }
+		static std::string invent_id() { return session_info::invent_id(); }
+		std::string const& client_id() const noexcept { return ptr_->client_id(); }
+		void client_id(std::string const& id) { ptr_->client_id(id); }
 
 	private:
 		session_info::ptr ptr_;

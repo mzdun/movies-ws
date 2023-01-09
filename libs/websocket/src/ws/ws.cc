@@ -180,8 +180,22 @@ namespace ws {
 	void web_socket::on_connect(lws* wsi) {
 		static unsigned id{};
 		auto const next_session = ++id;
-		lwsl_warn("[%s/%u] CONNECTED\n", lws_get_protocol(wsi)->name,
-		          next_session);
+
+		auto const fd = lws_get_socket_fd(wsi);
+		std::vector<char> remote_name(200);
+		std::vector<char> remote_ip(20);
+		auto peer_name = [&] {
+			lws_get_peer_addresses(wsi, fd, remote_name.data(),
+			                       static_cast<int>(remote_name.size()),
+			                       remote_ip.data(),
+			                       static_cast<int>(remote_ip.size()));
+			auto const name = std::string_view{remote_name.data()};
+			auto const ip = std::string_view{remote_ip.data()};
+
+			return ip.empty() ? name : ip;
+		}();
+		lwsl_warn("[%s/%u] CONNECTED %s\n", lws_get_protocol(wsi)->name,
+		          next_session, peer_name.data());
 		std::lock_guard lock{m_};
 		auto currrent_session = std::make_shared<session>(wsi, id);
 		handler_->on_connect(*currrent_session);

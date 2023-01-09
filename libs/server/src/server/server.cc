@@ -8,6 +8,7 @@
 #include <base/str.hh>
 #include <iostream>
 #include <movies/opt.hpp>
+#include <random>
 #include <regions/mapping.hh>
 #include <server/server.hh>
 #include <set>
@@ -108,6 +109,48 @@ namespace movies {
 				result.emplace_back(view.data(), view.size());
 			}
 		}
+		return result;
+	}
+
+	struct seed_sequence {
+		std::random_device rd{};
+
+		using result_type = std::random_device::result_type;
+
+		template <typename RandomAccessIterator>
+		void generate(RandomAccessIterator begin, RandomAccessIterator end) {
+			using value_type =
+			    typename std::iterator_traits<RandomAccessIterator>::value_type;
+			std::uniform_int_distribution<value_type> bits{
+			    (std::numeric_limits<value_type>::min)(),
+			    (std::numeric_limits<value_type>::max)(),
+			};
+
+			for (auto it = begin; it != end; ++it) {
+				*it = bits(rd);
+			}
+		}
+
+		static std::mt19937 mt19937() {
+			seed_sequence seq{};
+			return std::mt19937{seq};
+		}
+	};
+
+	std::string session_info::invent_id() {
+		static constexpr auto LEN = 8u;
+		static constexpr char alphabet[] = "0123456789ABCDEF";
+		std::string result{};
+		result.reserve(LEN*2);
+
+		static auto rnd = seed_sequence::mt19937();
+		std::uniform_int_distribution<> dice(0x00, 0xFF);
+		for (auto ndx = 0u; ndx < LEN; ++ndx) {
+			auto const byte = dice(rnd);
+			result.push_back(alphabet[(byte >> 4) & 0xF]);
+			result.push_back(alphabet[(byte >> 0) & 0xF]);
+		}
+
 		return result;
 	}
 
