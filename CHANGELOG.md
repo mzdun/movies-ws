@@ -1,4 +1,16 @@
 
+## [0.10.0](https://github.com/mzdun/movies-ws/compare/v0.9.0...v0.10.0) (2023-01-09)
+
+### New Features
+
+- extend logger usage ([4f3ee28](https://github.com/mzdun/movies-ws/commit/4f3ee28b51444c2905e936a4d3c7d9e307edd7d8))
+- introduce activity log ([d7d7b3f](https://github.com/mzdun/movies-ws/commit/d7d7b3fafec1fe2b9f80f5fc386ecd8695dfb1aa))
+- setup session/client ID ([3f8bc16](https://github.com/mzdun/movies-ws/commit/3f8bc16030da55b94073b07022ab26912396416d))
+
+### Bug Fixes
+
+- store client id in session name ([afe3289](https://github.com/mzdun/movies-ws/commit/afe3289ce176a69a00cb3a246b903e4962e14843))
+
 ## [0.9.0](https://github.com/mzdun/movies-ws/compare/v0.8.0...v0.9.0) (2023-01-08)
 
 ### New Features
