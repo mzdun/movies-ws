@@ -141,7 +141,7 @@ namespace movies {
 		static constexpr auto LEN = 8u;
 		static constexpr char alphabet[] = "0123456789ABCDEF";
 		std::string result{};
-		result.reserve(LEN*2);
+		result.reserve(LEN * 2);
 
 		static auto rnd = seed_sequence::mt19937();
 		std::uniform_int_distribution<> dice(0x00, 0xFF);

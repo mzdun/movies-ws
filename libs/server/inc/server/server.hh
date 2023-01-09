@@ -60,7 +60,7 @@ namespace movies {
 
 		static std::vector<std::string> expand(std::span<std::string> langs);
 
-		static std::string invent_id(); 
+		static std::string invent_id();
 		std::string const& client_id() const noexcept { return client_id_; }
 		void client_id(std::string const& id) { client_id_ = id; }
 
