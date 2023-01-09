@@ -29,13 +29,20 @@ namespace movies::rpc::v1 {
 	template <typename HandledRequest>
 	struct msg_traits;
 
+	template <typename HandledRequest>
+	struct msg_traits_is_silent {
+		static constexpr auto is_silent = false;
+	};
+
 	template <typename HandledRequest,
 	          typename HandledResponse,
 	          HandledRequest const& (Request::*Getter)() const,
 	          HandledResponse* (Response::*Setter)(),
-	          Request::MessageCase Case>
+	          Request::MessageCase Case,
+	          bool IsSilent>
 	struct msg_traits_helper {
 		static constexpr auto message_id = Case;
+		static constexpr auto is_silent = IsSilent;
 		using handled_request = HandledRequest;
 		using handled_response = HandledResponse;
 		static handled_request const& req(Request const& req) {
@@ -61,6 +68,7 @@ namespace movies::rpc::v1 {
 		void handle_message(handled_request const& req,
 		                    handled_response& resp,
 		                    ws::session& session) {}
+		void log_call(handled_request const& req, ws::session& session) {}
 
 		movies::server* server() noexcept { return server_; }
 		movies::server const* server() const noexcept { return server_; }
@@ -72,6 +80,13 @@ namespace movies::rpc::v1 {
 			auto& answer = *generic.mutable_response();
 			try {
 				auto& resp = msg_traits::resp(answer);
+				if constexpr (msg_traits::is_silent) {
+					silent = true;
+				} else {
+					static_cast<Final*>(this)->log_call(
+					    msg_traits::req(query.req()),
+					    *query.conn()->get_session());
+				}
 				static_cast<Final*>(this)->handle_message(
 				    msg_traits::req(query.req()), resp,
 				    *query.conn()->get_session());
@@ -90,12 +105,13 @@ namespace movies::rpc::v1 {
 	};
 };  // namespace movies::rpc::v1
 
-#define MSG_TRAITS(NS, NAME, VAR)                                    \
-	template <>                                                      \
-	struct msg_traits<NS::NAME##Request>                             \
-	    : msg_traits_helper<NS::NAME##Request, NS::NAME##Response,   \
-	                        &Request::VAR, &Response::mutable_##VAR, \
-	                        Request::k##NAME> {}
+#define MSG_TRAITS(NS, NAME, VAR)                                   \
+	template <>                                                     \
+	struct msg_traits<NS::NAME##Request>                            \
+	    : msg_traits_helper<                                        \
+	          NS::NAME##Request, NS::NAME##Response, &Request::VAR, \
+	          &Response::mutable_##VAR, Request::k##NAME,           \
+	          msg_traits_is_silent<NS::NAME##Request>::is_silent> {}
 
 #define X_MSG_TRAITS(NS, NAME, VAR) MSG_TRAITS(NS, NAME, VAR);
 
@@ -108,6 +124,7 @@ namespace movies::rpc::v1 {
 		                                      MESSAGE##Request>::base_handler; \
 		using ::movies::rpc::v1::                                              \
 		    base_handler<MESSAGE##Handler, MESSAGE##Request>::handle_message;  \
+		void log_call(handled_request const& req, ws::session& session);       \
 		void handle_message(handled_request const& req,                        \
 		                    handled_response& resp,                            \
 		                    ws::session& session);                             \
@@ -115,8 +132,13 @@ namespace movies::rpc::v1 {
 
 #define X_MSG_HANDLER_DECL(NS, NAME, VAR) MSG_HANDLER_DECL(NAME);
 
-#define MSG_HANDLER(MESSAGE)                         \
-	void MESSAGE##Handler::handle_message(           \
-	    [[maybe_unused]] handled_request const& req, \
-	    [[maybe_unused]] handled_response& resp,     \
+#define MSG_HANDLER(MESSAGE)                            \
+	void MESSAGE##Handler::log_call(                    \
+	    [[maybe_unused]] handled_request const& req,    \
+	    [[maybe_unused]] ws::session& session) {        \
+		session.log(#MESSAGE "({})", log_request(req)); \
+	}                                                   \
+	void MESSAGE##Handler::handle_message(              \
+	    [[maybe_unused]] handled_request const& req,    \
+	    [[maybe_unused]] handled_response& resp,        \
 	    [[maybe_unused]] ws::session& session)

@@ -240,7 +240,7 @@ namespace movies::db::v1 {
 		}
 
 		template <typename Request>
-		std::string debug_str_base(Request const& req) {
+		std::string log_request_base(Request const& req) {
 			auto const& filters = req.filters();
 			auto const& sort = req.sort();
 			std::string const* search = nullptr;
@@ -301,14 +301,23 @@ namespace movies::db::v1 {
 			return result;
 		}
 
-		std::string debug_str(db::v1::GetListingRequest const& req) {
-			return debug_str_base(req);
+		std::string log_request(db::v1::GetListingRequest const& req) {
+			return log_request_base(req);
 		}
 
-		std::string debug_str(db::v1::GetFilterListingRequest const& req) {
-			auto const std_dbg = debug_str_base(req);
+		std::string log_request(db::v1::GetFilterListingRequest const& req) {
+			auto const std_dbg = log_request_base(req);
 			return fmt::format("{}/{}{}{}", req.category(), req.term(),
 			                   std_dbg.empty() ? "" : ", ", std_dbg);
+		}
+
+		template <typename Request>
+		concept HasKey = requires(Request const& req) {
+			{ req.key() } -> std::same_as<std::string const&>;
+		};
+
+		std::string const& log_request(HasKey auto const& req) {
+			return req.key();
 		}
 
 		filter::ptr filter_from(filters::v1::RangeFilter const& rng) {
@@ -374,8 +383,6 @@ namespace movies::db::v1 {
 	}  // namespace
 
 	MSG_HANDLER(GetListing) {
-		lwsl_user("GetListing(%s)\n", debug_str(req).c_str());
-
 		auto const filters = from_req(req.filters());
 		auto const sort = from_req(req.sort());
 		std::string const* search = nullptr;
@@ -397,13 +404,11 @@ namespace movies::db::v1 {
 		static constexpr auto s = [](size_t count) {
 			return count == 1 ? "" : "s";
 		};
-		lwsl_user("   -> %zu group%s, %zu title%s\n", groups, s(groups), refs,
-		          s(refs));
+		session.log("   -> {} group{}, {} title{}", groups, s(groups), refs,
+		            s(refs));
 	}
 
 	MSG_HANDLER(GetFilterListing) {
-		lwsl_user("GetFilterListing(%s)\n", debug_str(req).c_str());
-
 		movies::session data{session};
 
 		auto prefix = movies::filter::make_term(req.category(), req.term());
@@ -429,12 +434,11 @@ namespace movies::db::v1 {
 		static constexpr auto s = [](size_t count) {
 			return count == 1 ? "" : "s";
 		};
-		lwsl_user("   -> %zu title%s\n", result.size(), s(result.size()));
-		if (title) lwsl_user("   -> \"%s\"\n", title->c_str());
+		session.log("   -> {} title{}", result.size(), s(result.size()));
+		if (title) session.log("   -> \"{}\"", *title);
 	}
 
 	MSG_HANDLER(GetMovieInfo) {
-		lwsl_user("GetMovieInfo(%s)\n", req.key().c_str());
 		movies::session data{session};
 
 		auto info = server()->find_movie_copy(req.key());
@@ -445,13 +449,12 @@ namespace movies::db::v1 {
 		copy(info, req.key(), server()->links_for(info, data.tr()), episodes,
 		     watch, *resp.mutable_info(), data.langs());
 		if (resp.info().title().has_local())
-			lwsl_user("   -> \"%s\"\n", resp.info().title().local().c_str());
+			session.log("   -> \"{}\"", resp.info().title().local());
 		else
-			lwsl_user("   -> untitled\n");
+			session.log("   -> untitled");
 	}
 
 	MSG_HANDLER(GetVideoFile) {
-		lwsl_user("GetVideoFile(%s)\n", req.key().c_str());
 		auto resource = server()->get_video_path(req.key());
 		if (resource) {
 			auto const generic = resource->generic_u8string();
@@ -463,21 +466,19 @@ namespace movies::db::v1 {
 			auto const watch = server()->get_watch_time(req.key());
 			if (watch) v1::copy(watch, *resp.mutable_last_watched());
 
-			lwsl_user("   -> %s\n", resp.uri().c_str());
+			session.log("   -> {}", resp.uri());
 		} else {
-			lwsl_user("   -> no video\n");
+			session.log("   -> no video");
 		}
 	}
 
 	MSG_HANDLER(SetVideoPosition) {
-		silent = true;
 		server()->set_watch_time(req.key(),
 		                         {.offset = req.last_watched().where(),
 		                          .timestamp = req.last_watched().when()});
 	}
 
 	MSG_HANDLER(SetVideoInfo) {
-		lwsl_user("SetVideoInfo(%s)\n", req.key().c_str());
 		auto const& src = req.info();
 		video_info info{};
 		if (src.has_credits()) info.credits = src.credits();

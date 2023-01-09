@@ -18,6 +18,11 @@ namespace movies::db {
 	X(movies::db::v1, SetVideoInfo, set_video_info)
 
 namespace movies::rpc::v1 {
+	template <>
+	struct msg_traits_is_silent<movies::db::v1::SetVideoPositionRequest> {
+		static constexpr auto is_silent = true;
+	};
+
 	DB_HANDLERS(X_MSG_TRAITS);
 }  // namespace movies::rpc::v1
 

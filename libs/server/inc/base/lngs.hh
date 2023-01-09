@@ -34,8 +34,6 @@ namespace movies {
 		                 bool fatal) {
 			for (auto const& lang : langs) {
 				if (this->open(lang)) {
-					fmt::print("* LANG {} -> {}\n",
-					           strings_traits<Base>::filename_view(), lang);
 					if (fatal) used_lang = lang;
 					return true;
 				}

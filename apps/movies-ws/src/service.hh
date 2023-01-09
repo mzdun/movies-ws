@@ -46,8 +46,15 @@ namespace movies {
 				broadcast(buffer, true);
 		}
 
+		struct activity_logger : public ws::activity_logger {
+			void vlog(ws::session* session,
+			          fmt::string_view fmt,
+			          fmt::format_args args) override;
+		};
+
+		activity_logger logger_{};
 		ws::handler* proxy_;
-		ws::web_socket conn_{"data"s, proxy_, ws::default_protocol};
+		ws::web_socket conn_{"data"s, proxy_, &logger_, ws::default_protocol};
 		ws::server_context ctx_{};
 		std::atomic_bool interrupted{};
 	};

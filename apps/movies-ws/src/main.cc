@@ -22,13 +22,7 @@ struct per_session_dispatcher : movies::rpc::dispatcher {
 		auto info = std::make_shared<movies::session_info>(
 		    exec_path().parent_path() / "lngs"sv);
 
-		std::string dbg;
-		for (auto const& lng : info->langs()) {
-			if (!dbg.empty()) dbg += ", ";
-			dbg.append(lng);
-		}
-		lwsl_user("<%u>    => %s\n", session.id(), dbg.c_str());
-
+		session.log("   => {}", fmt::join(info->langs(), ", "));
 		session.attach(std::move(info));
 	}
 

@@ -159,6 +159,16 @@ namespace movies::ui::v1 {
 			}
 		}
 
+		std::string log_request(LangChangeRequest const& req) {
+			return fmt::format("{}", fmt::join(req.lang_id(), ", "));
+		}
+
+		std::string log_request(GetConfigRequest const&) { return {}; }
+
+		std::string const& log_request(OpenMovieRequest const& req) {
+			return req.id();
+		}
+
 #ifdef _WIN32
 		void open_file(std::filesystem::path const& file) {
 			ShellExecuteW(nullptr, nullptr, file.c_str(), nullptr,
@@ -223,22 +233,6 @@ namespace movies::ui::v1 {
 	}  // namespace
 
 	MSG_HANDLER(LangChange) {
-		auto data = session.data<session_info::ptr>();
-		if (data->client_id().empty()) {
-			if (!req.has_client_id() || req.client_id().empty())
-				data->client_id(session::invent_id());
-			else
-				data->client_id(req.client_id());
-		}
-		session.name(data->client_id());
-
-		std::string dbg{};
-		for (auto const& lng : req.lang_id()) {
-			if (!dbg.empty()) dbg += ", ";
-			dbg.append(lng);
-		}
-		lwsl_user("<%u> LangChange(%s)\n", session.id(), dbg.c_str());
-
 		auto const& lang_ids = req.lang_id();
 		std::vector<std::string> langs{};
 		langs.reserve(as_size(lang_ids.size()));
@@ -247,25 +241,28 @@ namespace movies::ui::v1 {
 
 		auto full_langs = session_info::expand(langs);
 		if (full_langs != langs) {
-			dbg.clear();
-			for (auto const& lng : full_langs) {
-				if (!dbg.empty()) dbg += ", ";
-				dbg.append(lng);
-			}
-			lwsl_user("<%u>    => %s\n", session.id(), dbg.c_str());
+			session.log("   => {}", fmt::join(full_langs, ", "));
 		}
 
+		auto data = session.data<session_info::ptr>();
+		if (data->client_id().empty()) {
+			if (!req.has_client_id() || req.client_id().empty())
+				data->client_id(session::invent_id());
+			else
+				data->client_id(req.client_id());
+		}
 		auto const changed = data->lang_change(full_langs);
+
 		*resp.mutable_lang_id() = data->lang_id();
 		*resp.mutable_client_id() = data->client_id();
-		lwsl_user("<%u>    -> %s [%schanged]\n", session.id(),
-		          resp.lang_id().c_str(), (changed ? "" : "not "));
-		lwsl_user("<%u>    -> %s\n", session.id(), data->client_id().c_str());
+		session.log("   -> {} [{}changed]", resp.lang_id(),
+		            (changed ? "" : "not "));
+		session.log("   -> {}", data->client_id());
+		if (data->client_id() != session.name())
+			session.name(data->client_id());
 	}
 
 	MSG_HANDLER(GetConfig) {
-		lwsl_user("GetConfig()\n");
-
 		movies::session data{session};
 		auto const& tr = data.tr();
 
@@ -299,16 +296,14 @@ namespace movies::ui::v1 {
 	}
 
 	MSG_HANDLER(OpenMovie) {
-		lwsl_user("OpenMovie(%s)\n", req.id().c_str());
 		auto resource = server()->get_video_path(req.id());
 		if (resource) {
 			auto filename = server()->database() / *resource;
 			filename.make_preferred();
 			open_file(filename);
-			lwsl_user("   -> %s\n", reinterpret_cast<char const*>(
-			                            filename.u8string().c_str()));
+			session.log("   -> {}", as_sv(filename.u8string()));
 		} else {
-			lwsl_user("   -> no video\n");
+			session.log("   -> no video");
 		}
 	}
 }  // namespace movies::ui::v1

@@ -144,10 +144,37 @@ namespace ws {
 
 	bool server_context::service() { return context_.service(); }
 
+	void activity_logger::log(lws* wsi, session* session, op operation) {
+		switch (operation) {
+			case op::connected: {
+				auto const fd = lws_get_socket_fd(wsi);
+				std::vector<char> remote_name(200);
+				std::vector<char> remote_ip(20);
+				lws_get_peer_addresses(wsi, fd, remote_name.data(),
+				                       static_cast<int>(remote_name.size()),
+				                       remote_ip.data(),
+				                       static_cast<int>(remote_ip.size()));
+				auto const name = std::string_view{remote_name.data()};
+				auto const ip = std::string_view{remote_ip.data()};
+				auto peer_name = name.empty() ? ip : name;
+				if (!ip.empty()) session->ip({ip.data(), ip.size()});
+
+				return log(session, "CONNECTED {}", peer_name);
+			}
+			case op::disconnected: {
+				return log(session, "DISCONNECTED");
+			}
+		};
+	}
+
 	web_socket::web_socket(std::string&& name,
 	                       handler* handler,
+	                       activity_logger* logger,
 	                       proto_priority priority)
-	    : name_{std::move(name)}, handler_{handler}, priority_{priority} {}
+	    : name_{std::move(name)}
+	    , handler_{handler}
+	    , logger_{logger}
+	    , priority_{priority} {}
 
 	web_socket::~web_socket() = default;
 
@@ -181,23 +208,11 @@ namespace ws {
 		static unsigned id{};
 		auto const next_session = ++id;
 
-		auto const fd = lws_get_socket_fd(wsi);
-		std::vector<char> remote_name(200);
-		std::vector<char> remote_ip(20);
-		auto peer_name = [&] {
-			lws_get_peer_addresses(wsi, fd, remote_name.data(),
-			                       static_cast<int>(remote_name.size()),
-			                       remote_ip.data(),
-			                       static_cast<int>(remote_ip.size()));
-			auto const name = std::string_view{remote_name.data()};
-			auto const ip = std::string_view{remote_ip.data()};
-
-			return ip.empty() ? name : ip;
-		}();
-		lwsl_warn("[%s/%u] CONNECTED %s\n", lws_get_protocol(wsi)->name,
-		          next_session, peer_name.data());
 		std::lock_guard lock{m_};
-		auto currrent_session = std::make_shared<session>(wsi, id);
+		auto currrent_session =
+		    std::make_shared<session>(wsi, next_session, logger_);
+		logger_->log(wsi, currrent_session.get(),
+		             activity_logger::op::connected);
 		handler_->on_connect(*currrent_session);
 		sessions_[wsi] = std::move(currrent_session);
 	}
@@ -212,11 +227,7 @@ namespace ws {
 				sessions_.erase(it);
 			}
 		}
-		if (current)
-			lwsl_warn("[%s/%u] DISCONNECTED\n", lws_get_protocol(wsi)->name,
-			          current->id());
-		else
-			lwsl_warn("[%s/?] DISCONNECTED\n", lws_get_protocol(wsi)->name);
+		logger_->log(wsi, current.get(), activity_logger::op::disconnected);
 
 		if (current) handler_->on_disconnect(*current);
 	}

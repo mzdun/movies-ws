@@ -3,8 +3,11 @@
 
 #include "ws/session.hh"
 
+using namespace std::literals;
+
 namespace ws {
-	session::session(lws* wsi, unsigned id) : wsi_{wsi}, id_{id} {}
+	session::session(lws* wsi, unsigned id, activity_logger* logger)
+	    : wsi_{wsi}, id_{id}, logger_{logger} {}
 
 	void session::send(std::span<unsigned char> payload,
 	                   bool is_binary,
@@ -19,13 +22,8 @@ namespace ws {
 			            payload.size());
 		}
 		if (!stats.silent()) {
-			auto const has_name = !name_.empty();
-			std::string faux_name{};
-			if (!has_name) faux_name = std::format("{}", id_);
-			lwsl_warn(
-			    "[%s/%s] send %zu byte%s%s\n", lws_get_protocol(wsi_)->name,
-			    has_name ? name_.c_str() : faux_name.c_str(), payload.size(),
-			    payload.size() == 1 ? "" : "s", stats.msg().c_str());
+			log("[{} byte{}]{}", payload.size(),
+			    payload.size() == 1 ? ""sv : "s"sv, stats.msg());
 		}
 		lws_callback_on_writable(wsi_);
 	}
@@ -80,6 +78,10 @@ namespace ws {
 		}
 
 		handler->handle(inbound, is_binary, this);
+	}
+
+	void session::vlog(fmt::string_view fmt, fmt::format_args args) {
+		logger_->vlog(this, fmt, args);
 	}
 
 	void session::message::store(std::span<unsigned char> data, bool binary) {

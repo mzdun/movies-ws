@@ -185,10 +185,28 @@ namespace ws {
 		ProtocolImpl* impl{};
 	};
 
+	struct activity_logger {
+		enum class op {
+			connected,
+			disconnected,
+		};
+		virtual ~activity_logger() = default;
+
+		template <typename... T>
+		void log(session* session, fmt::format_string<T...> fmt, T&&... args) {
+			vlog(session, fmt, fmt::make_format_args(args...));
+		}
+		void log(lws* wsi, session* session, op operation);
+		virtual void vlog(session* session,
+		                  fmt::string_view fmt,
+		                  fmt::format_args args) = 0;
+	};
+
 	class web_socket {
 	public:
 		explicit web_socket(std::string&& name,
 		                    handler* handler,
+		                    activity_logger* logger,
 		                    proto_priority priority = normal_protocol);
 		~web_socket();
 		std::string const& name() const noexcept { return name_; }
@@ -210,6 +228,7 @@ namespace ws {
 
 		std::string name_;
 		handler* handler_;
+		activity_logger* logger_;
 		proto_priority priority_;
 		std::unordered_map<lws*, std::shared_ptr<session>> sessions_;
 		mutable std::mutex m_;
