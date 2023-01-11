@@ -245,7 +245,7 @@ namespace movies::db::v1 {
 	static_assert(std::to_underlying(marker_type::NAME) == \
 	                  std::to_underlying(Marker::NAME),    \
 	              "C++ and Proto values for " #NAME " are mismatched");
-			VIDEO_MARKER_TYPE_X(X_ASSERT_EQ);
+			MARKER_TYPE_X(X_ASSERT_EQ);
 #undef X_ASSERT_EQ
 
 			dst.set_type(

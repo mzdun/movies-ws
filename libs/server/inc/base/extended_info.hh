@@ -27,7 +27,7 @@ namespace movies {
 		bool is_episode{false};
 		bool episodes_have_videos{false};
 		std::string series_id{};
-		dates_info::opt_seconds arrival{};
+		std::optional<date::sys_seconds> arrival{};
 		translatable<title_category> title_cat{};
 		std::vector<std::string> local_people_refs{};
 

@@ -93,7 +93,7 @@ namespace movies {
 		}
 
 #define X_HAS_KEY_FOR(TYPE) has_key_for(marker_type::TYPE)&&
-		static_assert(VIDEO_MARKER_TYPE_X(X_HAS_KEY_FOR) true,
+		static_assert(MARKER_TYPE_X(X_HAS_KEY_FOR) true,
 		              "a key is missing from marker_types");
 #undef X_HAS_KEY_FOR
 	}  // namespace
@@ -180,10 +180,10 @@ namespace movies {
 			auto const start = opt_uint(cursor.getColumn(1));
 			if (!start) continue;
 			result.push_back({
-			    .type = static_cast<marker_type>(cursor.getColumn(0).getInt()),
 			    .start = *start,
 			    .stop = opt_uint(cursor.getColumn(2)),
 			    .comment = opt_u8string(cursor.getColumn(3)),
+			    .type = static_cast<marker_type>(cursor.getColumn(0).getInt()),
 			});
 		}
 		std::sort(result.begin(), result.end());
@@ -238,7 +238,7 @@ namespace movies {
 		                        "INSERT INTO marker(id, type, start, stop, "
 		                        "comment) VALUES (?, ?, ?, ?, ?)"};
 
-		for (auto const& [type, start, stop, comment] : markers) {
+		for (auto const& [start, stop, comment, type] : markers) {
 			types.reset();
 			types.bind(1, id);
 			types.bind(2, std::to_underlying(type));
