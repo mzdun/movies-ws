@@ -5,7 +5,6 @@
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <unicode/coll.h>
-#include <base/str.hh>
 #include <concepts>
 #include <ctime>
 #include <sorting/sort.hh>
@@ -492,14 +491,16 @@ namespace movies {
 				if (value >= dates_.tomorrow) {
 					return {
 					    .id = "future",
-					    .label = as_str(tr(app::lng::GROUP_LABEL_FUTURE)),
+					    .label =
+					        as_ascii_string_v(tr(app::lng::GROUP_LABEL_FUTURE)),
 					};
 				}
 
 				if (value >= dates_.this_month) {
 					return {
 					    .id = "now",
-					    .label = as_str(tr(app::lng::GROUP_LABEL_THIS_MONTH)),
+					    .label = as_ascii_string_v(
+					        tr(app::lng::GROUP_LABEL_THIS_MONTH)),
 					};
 				}
 
@@ -507,27 +508,31 @@ namespace movies {
 				    value >= dates_.previous_month) {
 					return {
 					    .id = "last-month",
-					    .label = as_str(tr(app::lng::GROUP_LABEL_LAST_MONTH)),
+					    .label = as_ascii_string_v(
+					        tr(app::lng::GROUP_LABEL_LAST_MONTH)),
 					};
 				}
 
 				if (value >= dates_.this_year) {
 					return {
 					    .id = "this-year",
-					    .label = as_str(tr(app::lng::GROUP_LABEL_THIS_YEAR)),
+					    .label = as_ascii_string_v(
+					        tr(app::lng::GROUP_LABEL_THIS_YEAR)),
 					};
 				}
 
 				if (value >= dates_.previous_year) {
 					return {
 					    .id = "last-year",
-					    .label = as_str(tr(app::lng::GROUP_LABEL_LAST_YEAR)),
+					    .label = as_ascii_string_v(
+					        tr(app::lng::GROUP_LABEL_LAST_YEAR)),
 					};
 				}
 
 				return {
 				    .id = "past",
-				    .label = as_str(tr(app::lng::GROUP_LABEL_LONG_AGO)),
+				    .label =
+				        as_ascii_string_v(tr(app::lng::GROUP_LABEL_LONG_AGO)),
 				};
 			}
 

@@ -1,7 +1,6 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <base/str.hh>
 #include <iostream>
 #include <service.hh>
 #include <ws/session.hh>
@@ -30,7 +29,8 @@ namespace movies {
 		    {cfg.prefix + "/db"s, cfg.database / "db"sv},
 		});
 		ctx_.add_protocol(conn_);
-		logger().warn("SERVING FROM: {}", as_sv(site.generic_u8string()));
+		logger().warn("SERVING FROM: {}",
+		              as_ascii_view(site.generic_u8string()));
 
 		return ctx_.build(port, cfg.prefix);
 	}

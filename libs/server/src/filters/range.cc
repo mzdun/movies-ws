@@ -1,7 +1,6 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <base/str.hh>
 #include <concepts>
 #include <filters/filter.hh>
 #include <set>

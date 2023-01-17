@@ -23,11 +23,11 @@ namespace movies {
 			cover_small = false,
 		};
 		std::string id{};
-		string title{};
-		std::optional<string> cover{};
+		string_type title{};
+		std::optional<string_type> cover{};
 		bool has_video{false};
-		vector<string> tags;
-		vector<string> age_rating;
+		vector<string_type> tags;
+		vector<string_type> age_rating;
 		std::string sort_hint;
 
 		static reference from(std::string const&,
@@ -86,7 +86,7 @@ namespace movies {
 		std::optional<std::filesystem::path> get_video_path(
 		    std::string_view id) const;
 		std::vector<reference> get_episodes(
-		    std::vector<string> const& episodes,
+		    std::vector<string_type> const& episodes,
 		    std::span<std::string const> langs) const;
 		std::vector<link> links_for(extended_info const&,
 		                            Strings const& tr) const;
@@ -124,7 +124,7 @@ namespace movies {
 			plugin::list plugins{};
 			movie_db db{};
 			std::vector<description::filter> current_filters{};
-			std::map<string, std::string> ref2id{};
+			std::map<string_type, std::string> ref2id{};
 			std::string load_async(std::filesystem::path const& database);
 		};
 		void load_async(bool notify);
@@ -155,7 +155,7 @@ namespace movies {
 		std::filesystem::path database_{};
 		std::vector<description::filter> current_filters_{};
 		full_text::engine engine_{};
-		std::map<string, std::string> ref2id_{};
+		std::map<string_type, std::string> ref2id_{};
 		plugin::list plugins_{};
 		observer db_observer_{};
 		std::string title_{};

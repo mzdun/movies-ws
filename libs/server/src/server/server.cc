@@ -5,7 +5,6 @@
 #include <date/date.h>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <base/str.hh>
 #include <iostream>
 #include <movies/opt.hpp>
 #include <random>
@@ -42,10 +41,10 @@ namespace movies {
 
 	inline auto file_ref_mtime(file_ref const& ref) { return ref.mtime; }
 
-	std::optional<string> normal_cover(poster_info const& poster) {
+	std::optional<string_type> normal_cover(poster_info const& poster) {
 		return poster.normal || poster.large || poster.small;
 	}
-	std::optional<string> small_cover(poster_info const& poster) {
+	std::optional<string_type> small_cover(poster_info const& poster) {
 		return poster.small || poster.normal || poster.large;
 	}
 
@@ -57,8 +56,8 @@ namespace movies {
 		auto const title = data.title.find(langs);
 		return {
 		    .id = key,
-		    .title = title != data.title.end() ? title->second.text
-		                                       : std::u8string{},
+		    .title =
+		        title != data.title.end() ? title->second.text : string_type{},
 		    .cover = size == cover_normal ? normal_cover(data.image.poster)
 		                                  : small_cover(data.image.poster),
 		    .has_video = !!data.video_file || data.episodes_have_videos,
@@ -184,10 +183,10 @@ namespace movies {
 		db_observer_.observe({shared_from_this(), this}, database);
 	}
 
-	auto split_refs(std::vector<std::u8string> const& refs) {
-		std::map<std::u8string, std::u8string> split{};
+	auto split_refs(std::vector<string_type> const& refs) {
+		std::map<string_type, string_type> split{};
 		for (auto const& ref : refs) {
-			auto const pos = ref.find(u8':');
+			auto const pos = ref.find(':');
 			if (pos == std::string::npos) continue;
 			split[ref.substr(0, pos)] = ref.substr(pos + 1);
 		}
@@ -196,10 +195,10 @@ namespace movies {
 
 	struct movie_refs {
 		std::string id;
-		std::map<std::u8string, std::u8string> external_ids{};
+		std::map<string_type, string_type> external_ids{};
 		std::vector<std::string> movies{};
 
-		bool compatible_with(std::map<std::u8string, std::u8string>& incoming) {
+		bool compatible_with(std::map<string_type, string_type>& incoming) {
 			bool compatible = true;
 			for (auto const& [key, value] : incoming) {
 				auto it = external_ids.find(key);
@@ -218,13 +217,13 @@ namespace movies {
 		size_t attrs_stop;
 		size_t start;
 		size_t stop;
-		std::string replacement;
-		std::string rel;
+		string_type replacement;
+		string_type rel;
 	};
 
-	std::vector<patch> get_patches(std::string_view summary) {
+	std::vector<patch> get_patches(string_view_type summary) {
 		std::vector<patch> results;
-		auto nodes = tangle::browser::html_split(summary);
+		auto nodes = tangle::browser::html_split(as_ascii_view(summary));
 		for (auto& node : nodes) {
 			if (!node.name.is("a"sv)) continue;
 
@@ -252,7 +251,7 @@ namespace movies {
 				    .start = attrs_stop,
 				    .stop = attrs_stop,
 				    .replacement{},
-				    .rel{as_str(link::noreferrer)},
+				    .rel{as_string_v(link::noreferrer)},
 				});
 				continue;
 			}
@@ -261,8 +260,8 @@ namespace movies {
 			    .attrs_stop = attrs_stop,
 			    .start = attr_pos.start,
 			    .stop = attr_pos.stop,
-			    .replacement = tangle::browser::attr_decode(
-			        attr_pos.value.substr(schema_internal.size())),
+			    .replacement = as_string(tangle::browser::attr_decode(
+			        attr_pos.value.substr(schema_internal.size()))),
 			    .rel{},
 			});
 		}
@@ -270,38 +269,37 @@ namespace movies {
 	}
 
 	void lookup_patches(std::vector<patch>& patches,
-	                    std::map<string, std::string> const& ref2id,
+	                    std::map<string_type, std::string> const& ref2id,
 	                    plugin::list const& plugins) {
 		for (auto& p : patches) {
 			if (p.replacement.empty()) continue;
 
-			auto key = as_u8s(p.replacement);
-			auto it = ref2id.find(key);
+			auto it = ref2id.find(p.replacement);
 			if (it != ref2id.end()) {
 				// todo: url-encode...
-				p.replacement = fmt::format("/movie/{}", it->second);
+				p.replacement = as_string(fmt::format("/movie/{}", it->second));
 				continue;
 			}
 
-			auto links = plugin::ref_links(plugins, {key});
+			auto links = plugin::ref_links(plugins, {p.replacement});
 			if (!links.empty()) {
 				auto const& link = links.front();
-				p.replacement = as_str(link.href);
-				if (link.rel) p.rel = as_str(*link.rel);
+				p.replacement = as_string_v(link.href);
+				if (link.rel) p.rel = as_string_v(*link.rel);
 				continue;
 			}
 
-			p.replacement = "#";
+			p.replacement.assign(SV("#"));
 		}
 	}
 
-	static constexpr auto rel_prefix = u8" rel=\""sv;
-	static constexpr auto rel_postfix = u8"\" target = \"_blank\""sv;
+	static constexpr auto rel_prefix = SV(" rel=\"");
+	static constexpr auto rel_postfix = SV("\" target = \"_blank\"");
 
-	std::u8string patch_text(std::vector<patch> const& patches,
-	                         std::u8string_view text) {
+	string_type patch_text(std::vector<patch> const& patches,
+	                       string_view_type text) {
 		size_t prev = 0;
-		json::string patched{};
+		string_type patched{};
 		{
 			size_t length = 0;
 			for (auto const& p : patches) {
@@ -323,15 +321,15 @@ namespace movies {
 		for (auto const& p : patches) {
 			if (!p.replacement.empty()) {
 				patched.append(text.substr(prev, p.start - prev));
-				patched.push_back(u8'"');
-				patched.append(as_u8v(p.replacement));
-				patched.push_back(u8'"');
+				patched.push_back('"');
+				patched.append(as_view(p.replacement));
+				patched.push_back('"');
 				prev = p.stop;
 			}
 			if (!p.rel.empty()) {
 				patched.append(text.substr(prev, p.attrs_stop - prev));
 				patched.append(rel_prefix);
-				patched.append(as_u8v(p.rel));
+				patched.append(as_view(p.rel));
 				patched.append(rel_postfix);
 				prev = p.attrs_stop;
 			}
@@ -385,7 +383,7 @@ namespace movies {
 
 		for (auto& [_, movie] : db.movies) {
 			for (auto& [lng, summary] : movie.summary) {
-				auto patches = get_patches(as_sv(summary));
+				auto patches = get_patches(summary);
 				if (patches.empty()) continue;
 				lookup_patches(patches, ref2id, plugins);
 				summary = patch_text(patches, summary);
@@ -411,7 +409,7 @@ namespace movies {
 					auto& prev_episode = prev_it->second;
 					prev_episode.next.id = ep_iter->first;
 					prev_episode.next.title = episode.title.map(
-					    [](auto const& title) -> std::u8string const& {
+					    [](auto const& title) -> string_type const& {
 						    return title.text;
 					    });
 					prev_episode.link_flags =
@@ -420,7 +418,7 @@ namespace movies {
 
 					episode.prev.id = prev_it->first;
 					episode.prev.title = prev_episode.title.map(
-					    [](auto const& title) -> std::u8string const& {
+					    [](auto const& title) -> string_type const& {
 						    return title.text;
 					    });
 					episode.link_flags =
@@ -437,7 +435,7 @@ namespace movies {
 
 		{
 			unsigned long long id{};
-			std::map<std::u8string, std::vector<movie_refs>> reverse{};
+			std::map<string_type, std::vector<movie_refs>> reverse{};
 			auto const next_id = [&id] { return fmt::format("p{:05}", ++id); };
 			for (auto& [movie_id, movie] : db.movies) {
 				movie.local_people_refs.clear();
@@ -484,12 +482,12 @@ namespace movies {
 
 			for (auto& [name, refs] : reverse) {
 				for (auto& ref : refs) {
-					std::vector<string> external_ids;
+					std::vector<string_type> external_ids;
 					external_ids.reserve(ref.external_ids.size());
 					std::transform(
 					    ref.external_ids.begin(), ref.external_ids.end(),
 					    std::back_inserter(external_ids), [](auto const& pair) {
-						    string result;
+						    string_type result;
 						    result.reserve(pair.first.length() +
 						                   pair.second.length() + 1);
 						    result.append(pair.first);
@@ -689,17 +687,17 @@ namespace movies {
 		if (it == movies_.movies.end()) return {};
 		auto const& movie = it->second;
 		if (!movie.video_file) return {};
-		auto const view = as_sv(movie.video_file->id);
+		auto const view = as_ascii_view(movie.video_file->id);
 		for (auto ext : {"mp4"sv, "mkv"sv}) {
 			auto const resource = fmt::format("videos/{}.{}", view, ext);
-			if (std::filesystem::exists(database_ / as_u8v(resource)))
-				return as_u8v(resource);
+			if (std::filesystem::exists(database_ / as_utf8_view(resource)))
+				return as_utf8_view(resource);
 		}
 		return {};
 	}
 
 	std::vector<reference> server::get_episodes(
-	    std::vector<string> const& episodes,
+	    std::vector<string_type> const& episodes,
 	    std::span<std::string const> langs) const {
 		std::vector<reference> result{};
 		result.reserve(episodes.size());
@@ -850,7 +848,8 @@ namespace movies {
 	    std::map<std::string, movie_info_refs> const& people) {
 		auto it = people.find(term);
 		if (it != people.end()) {
-			return fmt::format("{}: {}", prefix, as_sv(it->second.name));
+			return fmt::format("{}: {}", prefix,
+			                   as_ascii_view(it->second.name));
 		}
 		return {};
 	}

@@ -4,7 +4,6 @@
 #include <full_text/engine.hh>
 
 #include <SQLiteCpp/Transaction.h>
-#include <base/str.hh>
 #include <set>
 #include <tangle/browser/html_split.hpp>
 #include <tangle/str.hpp>
@@ -74,7 +73,7 @@ namespace movies::full_text {
 		}
 
 		std::string strip_html(std::u8string_view html) {
-			auto const tags_stripped = strip_tags(as_sv(html));
+			auto const tags_stripped = strip_tags(as_ascii_view(html));
 			auto const entities_decoded =
 			    tangle::browser::attr_decode(tags_stripped);
 			auto const utf = ::utf::as_u32(entities_decoded);
@@ -110,7 +109,7 @@ namespace movies::full_text {
 			view = view.substr(0, view.length() - 1);
 		}
 		auto split = tangle::split_sv(marker, view);
-		result.text = as_u8s(tangle::join({}, split));
+		result.text = as_string(tangle::join({}, split));
 		if (split.size() == 3) {
 			result.highlight.start = split[0].length();
 			result.highlight.stop = split[1].length() + result.highlight.start;
@@ -155,33 +154,33 @@ namespace movies::full_text {
 
 			for (auto const& [_, title] : info.title) {
 				title_stmt.bind(1, rowid);
-				title_stmt.bind(2, as_sv(title.text).data());
+				title_stmt.bind(2, as_ascii_view(title.text).data());
 				title_stmt.exec();
 				title_stmt.reset();
 			}
 
 			for (auto const& tag : info.tags) {
 				title_stmt.bind(1, rowid);
-				title_stmt.bind(2, as_sv(tag).data());
+				title_stmt.bind(2, as_ascii_view(tag).data());
 				title_stmt.exec();
 				title_stmt.reset();
 			}
 
-			std::set<movies::string> names;
+			std::set<movies::string_type> names;
 			for (auto const& [name, _] : info.crew.names) {
 				names.insert(name);
 			}
 
 			for (auto const& name : names) {
 				person_stmt.bind(1, rowid);
-				person_stmt.bind(2, as_sv(name).data());
+				person_stmt.bind(2, as_ascii_view(name).data());
 				person_stmt.exec();
 				person_stmt.reset();
 			}
 
 			for (auto const& [_, summary] : info.summary.items) {
 				summary_stmt.bind(1, rowid);
-				summary_stmt.bind(2, strip_html(summary).data());
+				summary_stmt.bind(2, strip_html(as_utf8_view(summary).data()));
 				summary_stmt.exec();
 				summary_stmt.reset();
 			}

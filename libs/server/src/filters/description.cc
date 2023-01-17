@@ -2,7 +2,6 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <date/date.h>
-#include <base/str.hh>
 #include <filters/filter.hh>
 #include <set>
 
@@ -26,9 +25,9 @@ namespace movies::description {
 					return !items.empty();
 				}
 
-				void apply(std::vector<string> const& src) {
+				void apply(std::vector<string_type> const& src) {
 					for (auto const& item : src) {
-						auto const key = as_sv(item);
+						auto const key = as_ascii_view(item);
 						auto it = items.lower_bound(key);
 						if (it == items.end() || *it != key) {
 							items.insert(it, {key.data(), key.size()});

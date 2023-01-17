@@ -1,7 +1,6 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <base/str.hh>
 #include <server/plugin.hh>
 
 namespace movies {
@@ -19,7 +18,7 @@ namespace movies {
 	}
 
 	std::vector<link> plugin::ref_links(plugin::list const& plugins,
-	                                    std::vector<string> const& refs) {
+	                                    std::vector<string_type> const& refs) {
 		std::vector<link> result{};
 		for (auto const& plugin : plugins) {
 			if (!plugin) continue;
@@ -41,7 +40,7 @@ namespace movies {
 
 	page_link_plugin_impl::~page_link_plugin_impl() = default;
 
-	page_link_plugin_impl::page_link_plugin_impl(string&& prefix)
+	page_link_plugin_impl::page_link_plugin_impl(string_type&& prefix)
 	    : prefix_{std::move(prefix)} {}
 
 	std::vector<link> page_link_plugin_impl::page_links_impl(
@@ -50,7 +49,7 @@ namespace movies {
 	}
 
 	std::vector<link> page_link_plugin_impl::ref_links_impl(
-	    std::vector<string> const& refs) const {
+	    std::vector<string_type> const& refs) const {
 		std::vector<link> result{};
 		for (auto const& ref : refs) {
 			if (ref.length() > prefix_.length() && ref.starts_with(prefix_) &&

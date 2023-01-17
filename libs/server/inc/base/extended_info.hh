@@ -33,7 +33,7 @@ namespace movies {
 
 		struct link {
 			std::string id{};
-			translatable<string> title{};
+			translatable<string_type> title{};
 
 			bool operator==(link const&) const noexcept = default;
 		} prev, next;
@@ -48,8 +48,8 @@ namespace movies {
 	};
 
 	struct movie_info_refs {
-		std::u8string name;
-		std::vector<string> external_ids;
+		string_type name;
+		std::vector<string_type> external_ids;
 		std::vector<std::string> movies;
 
 		auto operator<=>(movie_info_refs const&) const noexcept = default;

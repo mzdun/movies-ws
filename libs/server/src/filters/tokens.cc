@@ -1,7 +1,6 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <base/str.hh>
 #include <concepts>
 #include <filters/filter.hh>
 #include <set>
@@ -22,11 +21,11 @@ namespace movies {
 				if (tokens_.empty()) return true;
 
 				auto const& items = access(data);
-				for (auto const& tok : tokens_) {
-					auto const u8tok = as_u8v(tok);
+				for (auto const& ascii_tok : tokens_) {
+					auto const tok = as_view(ascii_tok);
 					bool found = false;
 					for (auto const& checked : items) {
-						if (checked == u8tok) {
+						if (checked == tok) {
 							found = true;
 							break;
 						}
@@ -43,7 +42,7 @@ namespace movies {
 			}
 
 		private:
-			[[nodiscard]] virtual std::vector<std::u8string> const& access(
+			[[nodiscard]] virtual std::vector<string_type> const& access(
 			    extended_info const&) const noexcept = 0;
 			std::vector<std::string> tokens_{};
 		};
@@ -54,7 +53,7 @@ namespace movies {
 		using token_filter::token_filter;                     \
                                                               \
 	private:                                                  \
-		std::vector<std::u8string> const& access(             \
+		std::vector<string_type> const& access(               \
 		    extended_info const& data) const noexcept final { \
 			return data.FIELD;                                \
 		}                                                     \

@@ -1,7 +1,6 @@
 // Copyright (c) 2022 Marcin Zdun
 // This code is licensed under MIT license (see LICENSE for details)
 
-#include <base/str.hh>
 #include <charconv>
 #include <concepts>
 #include <filters/filter.hh>
@@ -16,9 +15,11 @@ namespace movies {
 	namespace {
 		unsigned move_if_needed(unsigned val) { return val; }
 
+#ifdef MOVIES_USE_U8STRING
 		std::u8string move_if_needed(std::u8string& val) {
 			return std::move(val);
 		}
+#endif
 
 		std::string move_if_needed(std::string& val) { return std::move(val); }
 
@@ -48,7 +49,7 @@ namespace movies {
 			using arg_t = std::u8string_view;
 
 			static std::optional<std::u8string> conv(std::string_view term) {
-				return as_u8s(term);
+				return as_utf8_string_v(term);
 			}
 		};
 
@@ -57,7 +58,7 @@ namespace movies {
 			using arg_t = std::string_view;
 
 			static std::optional<std::string> conv(std::string_view term) {
-				return as_str(term);
+				return as_ascii_string_v(term);
 			}
 		};
 
@@ -95,14 +96,14 @@ namespace movies {
 			expand kind_{};
 		};
 
-		class tokens_term_filter : public term_filter<std::u8string> {
+		class tokens_term_filter : public term_filter<string_type> {
 		public:
-			using term_filter<std::u8string>::term_filter;
+			using term_filter<string_type>::term_filter;
 
 		private:
 			[[nodiscard]] bool contains(
 			    extended_info const& data,
-			    std::u8string_view term) const noexcept final {
+			    string_view_type term) const noexcept final {
 				auto const& list = access(data);
 
 				for (auto const& item : list) {
@@ -112,7 +113,7 @@ namespace movies {
 				return false;
 			}
 
-			[[nodiscard]] virtual std::vector<std::u8string> const& access(
+			[[nodiscard]] virtual std::vector<string_type> const& access(
 			    extended_info const&) const noexcept = 0;
 		};
 
@@ -149,9 +150,9 @@ namespace movies {
 			}
 		};
 
-#define TERM_TOKENS_FILTER(X)                                          \
-	X(genre, genres, std::u8string, app::lng::TERM_FILTER_LABEL_GENRE) \
-	X(country, countries, std::u8string, app::lng::TERM_FILTER_LABEL_COUNTRY)
+#define TERM_TOKENS_FILTER(X)                                        \
+	X(genre, genres, string_type, app::lng::TERM_FILTER_LABEL_GENRE) \
+	X(country, countries, string_type, app::lng::TERM_FILTER_LABEL_COUNTRY)
 #define TERM_VALUE_FILTER(X) \
 	X(year, year, unsigned, app::lng::TERM_FILTER_LABEL_YEAR)
 #define TERM_FILTER(X)    \
@@ -162,11 +163,11 @@ namespace movies {
 #define X_TOKENS_TERM_FILTER(CAT, ACCESS, T, LNG)                           \
 	class ACCESS##_term_filter : public tokens_term_filter {                \
 	public:                                                                 \
-		ACCESS##_term_filter(std::u8string term)                            \
+		ACCESS##_term_filter(string_type term)                              \
 		    : tokens_term_filter{std::move(term), LNG, expand_from<LNG>} {} \
                                                                             \
 	private:                                                                \
-		std::vector<std::u8string> const& access(                           \
+		std::vector<string_type> const& access(                             \
 		    extended_info const& data) const noexcept final {               \
 			return data.ACCESS;                                             \
 		}                                                                   \

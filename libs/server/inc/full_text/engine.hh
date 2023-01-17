@@ -44,7 +44,7 @@ namespace movies::full_text {
 			return stmt_text;
 		}
 
-		string text{};
+		string_type text{};
 		full_text::highlight highlight{};
 		bool startCut{false};
 		bool endCut{false};

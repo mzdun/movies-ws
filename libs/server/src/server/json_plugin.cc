@@ -26,20 +26,20 @@ namespace movies {
 	bool json_link::load(std::u8string_view name,
 	                     json::map const& data,
 	                     bool assume_noreferrer) {
-#define LOADS(NAME)                                                        \
-	{                                                                      \
-		auto it = data.find(u8## #NAME##s);                                \
-		if (it != data.end()) {                                            \
-			auto str = cast<json::string>(it->second);                     \
-			if (!str) {                                                    \
-				fmt::print(stderr, "{}.{} is not a string\n", as_sv(name), \
-				           #NAME##sv);                                     \
-				return false;                                              \
-			}                                                              \
-			NAME = *str;                                                   \
-		} else {                                                           \
-			NAME = std::nullopt;                                           \
-		}                                                                  \
+#define LOADS(NAME)                                           \
+	{                                                         \
+		auto it = data.find(u8## #NAME##s);                   \
+		if (it != data.end()) {                               \
+			auto str = cast<json::string>(it->second);        \
+			if (!str) {                                       \
+				fmt::print(stderr, "{}.{} is not a string\n", \
+				           as_ascii_view(name), #NAME##sv);   \
+				return false;                                 \
+			}                                                 \
+			NAME = as_string_v(*str);                         \
+		} else {                                              \
+			NAME = std::nullopt;                              \
+		}                                                     \
 	}
 		LOADS(href);
 		LOADS(icon);
@@ -54,16 +54,16 @@ namespace movies {
 				if (!str && !nil) {
 					fmt::print(stderr,
 					           "{}.rel is neither a string, nor a null\n",
-					           as_sv(name));
+					           as_ascii_view(name));
 					return false;
 				}
 				if (str) {
-					rel = *str;
+					rel = as_string_v(*str);
 				} else {
 					rel = std::nullopt;
 				}
 			} else if (assume_noreferrer) {
-				rel = as_u8s(link::noreferrer);
+				rel = as_string_v(link::noreferrer);
 			} else {
 				rel = std::nullopt;
 			}
@@ -81,11 +81,12 @@ namespace movies {
 		print(loc, prefix, u8"rel"sv, rel);
 	}
 
-	json_link json_plugin_info::match(string const& id) const {
+	json_link json_plugin_info::match(string_type const& id) const {
 		if (!regex.empty()) {
-			auto matched = as_str(id);
+			auto matched = as_ascii_string_v(id);
 			for (auto const& [key, info] : regex) {
-				if (!std::regex_match(matched, std::regex{as_str(key)}))
+				if (!std::regex_match(matched,
+				                      std::regex{as_ascii_string_v(key)}))
 					continue;
 
 				return base.override_with(info);
@@ -104,10 +105,10 @@ namespace movies {
 	                             std::source_location const& loc) const {
 		base.print(prefix, loc);
 		for (auto const& [key, re] : regex) {
-			string key_prefix;
+			std::u8string key_prefix;
 			key_prefix.assign(prefix);
 			key_prefix.push_back('"');
-			key_prefix.append(key);
+			key_prefix.append(as_utf8_view(key));
 			key_prefix.push_back('"');
 			key_prefix.push_back('.');
 			re.print(key_prefix, loc);
@@ -143,13 +144,14 @@ namespace movies {
 				regex.append(key);
 				if (!key.ends_with('$')) regex.push_back('$');
 
-				string subkey{};
+				std::u8string subkey{};
 				subkey.assign(name);
 				subkey.push_back('.');
 				subkey.push_back('"');
 				subkey.append(regex);
 				subkey.push_back('"');
-				if (!result.regex[regex].load(subkey, *link, false)) {
+				if (!result.regex[as_string(std::move(regex))].load(
+				        subkey, *link, false)) {
 					result.clear();
 					return result;
 				}
@@ -159,14 +161,14 @@ namespace movies {
 		if (!result.base.href) {
 			for (auto const& [key, regex] : result.regex) {
 				if (regex.href) continue;
-				fmt::print(stderr, "{}.\"{}\".href is missing\n", as_sv(name),
-				           as_sv(key));
+				fmt::print(stderr, "{}.\"{}\".href is missing\n",
+				           as_ascii_view(name), as_ascii_view(key));
 				result.clear();
 				return result;
 			}
 
 			if (result.regex.empty()) {
-				fmt::print(stderr, "{}.href is missing\n", as_sv(name));
+				fmt::print(stderr, "{}.href is missing\n", as_ascii_view(name));
 				result.clear();
 				return result;
 			}
@@ -176,11 +178,11 @@ namespace movies {
 		return result;
 	}
 
-	link json_plugin::current_url(string const& id) const {
+	link json_plugin::current_url(string_type const& id) const {
 		auto matched = info_.match(id);
 		if (!matched.href || matched.href->empty()) return {};
 
-		static constexpr auto placeholder = u8"{id}"sv;
+		static constexpr auto placeholder = SV("{id}");
 		auto const pos = matched.href->find(placeholder);
 		if (pos == std::u8string::npos) {
 			return {
@@ -192,8 +194,8 @@ namespace movies {
 			};
 		}
 
-		auto view = std::u8string_view{*matched.href};
-		string href{};
+		auto view = as_view(*matched.href);
+		string_type href{};
 		href.reserve(matched.href->length() - placeholder.length() +
 		             id.length());
 		href.append(view.substr(0, pos));
@@ -215,7 +217,7 @@ namespace movies {
 	plugin::list plugin::load_plugins(std::filesystem::path const& database) {
 		plugin::list result{};
 
-		std::map<string, json_plugin_info> jsons{};
+		std::map<string_type, json_plugin_info> jsons{};
 
 		for (auto const& dir : {exec_path().parent_path(), database}) {
 			std::error_code ec{};
@@ -226,7 +228,7 @@ namespace movies {
 				auto key = entry.path().stem().generic_u8string();
 				auto config = json_plugin_info::load(key, entry.path());
 				if (!config.valid) continue;
-				jsons[key] = config;
+				jsons[as_string(std::move(key))] = config;
 			}
 		}
 

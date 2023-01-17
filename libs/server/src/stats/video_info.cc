@@ -3,7 +3,6 @@
 
 #include <SQLiteCpp/Transaction.h>
 #include <sqlite3.h>
-#include <base/str.hh>
 #include <stats/video_info.hh>
 #include "movie_table.hh"
 
@@ -14,11 +13,11 @@ namespace movies {
 			return col.getUInt();
 		}
 
-		std::optional<std::u8string> opt_u8string(SQLite::Column const& col) {
+		std::optional<string_type> opt_string(SQLite::Column const& col) {
 			if (col.isNull()) return std::nullopt;
 			auto const str = col.getString();
-			auto const view = as_u8v(str);
-			return std::u8string{view.data(), view.length()};
+			auto const view = as_view(str);
+			return string_type{view.data(), view.length()};
 		}
 
 		template <typename Payload>
@@ -37,7 +36,7 @@ namespace movies {
 		    int index,
 		    std::optional<std::basic_string<char8_t, Args...>> const& value) {
 			if (value)
-				stmt.bind(index, as_sv(*value).data());
+				stmt.bind(index, as_ascii_view(*value).data());
 			else
 				stmt.bind(index);
 		}
@@ -182,7 +181,7 @@ namespace movies {
 			result.push_back({
 			    .start = *start,
 			    .stop = opt_uint(cursor.getColumn(2)),
-			    .comment = opt_u8string(cursor.getColumn(3)),
+			    .comment = opt_string(cursor.getColumn(3)),
 			    .type = static_cast<marker_type>(cursor.getColumn(0).getInt()),
 			});
 		}

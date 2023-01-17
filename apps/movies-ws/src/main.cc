@@ -7,7 +7,6 @@
 #include <fmt/format.h>
 #include <args/parser.hpp>
 #include <base/logger.hh>
-#include <base/str.hh>
 #include <io/file.hpp>
 #include <server/lngs.hh>
 #include <server/version.hh>
@@ -54,14 +53,15 @@ movies::service_cfg load(fs::path const& json_filename) {
 	    json_video_info_db ? db_dir / *json_video_info_db
 	                       : db_dir / u8"video-info.sqlite"sv);
 
-	if (json_prefix) result.prefix.assign(movies::as_sv(*json_prefix));
+	if (json_prefix) result.prefix.assign(movies::as_ascii_view(*json_prefix));
 	if (result.prefix.empty() || result.prefix.front() != '/')
 		result.prefix.insert(result.prefix.begin(), '/');
 	if (result.prefix.back() == '/') result.prefix.pop_back();
 	if (json_title)
-		result.title.assign(movies::as_sv(*json_title));
+		result.title.assign(movies::as_ascii_view(*json_title));
 	else
-		result.title.assign(movies::as_sv(json_filename.stem().u8string()));
+		result.title.assign(
+		    movies::as_ascii_view(json_filename.stem().u8string()));
 
 	return result;
 }
@@ -141,7 +141,7 @@ int main(int argc, char** argv) try {
 	{
 		auto const db = cfg.database.generic_u8string();
 		logger().info("title: {}", cfg.title);
-		logger().info("files: {}", movies::as_sv(db));
+		logger().info("files: {}", movies::as_ascii_view(db));
 		logger().info("http://localhost:{}{}/", service.port(), cfg.prefix);
 	}
 	service.run();

@@ -4,7 +4,6 @@
 #define NOMINMAX
 
 #include <date/date.h>
-#include <base/str.hh>
 #include <rpc/db.hh>
 #include <rpc/session.hh>
 
@@ -87,16 +86,18 @@ namespace movies::db::v1 {
 
 		void copy(std::string_view src, std::string& dst) { dst.assign(src); }
 
+#ifdef MOVIES_USE_U8STRING
 		void copy(std::u8string_view src, std::string& dst) {
-			dst.assign(as_sv(src));
+			dst.assign(as_ascii_view(src));
 		}
+#endif
 
-		bool tr_copy(translatable<std::u8string> const& src,
+		bool tr_copy(translatable<string_type> const& src,
 		             std::string& dst,
 		             std::span<std::string const> langs) {
 			auto it = src.find(langs);
 			if (it == src.end()) return false;
-			dst.assign(as_sv(it->second));
+			dst.assign(as_ascii_view(it->second));
 			return true;
 		}
 
@@ -527,7 +528,7 @@ namespace movies::db::v1 {
 		auto resource = server()->get_video_path(req.key());
 		if (resource) {
 			auto const generic = resource->generic_u8string();
-			resp.set_uri(fmt::format("/{}", as_sv(generic)));
+			resp.set_uri(fmt::format("/{}", as_ascii_view(generic)));
 
 			auto const info = server()->get_video_info(req.key());
 			if (info.credits || info.end_of_watch || !info.markers.empty())
@@ -562,7 +563,7 @@ namespace movies::db::v1 {
 			next.type = static_cast<marker_type>(marker.type());
 			next.start = marker.start();
 			if (marker.has_stop()) next.stop = marker.stop();
-			if (marker.has_comment()) next.comment = as_u8v(marker.comment());
+			if (marker.has_comment()) next.comment = as_view(marker.comment());
 		}
 		server()->set_video_info(req.key(), info);
 	}

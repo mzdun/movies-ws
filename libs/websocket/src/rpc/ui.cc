@@ -4,7 +4,6 @@
 #define NOMINMAX
 
 #include <base/overload.hh>
-#include <base/str.hh>
 #include <regions/mapping.hh>
 #include <rpc/session.hh>
 #include <rpc/ui.hh>
@@ -301,7 +300,7 @@ namespace movies::ui::v1 {
 			auto filename = server()->database() / *resource;
 			filename.make_preferred();
 			open_file(filename);
-			session.log("   -> {}", as_sv(filename.u8string()));
+			session.log("   -> {}", as_ascii_view(filename.u8string()));
 		} else {
 			session.log("   -> no video");
 		}

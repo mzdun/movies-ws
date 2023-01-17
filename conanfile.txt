@@ -10,6 +10,7 @@ mbits-args/0.12.3
 mbits-utfconv/1.0.3
 mbits-lngs/0.7.4
 tangle/0.2.1
+boost/1.81.0
 
 libcurl/7.86.0
 zlib/1.2.13
@@ -18,6 +19,7 @@ openssl/1.1.1q
 [options]
 sqlite3:enable_fts5 = True
 libwebsockets:enable_ranges = True
+boost:without_python=False
 
 [generators]
 CMakeDeps
