@@ -6,7 +6,6 @@ set(SRCS
     inc/base/extended_info.hh
     inc/base/logger.hh
     inc/base/lngs.hh
-    inc/base/str.hh
     inc/filters/filter.hh
     inc/full_text/engine.hh
     inc/server/fs_observer.hh
