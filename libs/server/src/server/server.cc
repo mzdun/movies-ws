@@ -41,10 +41,10 @@ namespace movies {
 
 	inline auto file_ref_mtime(file_ref const& ref) { return ref.mtime; }
 
-	std::optional<string_type> normal_cover(poster_info const& poster) {
+	std::optional<image_url> normal_cover(poster_info const& poster) {
 		return poster.normal || poster.large || poster.small;
 	}
-	std::optional<string_type> small_cover(poster_info const& poster) {
+	std::optional<image_url> small_cover(poster_info const& poster) {
 		return poster.small || poster.normal || poster.large;
 	}
 
@@ -54,12 +54,19 @@ namespace movies {
 	                          std::span<std::string const> langs,
 	                          cover_size size) {
 		auto const title = data.title.find(langs);
+		auto const poster = data.image.poster.find(langs);
+		using opt_str = std::optional<string_type>;
+		opt_str cover =
+		    poster != data.image.poster.end()
+		        ? ((size == cover_normal ? normal_cover(poster->second)
+		                                 : small_cover(poster->second)) >>
+		           [](image_url const& url) { return url.path; })
+		        : opt_str{};
 		return {
 		    .id = key,
 		    .title =
 		        title != data.title.end() ? title->second.text : string_type{},
-		    .cover = size == cover_normal ? normal_cover(data.image.poster)
-		                                  : small_cover(data.image.poster),
+		    .cover = std::move(cover),
 		    .has_video = !!data.video_file || data.episodes_have_videos,
 		    .tags = data.tags,
 		    .age_rating = data.age,

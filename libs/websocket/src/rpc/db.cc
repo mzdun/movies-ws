@@ -72,6 +72,15 @@ namespace fmt {
 	};
 }  // namespace fmt
 
+#define OPT_COPY(FLD) \
+	if (src.FLD) v1::copy(*src.FLD, *dst.mutable_##FLD())
+#define OPT_SET(FLD) \
+	if (src.FLD) dst.set_##FLD(*src.FLD)
+#define COPY(FLD, ...) v1::copy(src.FLD, *dst.mutable_##FLD(), ##__VA_ARGS__)
+#define TR_COPY(FLD) \
+	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), langs)) dst.clear_##FLD()
+#define SET(FLD) dst.set_##FLD(src.FLD)
+
 namespace movies::db::v1 {
 	namespace {
 		using google::protobuf::RepeatedPtrField;
@@ -92,28 +101,42 @@ namespace movies::db::v1 {
 		}
 #endif
 
+		void copy(image_url const& src, std::string& dst) {
+			v1::copy(src.path, dst);
+		}
+
+		void copy(poster_info const& src, info::v1::PosterInfo& dst) {
+			OPT_COPY(small);
+			OPT_COPY(large);
+			OPT_COPY(normal);
+		}
+
+		template <typename Src, typename Dst>
+		bool tr_copy_impl(translatable<Src> const& src,
+		                  Dst& dst,
+		                  std::span<std::string const> langs) {
+			auto it = src.find(langs);
+			if (it == src.end()) return false;
+			v1::copy(it->second, dst);
+			return true;
+		}
+
 		bool tr_copy(translatable<string_type> const& src,
 		             std::string& dst,
 		             std::span<std::string const> langs) {
-			auto it = src.find(langs);
-			if (it == src.end()) return false;
-			dst.assign(as_ascii_view(it->second));
-			return true;
+			return tr_copy_impl(src, dst, langs);
+		}
+
+		bool tr_copy(translatable<image_url> const& src,
+		             std::string& dst,
+		             std::span<std::string const> langs) {
+			return tr_copy_impl(src, dst, langs);
 		}
 
 		template <typename Src, typename Dst, typename... Additional>
 		inline void copy(std::vector<Src> const& src,
 		                 RepeatedPtrField<Dst>& dst,
 		                 Additional&&... additional);
-
-#define OPT_COPY(FLD) \
-	if (src.FLD) v1::copy(*src.FLD, *dst.mutable_##FLD())
-#define OPT_SET(FLD) \
-	if (src.FLD) dst.set_##FLD(*src.FLD)
-#define COPY(FLD, ...) v1::copy(src.FLD, *dst.mutable_##FLD(), ##__VA_ARGS__)
-#define TR_COPY(FLD) \
-	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), langs)) dst.clear_##FLD()
-#define SET(FLD) dst.set_##FLD(src.FLD)
 
 		void copy(reference const& src, listing::v1::MovieReference& dst) {
 			COPY(id);
@@ -191,16 +214,19 @@ namespace movies::db::v1 {
 			COPY(names, local_people_refs);
 		}
 
-		void copy(poster_info const& src, info::v1::PosterInfo& dst) {
-			OPT_COPY(small);
-			OPT_COPY(large);
-			OPT_COPY(normal);
+		bool tr_copy(translatable<poster_info> const& src,
+		             info::v1::PosterInfo& dst,
+		             std::span<std::string const> langs) {
+			return tr_copy_impl(src, dst, langs);
 		}
 
-		void copy(image_info const& src, info::v1::ImageInfo& dst) {
-			OPT_COPY(highlight);
-			COPY(poster);
+		bool tr_copy(image_info const& src,
+		             info::v1::ImageInfo& dst,
+		             std::span<std::string const> langs) {
+			TR_COPY(highlight);
+			TR_COPY(poster);
 			COPY(gallery);
+			return true;
 		}
 
 		void copy(movie_info const& src,
@@ -214,7 +240,7 @@ namespace movies::db::v1 {
 			copy(src.age, *dst.mutable_age_rating());
 			TR_COPY(tagline);
 			TR_COPY(summary);
-			COPY(image);
+			TR_COPY(image);
 			OPT_SET(year);
 			OPT_SET(runtime);
 			OPT_SET(rating);
