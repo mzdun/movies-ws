@@ -339,6 +339,17 @@ namespace movies {
 		return patched;
 	}
 
+	bool matches(std::u8string_view u8key, std::u8string_view name) {
+		size_t prev = 0;
+		auto pos = u8key.find('/');
+		while (pos != std::u8string_view::npos) {
+			if (u8key.substr(prev, pos - prev) == name) return true;
+			prev = pos + 1;
+			pos = u8key.find('/', prev);
+		}
+		return u8key.substr(prev) == name;
+	}
+
 	std::string server::loader::load_async(
 	    std::filesystem::path const& database) {
 		using namespace std::chrono;
@@ -351,8 +362,10 @@ namespace movies {
 			if (!movie.info_file && !movie.video_file) continue;
 			auto const& u8key =
 			    movie.info_file ? movie.info_file->id : movie.video_file->id;
-			std::string key{reinterpret_cast<char const*>(u8key.data()),
-			                u8key.size()};
+			if (matches(u8key, u8"@eaDir"sv)) {
+				continue;
+			}
+			auto key = as_ascii_string_v(u8key);
 			db.movies[key] = {std::move(movie)};
 		}
 
