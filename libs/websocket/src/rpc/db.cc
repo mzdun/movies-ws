@@ -245,10 +245,6 @@ namespace movies::db::v1 {
 			OPT_SET(runtime);
 			OPT_SET(rating);
 			COPY(tags);
-
-			/*
-	repeated MovieReference episodes = 11;
-			*/
 		}
 
 		void copy(link const& src, info::v1::Link& dst) {
@@ -484,10 +480,13 @@ namespace movies::db::v1 {
 		if (req.has_search()) search = &req.search();
 
 		movies::session data{session};
+		auto const& full_langs = data.langs();
+		std::vector<std::string> langs{};
+		if (!full_langs.empty()) langs.push_back(full_langs.front());
 
 		auto const result =
 		    server()->listing(search ? *search : std::string{}, filters, sort,
-		                      true, true, data.tr(), data.langs());
+		                      true, true, data.tr(), langs);
 		size_t groups = 0;
 		size_t refs = 0;
 		for (auto const& grp : result) {
@@ -516,9 +515,12 @@ namespace movies::db::v1 {
 
 		std::vector<reference> result;
 		{
+			auto const& full_langs = data.langs();
+			std::vector<std::string> langs{};
+			if (!full_langs.empty()) langs.push_back(full_langs.front());
 			auto group =
 			    server()->listing(search ? *search : std::string{}, filters,
-			                      sort, false, false, data.tr(), data.langs());
+			                      sort, false, false, data.tr(), langs);
 			if (!group.empty()) result = std::move(group.front().items);
 		}
 
@@ -535,14 +537,16 @@ namespace movies::db::v1 {
 
 	MSG_HANDLER(GetMovieInfo) {
 		movies::session data{session};
+		auto const& full_langs = data.langs();
+		std::vector<std::string> langs{};
+		if (!full_langs.empty()) langs.push_back(full_langs.front());
 
 		auto info = server()->find_movie_copy(req.key());
-		auto const episodes =
-		    server()->get_episodes(info.episodes, data.langs());
+		auto const episodes = server()->get_episodes(info.episodes, langs);
 		auto const watch = server()->get_watch_time(req.key());
 
 		copy(info, req.key(), server()->links_for(info, data.tr()), episodes,
-		     watch, *resp.mutable_info(), data.langs());
+		     watch, *resp.mutable_info(), langs);
 		if (resp.info().title().has_local())
 			session.log("   -> \"{}\"", resp.info().title().local());
 		else
