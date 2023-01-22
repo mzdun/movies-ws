@@ -3,18 +3,19 @@
 ## Ubuntu
 ```
 mkdir -p build/conan && cd build/conan
-conan install ../.. --build missing -s build_type=Release
-conan install ../.. --build missing -s build_type=Debug
-cd ..
-cmake .. -DCMAKE_BUILD_TYPE=Debug -G Ninja
-ninja
+conan install ../.. --build missing -pr:b=debug -pr:h=debug
+conan install ../.. --build missing -pr:b=release -pr:h=release
+cd ../..
+cmake --preset release-ninja
+cmake --build --preset release
 ```
 
 ## Windows (pwsh)
 ```
 mkdir build\conan && cd build\conan
-conan install ..\.. --build missing -s build_type=Release -s compiler.runtime=MT
-conan install ..\.. --build missing -s build_type=Debug -s compiler.runtime=MTd
-cd ..
-cmake ..
+conan install ../.. --build missing -pr:b=debug -pr:h=debug
+conan install ../.. --build missing -pr:b=release -pr:h=release
+cd ..\..
+cmake --preset release-vs22
+cmake --build --preset release
 ```
