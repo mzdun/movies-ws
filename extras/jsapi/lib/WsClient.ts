@@ -44,9 +44,7 @@ export default class WsClient {
 		this._onEvent = onEvent;
 	}
 
-	get connected() {
-		return this._conn.connected;
-	}
+	get connected() { return this._conn.connected; }
 
 	async send(msg: movies.rpc.v1.IRequest) {
 		const id = this._next_id;
@@ -81,8 +79,7 @@ export default class WsClient {
 
 		if (generic.event) {
 			const event = new movies.rpc.v1.Event(generic.event);
-			if (this._onEvent)
-				this._onEvent(event);
+			if (this._onEvent) this._onEvent(event);
 			return;
 		}
 	}

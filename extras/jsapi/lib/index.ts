@@ -11,7 +11,7 @@ export interface FilterListing {
 export class Service extends MovieEventTarget {
 	_ws: WsClient;
 	_lang: string = navigator.language;
-	_clientId?: string = sessionStorage.getItem("clientId") ?? undefined;
+	_clientId?: string = sessionStorage.getItem('clientId') ?? undefined;
 	_onlangs: () => void;
 	constructor(host: Promise<string>) {
 		super();
@@ -27,44 +27,41 @@ export class Service extends MovieEventTarget {
 		this.updateLangs();
 	}
 
-	get lang() {
-		return this._lang;
-	}
+	get lang() { return this._lang; }
 
-	get clientId() {
-		return this._clientId;
-	}
+	get clientId() { return this._clientId; }
 
-	get connected() {
-		return this._ws.connected;
-	}
+	get connected() { return this._ws.connected; }
 
 	updateLangs() {
 		(async () => {
 			const langChange = (await this._ws.send({
-				langChange: { langId: [...navigator.languages], clientId: this._clientId }
-			})).langChange || {};
+				                   langChange: {
+					                   langId: [...navigator.languages],
+					                   clientId: this._clientId
+				                   }
+			                   })).langChange ||
+			    {};
 			const nextLang = langChange.langId || '';
 			const clientId = langChange.clientId ?? undefined;
 
-			const langChanged = nextLang !== this._lang;
+			// const langChanged = nextLang !== this._lang;
 			this._lang = nextLang;
-			if (langChanged)
-				this.dispatchEvent({message: 'languageChange'});
+			// if (langChanged)
+			this.dispatchEvent({message: 'languageChange'});
 
 			const clientIdChanged = clientId !== this._clientId;
 			this._clientId = clientId;
 			if (clientIdChanged && clientId !== undefined) {
-				sessionStorage.setItem("clientId", clientId)
-				this.dispatchEvent({ message: 'clientIdChange' });
+				sessionStorage.setItem('clientId', clientId);
+				this.dispatchEvent({message: 'clientIdChange'});
 			}
 		})();
 	}
 
 	_onConnectionChange() {
 		this.dispatchEvent({message: 'connectionChange'});
-		if (this.connected)
-			this.updateLangs();
+		if (this.connected) this.updateLangs();
 	}
 
 	async getConfig() {
@@ -119,9 +116,7 @@ export class Service extends MovieEventTarget {
 		    {};
 	}
 
-	async openMovie(id: string) {
-		await this._ws.send({openMovie: {id}});
-	}
+	async openMovie(id: string) { await this._ws.send({openMovie: {id}}); }
 };
 
 export {movies};

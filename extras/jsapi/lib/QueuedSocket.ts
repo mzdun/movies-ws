@@ -23,19 +23,14 @@ export class QueuedSocket {
 		});
 	}
 
-	get url() {
-		return this._url;
-	}
+	get url() { return this._url; }
 
-	get connected() {
-		return this._connected;
-	}
+	get connected() { return this._connected; }
 
 	send(payload: Uint8Array) {
 		if (!this._connected) {
 			this._queue.push(payload);
-			if (!this._connecting)
-				this._reconnect();
+			if (!this._connecting) this._reconnect();
 			return;
 		}
 		this._ws!.send(payload);
@@ -73,8 +68,7 @@ export class QueuedSocket {
 	}
 
 	private _tryReconnecting() {
-		if (this._connected)
-			return;
+		if (this._connected) return;
 		// Exponentially increase timeout to reconnect.
 		// Respectfully copied from the package webpack-dev-server, which got it
 		// from package `got`.

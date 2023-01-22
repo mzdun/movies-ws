@@ -39,8 +39,7 @@ export function tokensFilter(
 
 export function onOffFilter(field: string): movies.filters.v1.IFilter {
 	const on = field.length > 0 && field[0] !== '!';
-	if (!on)
-		field = field.substring(1);
+	if (!on) field = field.substring(1);
 	return {onOff: {field, on}};
 }
 

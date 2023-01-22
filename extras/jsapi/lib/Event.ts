@@ -1,7 +1,8 @@
 import {movies} from './proto/bundle';
 type BasicEventType = Exclude<movies.rpc.v1.Event['message'], undefined>;
 type MovieEventType = Exclude<BasicEventType, 'databaseContentsChange'>;
-type EventType = BasicEventType|'languageChange'|'clientIdChange'|'connectionChange';
+type EventType =
+    BasicEventType|'languageChange'|'clientIdChange'|'connectionChange';
 type IEvent = movies.rpc.v1.IEvent;
 
 export interface MovieEvent extends Event {
@@ -19,13 +20,10 @@ export class MovieEvent extends Event {
 export class MovieEventTarget {
 	private _dispatch: EventTarget;
 
-	constructor() {
-		this._dispatch = new EventTarget();
-	}
+	constructor() { this._dispatch = new EventTarget(); }
 
 	dispatchEvent(data: IEvent&{message?: EventType}): boolean {
-		if (!data.message)
-			return false;
+		if (!data.message) return false;
 		return this._dispatch.dispatchEvent(
 		    new MovieEvent(data as (IEvent & {message: EventType})));
 	}

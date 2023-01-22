@@ -21,6 +21,9 @@ UseTab:               ForIndentation
 ---
 Language:             JavaScript
 BasedOnStyle:         Chromium
+AllowShortIfStatementsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
 IndentWidth:          4
 NamespaceIndentation: All
 TabWidth:             4
