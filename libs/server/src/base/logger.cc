@@ -9,9 +9,7 @@
 #define NOMINMAX
 #include <Windows.h>
 using pid_t = DWORD;
-inline pid_t gettid() noexcept {
-	return GetCurrentThreadId();
-}
+inline pid_t gettid() noexcept { return GetCurrentThreadId(); }
 #else
 #include <sys/types.h>
 #include <unistd.h>
