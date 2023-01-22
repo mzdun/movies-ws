@@ -1,4 +1,20 @@
 
+## [0.11.0](https://github.com/mzdun/movies-ws/compare/v0.10.1...v0.11.0) (2023-01-22)
+
+### New Features
+
+- align with movies' string_type helpers ([5bf0f7e](https://github.com/mzdun/movies-ws/commit/5bf0f7e94b60a1604c91702e80de7f430ad16271))
+
+### Bug Fixes
+
+- lookup only "top" language resources ([b2db22c](https://github.com/mzdun/movies-ws/commit/b2db22cc4b5f7deb0d2a321b853e759fb514e6e6))
+- adapt to new way of using conan and cmake ([299d736](https://github.com/mzdun/movies-ws/commit/299d7361e3f1da73f50d5303cd83dcf26a884640))
+- adapt to newest version of movies ([ec09311](https://github.com/mzdun/movies-ws/commit/ec09311d870797cea15895d007df1a9cca867d4a))
+- remove deleted file reference ([cd86404](https://github.com/mzdun/movies-ws/commit/cd864042016673e4d6f868921fa78830f72c7df8))
+- ignore metadata directory on synology ([9666193](https://github.com/mzdun/movies-ws/commit/966619301b11149c7b0c3b97b328184887769922))
+- allow video_marker.start to be zero ([7c93e8e](https://github.com/mzdun/movies-ws/commit/7c93e8e8a90ce6a53a3ec62c4d5e170ef8ee7691))
+- switch to movie_info.idl ([91a8d71](https://github.com/mzdun/movies-ws/commit/91a8d71dfb5f8b647fd13564eecddac13bdd16f4))
+
 ## [0.10.1](https://github.com/mzdun/movies-ws/compare/v0.10.0...v0.10.1) (2023-01-09)
 
 ### Bug Fixes
