@@ -4,7 +4,7 @@
 #pragma once
 #include <unicode/normalizer2.h>
 #include <unicode/unistr.h>
-#include <movies/loader.hpp>
+#include <movies/movie_info.hpp>
 
 namespace movies {
 	enum class char_class {
@@ -23,7 +23,7 @@ namespace movies {
 		void init(title_info const&, icu::Normalizer2 const*);
 	};
 
-	struct extended_info : movie_data {
+	struct extended_info : loaded_movie {
 		bool is_episode{false};
 		bool episodes_have_videos{false};
 		std::string series_id{};

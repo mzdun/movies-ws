@@ -7,23 +7,16 @@
 #include <rpc/db.hh>
 #include <rpc/rpc.hh>
 #include <rpc/ui.hh>
+#include <server/server.hh>
 #include <string>
 #include <vector>
 
 namespace movies {
-	struct service_cfg {
-		std::filesystem::path database;
-		std::filesystem::path watch_db;
-		std::filesystem::path video_info_db;
-		std::string prefix;
-		std::string title;
-	};
-
 	class service : public ws::service {
 	public:
 		explicit service(rpc::v1::dispatcher* proxy);
 
-		bool init(unsigned short port, service_cfg const& cfg);
+		bool init(unsigned short port, server_cfg const& cfg);
 		int port() const;
 		void run();
 		void stop();

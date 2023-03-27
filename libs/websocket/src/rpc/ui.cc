@@ -83,7 +83,7 @@ namespace movies::ui::v1 {
 			if (src.ascByDefault) dst.set_asc_by_default(true);
 		}
 
-		void copy(vector<sort_types> const& src,
+		void copy(std::vector<sort_types> const& src,
 		          RepeatedPtrField<filters::v1::SortDescription>& dst,
 		          app::Strings const& tr) {
 			dst.Reserve(ws::isize(src));
@@ -148,7 +148,7 @@ namespace movies::ui::v1 {
 			std::visit([&](auto const& src) { visit(src, dst, tr); }, src);
 		}
 
-		void copy(vector<description::filter> const& src,
+		void copy(std::vector<description::filter> const& src,
 		          RepeatedPtrField<filters::v1::FilterDescription>& dst,
 		          app::Strings const& tr) {
 			dst.Reserve(ws::isize(src));
@@ -295,9 +295,9 @@ namespace movies::ui::v1 {
 	}
 
 	MSG_HANDLER(OpenMovie) {
-		auto resource = server()->get_video_path(req.id());
+		auto resource = server()->get_video_resource(req.id());
 		if (resource) {
-			auto filename = server()->database() / *resource;
+			auto filename = server()->videos_dir() / *resource;
 			filename.make_preferred();
 			open_file(filename);
 			session.log("   -> {}", as_ascii_view(filename.u8string()));

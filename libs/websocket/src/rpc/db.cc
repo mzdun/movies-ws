@@ -555,10 +555,10 @@ namespace movies::db::v1 {
 	}
 
 	MSG_HANDLER(GetVideoFile) {
-		auto resource = server()->get_video_path(req.key());
+		auto resource = server()->get_video_resource(req.key());
 		if (resource) {
 			auto const generic = resource->generic_u8string();
-			resp.set_uri(fmt::format("/{}", as_ascii_view(generic)));
+			resp.set_uri(fmt::format("/videos/{}", as_ascii_view(generic)));
 
 			auto const info = server()->get_video_info(req.key());
 			if (info.credits || info.end_of_watch || !info.markers.empty())

@@ -48,6 +48,43 @@ namespace movies {
 		return poster.small || poster.normal || poster.large;
 	}
 
+	void server_cfg::read(std::filesystem::path const& config_filename) {
+		auto& self = *this;
+		movies_config::read(
+		    config_filename,
+		    [&]([[maybe_unused]] auto& _, auto const& common,
+		        json::node const& node) -> bool {
+			    auto json_db = cast<json::string>(node, u8"db"s);
+			    auto json_watch_db = cast<json::string>(node, u8"watch-db"s);
+			    auto json_video_info_db =
+			        cast<json::string>(node, u8"video-info-db"s);
+			    auto json_prefix = cast<json::string>(node, u8"mount"s);
+			    auto json_plugins = cast<json::string>(node, u8"plugins"s);
+
+			    self.common_dir = common;
+			    self.plugins =
+			        json_plugins ? common / as_fs_view(*json_plugins) : common;
+
+			    auto db_dir = fs::weakly_canonical(
+			        json_db ? config_filename.parent_path() / *json_db
+			                : config_filename.parent_path());
+
+			    self.watch_db = fs::weakly_canonical(
+			        json_watch_db ? db_dir / *json_watch_db
+			                      : db_dir / u8"watch.sqlite"sv);
+			    self.video_info_db = fs::weakly_canonical(
+			        json_video_info_db ? db_dir / *json_video_info_db
+			                           : db_dir / u8"video-info.sqlite"sv);
+
+			    if (json_prefix)
+				    self.prefix.assign(movies::as_ascii_view(*json_prefix));
+			    if (self.prefix.empty() || self.prefix.front() != '/')
+				    self.prefix.insert(self.prefix.begin(), '/');
+			    if (self.prefix.back() == '/') self.prefix.pop_back();
+			    return true;
+		    });
+	}
+
 	reference reference::from(std::string const& key,
 	                          extended_info const& data,
 	                          std::string&& sort_hint,
@@ -184,10 +221,11 @@ namespace movies {
 		return false;
 	}
 
-	void server::load(std::filesystem::path const& database) {
-		database_ = database;
+	void server::load() {
 		load_async(false);
-		db_observer_.observe({shared_from_this(), this}, database);
+		std::error_code ec{};
+		db_observer_.observe({shared_from_this(), this},
+		                     configuration_.common_dir);
 	}
 
 	auto split_refs(std::vector<string_type> const& refs) {
@@ -357,13 +395,12 @@ namespace movies {
 		return u8key.substr(prev) == name;
 	}
 
-	std::string server::loader::load_async(
-	    std::filesystem::path const& database) {
+	std::string server::loader::load_async(server_cfg const& configuration) {
 		using namespace std::chrono;
 
 		auto const then = steady_clock::now();
-		plugins = plugin::load_plugins(database);
-		auto jsons = load_from(database / "db", database / "videos", false);
+		plugins = plugin::load_plugins(configuration.plugins);
+		auto jsons = configuration.load(false);
 		auto const loaded = steady_clock::now();
 		for (auto&& movie : jsons) {
 			if (!movie.info_file && !movie.video_file) continue;
@@ -387,10 +424,8 @@ namespace movies {
 				auto const published = binding_movie.dates.published;
 				auto const stream = binding_movie.dates.stream;
 				auto const poster = binding_movie.dates.poster;
-				auto const video =
-				    binding_movie.video_file >> file_ref_mtime >> fs2wall;
-				auto const json =
-				    binding_movie.info_file >> file_ref_mtime >> fs2wall;
+				auto const video = binding_movie.video_file >> file_ref_mtime;
+				auto const json = binding_movie.info_file >> file_ref_mtime;
 				return published || stream || video || poster || json;
 			}(movie);
 
@@ -592,12 +627,12 @@ namespace movies {
 
 	void server::load_async(bool notify) {
 		loader ldr{};
-		auto const database = [&] {
+		auto const config = [&] {
 			std::shared_lock guard{db_access_};
-			return database_;
+			return configuration_;
 		};
 
-		std::vector dbg{ldr.load_async(database()), std::string{}};
+		std::vector dbg{ldr.load_async(config()), std::string{}};
 		bool changed = false;
 
 		using namespace std::chrono;
@@ -700,7 +735,7 @@ namespace movies {
 		return it->second;
 	}
 
-	std::optional<std::filesystem::path> server::get_video_path(
+	std::optional<std::filesystem::path> server::get_video_resource(
 	    std::string_view id) const {
 		std::shared_lock guard{db_access_};
 		auto it = movies_.movies.find(id);
@@ -709,8 +744,9 @@ namespace movies {
 		if (!movie.video_file) return {};
 		auto const view = as_ascii_view(movie.video_file->id);
 		for (auto ext : {"mp4"sv, "mkv"sv}) {
-			auto const resource = fmt::format("videos/{}.{}", view, ext);
-			if (std::filesystem::exists(database_ / as_utf8_view(resource)))
+			auto const resource = fmt::format("{}.{}", view, ext);
+			if (std::filesystem::exists(configuration_.dirs.videos /
+			                            as_utf8_view(resource)))
 				return as_utf8_view(resource);
 		}
 		return {};

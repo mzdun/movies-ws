@@ -12,7 +12,7 @@ namespace movies {
 		proxy->attach(this);
 	}
 
-	bool service::init(unsigned short port, service_cfg const& cfg) {
+	bool service::init(unsigned short port, server_cfg const& cfg) {
 		auto const site = [] {
 			std::error_code ec{};
 
@@ -25,8 +25,9 @@ namespace movies {
 
 		ctx_.static_files({
 		    {cfg.prefix + "/"s, site},
-		    {cfg.prefix + "/videos"s, cfg.database / "videos"sv},
-		    {cfg.prefix + "/db"s, cfg.database / "db"sv},
+		    {cfg.prefix + "/videos"s, cfg.dirs.videos},
+		    {cfg.prefix + "/db/nfo"s, cfg.dirs.infos},
+		    {cfg.prefix + "/db/img"s, cfg.dirs.images},
 		});
 		ctx_.add_protocol(conn_);
 		logger().warn("SERVING FROM: {}",

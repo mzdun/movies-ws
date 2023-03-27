@@ -6,6 +6,7 @@
 #include <base/lngs.hh>
 #include <filters/filter.hh>
 #include <full_text/engine.hh>
+#include <movies/movie_info.hpp>
 #include <server/fs_observer.hh>
 #include <server/lngs.hh>
 #include <server/plugin.hh>
@@ -17,6 +18,14 @@
 #include <stats/watch_offset.hh>
 
 namespace movies {
+	struct server_cfg : movies_config {
+		std::string prefix;
+		std::filesystem::path common_dir;
+		std::filesystem::path plugins;
+		std::filesystem::path watch_db;
+		std::filesystem::path video_info_db;
+		void read(std::filesystem::path const& config_filename);
+	};
 	struct reference {
 		enum cover_size {
 			cover_normal = true,
@@ -26,8 +35,8 @@ namespace movies {
 		string_type title{};
 		std::optional<string_type> cover{};
 		bool has_video{false};
-		vector<string_type> tags;
-		vector<string_type> age_rating;
+		std::vector<string_type> tags;
+		std::vector<string_type> age_rating;
 		std::string sort_hint;
 
 		static reference from(std::string const&,
@@ -76,14 +85,13 @@ namespace movies {
 	class server : public std::enable_shared_from_this<server>,
 	               private observer_callback {
 	public:
-		explicit server(std::string const& title,
-		                std::filesystem::path& watch_db,
-		                std::filesystem::path& info_db)
-		    : title_{title}, watch_offsets_{watch_db}, video_info_{info_db} {}
-		void load(std::filesystem::path const& database);
-		std::string const& title() const noexcept { return title_; }
+		explicit server(server_cfg const& configuration)
+		    : configuration_{configuration}
+		    , watch_offsets_{configuration.watch_db}
+		    , video_info_{configuration.video_info_db} {}
+		void load();
 		extended_info find_movie_copy(std::string_view id) const;
-		std::optional<std::filesystem::path> get_video_path(
+		std::optional<std::filesystem::path> get_video_resource(
 		    std::string_view id) const;
 		std::vector<reference> get_episodes(
 		    std::vector<string_type> const& episodes,
@@ -106,8 +114,11 @@ namespace movies {
 		    const noexcept {
 			return current_filters_;
 		}
-		std::filesystem::path const& database() const noexcept {
-			return database_;
+		std::string_view title() const noexcept {
+			return as_ascii_view(configuration_.title);
+		}
+		fs::path const& videos_dir() const noexcept {
+			return configuration_.dirs.videos;
 		}
 		void set_on_db_update(
 		    std::function<void(bool,
@@ -125,7 +136,7 @@ namespace movies {
 			movie_db db{};
 			std::vector<description::filter> current_filters{};
 			std::map<string_type, std::string> ref2id{};
-			std::string load_async(std::filesystem::path const& database);
+			std::string load_async(server_cfg const& configuration);
 		};
 		void load_async(bool notify);
 		std::vector<std::string> filtered_locked(std::string const& search,
@@ -152,13 +163,12 @@ namespace movies {
 		                   std::source_location const&)>
 		    on_db_update_{};
 		movie_db movies_{};
-		std::filesystem::path database_{};
+		server_cfg configuration_{};
 		std::vector<description::filter> current_filters_{};
 		full_text::engine engine_{};
 		std::map<string_type, std::string> ref2id_{};
 		plugin::list plugins_{};
 		observer db_observer_{};
-		std::string title_{};
 		watch_db watch_offsets_;
 		video_info_db video_info_;
 	};

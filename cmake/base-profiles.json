@@ -36,7 +36,7 @@
             "generator": "Unix Makefiles"
         },
         {
-            "name": "vs22-base",
+            "name": "msbuild-base",
             "hidden": true,
             "generator": "Visual Studio 17 2022",
             "architecture": "x64",

@@ -28,44 +28,6 @@ struct per_session_dispatcher : movies::rpc::dispatcher {
 
 	void on_disconnect(ws::session&) override {}
 };
-
-movies::service_cfg load(fs::path const& json_filename) {
-	auto const data = io::contents(json_filename);
-	auto node = json::read_json({data.data(), data.size()});
-	auto json_prefix = cast<json::string>(node, u8"mount"s);
-	auto json_path = cast<json::string>(node, u8"path"s);
-	auto json_title = cast<json::string>(node, u8"title"s);
-	auto json_db = cast<json::string>(node, u8"db"s);
-	auto json_watch_db = cast<json::string>(node, u8"watch-db"s);
-	auto json_video_info_db = cast<json::string>(node, u8"video-info-db"s);
-
-	movies::service_cfg result{};
-	auto db_dir =
-	    fs::weakly_canonical(json_db ? json_filename.parent_path() / *json_db
-	                                 : json_filename.parent_path());
-
-	result.database = fs::weakly_canonical(
-	    json_path ? json_filename.parent_path() / *json_path
-	              : json_filename.parent_path());
-	result.watch_db = fs::weakly_canonical(
-	    json_watch_db ? db_dir / *json_watch_db : db_dir / u8"watch.sqlite"sv);
-	result.video_info_db = fs::weakly_canonical(
-	    json_video_info_db ? db_dir / *json_video_info_db
-	                       : db_dir / u8"video-info.sqlite"sv);
-
-	if (json_prefix) result.prefix.assign(movies::as_ascii_view(*json_prefix));
-	if (result.prefix.empty() || result.prefix.front() != '/')
-		result.prefix.insert(result.prefix.begin(), '/');
-	if (result.prefix.back() == '/') result.prefix.pop_back();
-	if (json_title)
-		result.title.assign(movies::as_ascii_view(*json_title));
-	else
-		result.title.assign(
-		    movies::as_ascii_view(json_filename.stem().u8string()));
-
-	return result;
-}
-
 int main(int argc, char** argv) try {
 	using movies::logger;
 
@@ -74,7 +36,7 @@ int main(int argc, char** argv) try {
 #endif
 
 	unsigned short port{9876};  // NOLINT(readability-magic-numbers)
-	movies::service_cfg cfg{};
+	movies::server_cfg cfg{};
 
 	{
 		std::filesystem::path cfg_path{};
@@ -94,14 +56,13 @@ int main(int argc, char** argv) try {
 		if (cfg_path.is_relative())
 			cfg_path = std::filesystem::weakly_canonical(cfg_path);
 
-		cfg = load(cfg_path);
+		cfg.read(cfg_path);
 	}
 
 	lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN, nullptr);
 	fmt::print("\nmovies-ws version {}\n\n", version::string_ui);
 
-	auto backend = std::make_shared<movies::server>(cfg.title, cfg.watch_db,
-	                                                cfg.video_info_db);
+	auto backend = std::make_shared<movies::server>(cfg);
 	per_session_dispatcher handler{};
 	DB_HANDLERS(X_CREATE_HANDLER);
 	UI_HANDLERS(X_CREATE_HANDLER);
@@ -136,12 +97,16 @@ int main(int argc, char** argv) try {
 		}
 	});
 
-	backend->load(cfg.database);
+	backend->load();
 	service.init(port, cfg);
 	{
-		auto const db = cfg.database.generic_u8string();
-		logger().info("title: {}", cfg.title);
-		logger().info("files: {}", movies::as_ascii_view(db));
+		auto const infos = cfg.dirs.infos.generic_u8string();
+		auto const images = cfg.dirs.images.generic_u8string();
+		auto const videos = cfg.dirs.videos.generic_u8string();
+		logger().info("title: {}", movies::as_ascii_view(cfg.title));
+		logger().info("infos: {}", movies::as_ascii_view(infos));
+		logger().info("images: {}", movies::as_ascii_view(images));
+		logger().info("videos: {}", movies::as_ascii_view(videos));
 		logger().info("http://localhost:{}{}/", service.port(), cfg.prefix);
 	}
 	service.run();

@@ -32,12 +32,12 @@
             ]
         },
         {
-            "name": "release-vs22",
-            "displayName": "Visual Studio 2022 (Release)",
-            "description": "Release build using Visual Studio 2022 generator",
+            "name": "release-msbuild",
+            "displayName": "Visual Studio (Release)",
+            "description": "Release build using Visual Studio generator",
             "inherits": [
                 "release",
-                "vs22-base"
+                "msbuild-base"
             ]
         },
         {
@@ -68,12 +68,12 @@
             ]
         },
         {
-            "name": "debug-vs22",
-            "displayName": "Visual Studio 2022 (Debug)",
-            "description": "Debug build using Visual Studio 2022 generator",
+            "name": "debug-msbuild",
+            "displayName": "Visual Studio (Debug)",
+            "description": "Debug build using Visual Studio generator",
             "inherits": [
                 "debug",
-                "vs22-base"
+                "msbuild-base"
             ]
         }
     ]
