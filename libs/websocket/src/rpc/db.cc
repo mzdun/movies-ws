@@ -77,8 +77,9 @@ namespace fmt {
 #define OPT_SET(FLD) \
 	if (src.FLD) dst.set_##FLD(*src.FLD)
 #define COPY(FLD, ...) v1::copy(src.FLD, *dst.mutable_##FLD(), ##__VA_ARGS__)
-#define TR_COPY(FLD) \
-	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), langs)) dst.clear_##FLD()
+#define TR_COPY(FLD, ...)                                                  \
+	if (!v1::tr_copy(src.FLD, *dst.mutable_##FLD(), langs, ##__VA_ARGS__)) \
+	dst.clear_##FLD()
 #define SET(FLD) dst.set_##FLD(src.FLD)
 
 namespace movies::db::v1 {
@@ -129,8 +130,11 @@ namespace movies::db::v1 {
 
 		bool tr_copy(translatable<image_url> const& src,
 		             std::string& dst,
-		             std::span<std::string const> langs) {
-			return tr_copy_impl(src, dst, langs);
+		             std::span<std::string const> langs,
+		             std::string const& title_orig_lang) {
+			if (tr_copy_impl(src, dst, langs)) return true;
+			std::string const alt[] = {title_orig_lang};
+			return tr_copy_impl(src, dst, alt);
 		}
 
 		template <typename Src, typename Dst, typename... Additional>
@@ -216,15 +220,19 @@ namespace movies::db::v1 {
 
 		bool tr_copy(translatable<poster_info> const& src,
 		             info::v1::PosterInfo& dst,
-		             std::span<std::string const> langs) {
-			return tr_copy_impl(src, dst, langs);
+		             std::span<std::string const> langs,
+		             std::string const& title_orig_lang) {
+			if (tr_copy_impl(src, dst, langs)) return true;
+			std::string const alt[] = {title_orig_lang};
+			return tr_copy_impl(src, dst, alt);
 		}
 
 		bool tr_copy(image_info const& src,
 		             info::v1::ImageInfo& dst,
-		             std::span<std::string const> langs) {
-			TR_COPY(highlight);
-			TR_COPY(poster);
+		             std::span<std::string const> langs,
+		             std::string const& title_orig_lang) {
+			TR_COPY(highlight, title_orig_lang);
+			TR_COPY(poster, title_orig_lang);
 			COPY(gallery);
 			return true;
 		}
@@ -233,6 +241,13 @@ namespace movies::db::v1 {
 		          info::v1::MovieInfo& dst,
 		          std::span<std::string const> langs,
 		          std::vector<std::string> const& local_people_refs) {
+			auto const title_orig_lang = [&]() -> std::string {
+				for (auto const& [lang, item] : src.title) {
+					if (item.original) return lang;
+				}
+				return {};
+			}();
+
 			TR_COPY(title);
 			COPY(crew, local_people_refs);
 			COPY(genres);
@@ -240,7 +255,7 @@ namespace movies::db::v1 {
 			copy(src.age, *dst.mutable_age_rating());
 			TR_COPY(tagline);
 			TR_COPY(summary);
-			TR_COPY(image);
+			TR_COPY(image, title_orig_lang);
 			OPT_SET(year);
 			OPT_SET(runtime);
 			OPT_SET(rating);

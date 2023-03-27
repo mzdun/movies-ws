@@ -91,7 +91,14 @@ namespace movies {
 	                          std::span<std::string const> langs,
 	                          cover_size size) {
 		auto const title = data.title.find(langs);
-		auto const poster = data.image.poster.find(langs);
+		auto const poster = [&]() {
+			auto it = data.image.poster.find(langs);
+			if (it != data.image.poster.end()) return it;
+			for (auto const& [lang, item] : data.title) {
+				if (item.original) return data.image.poster.find(lang);
+			}
+			return data.image.poster.end();
+		}();
 		using opt_str = std::optional<string_type>;
 		opt_str cover =
 		    poster != data.image.poster.end()
