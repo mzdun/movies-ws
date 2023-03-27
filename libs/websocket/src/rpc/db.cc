@@ -306,6 +306,7 @@ namespace movies::db::v1 {
 		          std::string const& key,
 		          std::vector<link> const& links,
 		          std::vector<reference> const& episodes,
+		          std::vector<reference> const& extras,
 		          watch_offset const& watch,
 		          info::v1::MovieInfo& dst,
 		          std::span<std::string const> langs) {
@@ -314,6 +315,7 @@ namespace movies::db::v1 {
 			v1::copy(src, dst, langs, src.local_people_refs);
 			v1::copy(links, *dst.mutable_links());
 			v1::copy(episodes, *dst.mutable_episodes());
+			v1::copy(extras, *dst.mutable_extras());
 
 			if (src.link_flags & extended_info::has_prev)
 				v1::copy(src.prev, *dst.mutable_prev(), langs);
@@ -321,7 +323,8 @@ namespace movies::db::v1 {
 			if (src.link_flags & extended_info::has_next)
 				v1::copy(src.next, *dst.mutable_next(), langs);
 
-			if (src.is_episode) v1::copy(src.series_id, *dst.mutable_parent());
+			if (src.is_episode || src.is_extra)
+				v1::copy(src.parent_id, *dst.mutable_parent());
 			if (watch) v1::copy(watch, *dst.mutable_last_watched());
 		}
 
@@ -543,10 +546,11 @@ namespace movies::db::v1 {
 
 		auto info = server()->find_movie_copy(req.key());
 		auto const episodes = server()->get_episodes(info.episodes, langs);
+		auto const extras = server()->get_episodes(info.extras, langs);
 		auto const watch = server()->get_watch_time(req.key());
 
 		copy(info, req.key(), server()->links_for(info, data.tr()), episodes,
-		     watch, *resp.mutable_info(), langs);
+		     extras, watch, *resp.mutable_info(), langs);
 		if (resp.info().title().has_local())
 			session.log("   -> \"{}\"", resp.info().title().local());
 		else

@@ -26,6 +26,8 @@ message MovieInfo {
 	optional MovieLink next = 18;
 	optional string parent = 19;
 	optional LastWatched last_watched = 20;
+
+	repeated movies.listing.v1.MovieReference extras = 21;
 };
 
 message MovieLink {

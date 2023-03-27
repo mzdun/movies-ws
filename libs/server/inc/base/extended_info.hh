@@ -25,8 +25,10 @@ namespace movies {
 
 	struct extended_info : loaded_movie {
 		bool is_episode{false};
+		bool is_extra{false};
 		bool episodes_have_videos{false};
-		std::string series_id{};
+		bool extras_have_videos{false};
+		std::string parent_id{};
 		std::optional<date::sys_seconds> arrival{};
 		translatable<title_category> title_cat{};
 		std::vector<std::string> local_people_refs{};

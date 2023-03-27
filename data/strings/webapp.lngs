@@ -16,6 +16,8 @@
 
 	[help("Section title for episode list"), id(-1)]
 	HEADER_EPISODES = "Episodes";
+	[help("Section title for a list of extra features"), id(-1)]
+	HEADER_EXTRAS = "Extra features";
 	[help("Section title for episode list"), id(-1)]
 	HEADER_GALLERY = "Gallery";
 

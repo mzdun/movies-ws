@@ -57,6 +57,11 @@ msgctxt "HEADER_EPISODES"
 msgid "Episodes"
 msgstr ""
 
+#. Section title for a list of extra features
+msgctxt "HEADER_EXTRAS"
+msgid "Extra features"
+msgstr ""
+
 #. Section title for episode list
 msgctxt "HEADER_GALLERY"
 msgid "Gallery"

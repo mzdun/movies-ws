@@ -448,7 +448,7 @@ namespace movies {
 		auto const summary_patching = steady_clock::now();
 
 		for (auto& [parent, movie] : db.movies) {
-			if (movie.episodes.empty()) continue;
+			if (movie.episodes.empty() && movie.extras.empty()) continue;
 
 			decltype(db.movies)::iterator prev_it{db.movies.end()};
 			for (auto const& ep : movie.episodes) {
@@ -458,7 +458,7 @@ namespace movies {
 				if (ep_iter == db.movies.end()) continue;
 				auto& episode = ep_iter->second;
 				episode.is_episode = true;
-				episode.series_id = parent;
+				episode.parent_id = parent;
 
 				if (prev_it != db.movies.end()) {
 					auto& prev_episode = prev_it->second;
@@ -483,6 +483,19 @@ namespace movies {
 				prev_it = ep_iter;
 
 				if (episode.video_file) movie.episodes_have_videos = true;
+			}
+
+			for (auto const& extra : movie.extras) {
+				auto id_iter = ref2id.find(extra);
+				if (id_iter == ref2id.end()) continue;
+				auto extra_iter = db.movies.find(id_iter->second);
+				if (extra_iter == db.movies.end()) continue;
+
+				auto& linked = extra_iter->second;
+				linked.is_extra = true;
+				linked.parent_id = parent;
+
+				if (linked.video_file) movie.extras_have_videos = true;
 			}
 		}
 
@@ -799,6 +812,7 @@ namespace movies {
 
 				auto const& data = it->second;
 				if (hide_episodes && data.is_episode) continue;
+				if (data.is_extra) continue;
 				if (filter::matches_all(filters, data))
 					keys.emplace_back(key.data(), key.size());
 			}
@@ -807,6 +821,7 @@ namespace movies {
 
 			for (auto const& [key, data] : movies_.movies) {
 				if (hide_episodes && data.is_episode) continue;
+				if (data.is_extra) continue;
 				if (filter::matches_all(filters, data)) keys.emplace_back(key);
 			}
 		}
