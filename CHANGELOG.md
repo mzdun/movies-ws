@@ -1,4 +1,12 @@
 
+## [0.12.0](https://github.com/mzdun/movies-ws/compare/v0.11.0...v0.12.0) (2023-04-10)
+
+### New Features
+
+- poster fallback to original title language ([ce9b3f6](https://github.com/mzdun/movies-ws/commit/ce9b3f67c3d8fcf77bb2560c11b0c523187d72a3))
+- expose extras to websocket ([9bcb7d6](https://github.com/mzdun/movies-ws/commit/9bcb7d6fcf75d2d334bfd4e94b50f388d0c72489))
+- align with changes in movies lib ([5438c33](https://github.com/mzdun/movies-ws/commit/5438c335b251d6a164670dc069738a178b499ff3))
+
 ## [0.11.0](https://github.com/mzdun/movies-ws/compare/v0.10.1...v0.11.0) (2023-01-22)
 
 ### New Features
